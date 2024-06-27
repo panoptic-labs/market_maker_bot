@@ -18,6 +18,22 @@
       "logoURI": "ipfs://QmXttGpZrECX5qCyXbBQiqgQNytVGeZW5Anewvh2jc4psg"
     },
     {
+      "name": "Token 0",
+      "address": "0xb8217e5aa68238364e60a1db1723d5eccb09f6aa",
+      "symbol": "t0",
+      "decimals": 18,
+      "chainId": 11155111,
+      "logoURI": "ipfs://QmXttGpZrECX5qCyXbBQiqgQNytVGeZW5Anewvh2jc4psg"
+    },
+    {
+      "name": "Token 1",
+      "address": "0x5822905ebbe01e76168fdaf604489c35cf10247d",
+      "symbol": "t1",
+      "decimals": 18,
+      "chainId": 11155111,
+      "logoURI": "ipfs://QmXttGpZrECX5qCyXbBQiqgQNytVGeZW5Anewvh2jc4psg"
+    },
+    {
       "chainId": 11155111,
       "address": "0xE41d2489571d322189246DaFA5ebDe1F4699F498",
       "name": "0x Protocol Token",
