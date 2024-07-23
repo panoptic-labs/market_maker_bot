@@ -1,0 +1,49 @@
+# allowedSlippage: how much the execution price is allowed to move unfavorably from the trade
+# execution price. It uses a rational number for precision.
+allowedSlippage: '1/100'
+
+# ttl: how long a trade is valid in seconds. After this time passes panoptic will not
+# perform the trade, but the gas will still be sent.
+ttl: 300
+
+# The maximum gas used to estimate gasCost for a Panoptic trade.
+gasLimitEstimate: 200000
+
+# Type of matching using the Panoptic SDK matching engine
+# Available options: 'FAST', 'BEST'
+# matchType: 'FAST'
+
+contractAddresses:
+  ethereum:
+    sepolia:
+
+        # Router Address????
+        routerAddress: '0x77dcbA7729358D9F43AE4C3EA4206AA01c3d0056' #Just copying SFPM address
+        ###################   
+        ###################   
+        # Uniswap addresses
+        ###################   
+        ###################   
+        #
+        # MultiCall2 Ethererum Sepolia
+        multiCallAddress: '0xD7F33bCdb21b359c8ee6F0251d30E94832baAd07'
+        # UniswapV3Factory Ethereum Sepolia
+        UniswapV3Factory: '0x0227628f3F023bb0B980b67D528571c95c6DaC1c'
+        # NonfungiblePositionManager Ethereum Sepolia
+        NonFungiblePositionManager: '0x1238536071E1c677A632429e3655c799b22cDA52'
+        #
+        ####################   
+        ####################   
+        # Panoptic addresses
+        ####################   
+        ####################   
+        #
+        # SemiFungiblePositionManager - manages Panoptic Uniswap LP positions
+        SemiFungiblePositionManager: '0x77dcbA7729358D9F43AE4C3EA4206AA01c3d0056'
+        # PanopticFactory - creates/manages new Panoptic Pools
+        PanopticFactory: '0x26387BF27Fb993Dc97C3366fb6AB4a56d163cF43'
+        # PanopticHelper - 
+        PanopticHelper: '0xd0dd31343e902edf4707461c7b81e1da9ff7969b'
+        # UniswapMigrator - 
+        UniswapMigrator: '0xb5cf92427ff8b388bb333c074ed4bf961683b282'
+        

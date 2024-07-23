@@ -1,0 +1,301 @@
+{
+    "address": "0x26387BF27Fb993Dc97C3366fb6AB4a56d163cF43",
+    "abi": [
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_WETH9",
+                    "type": "address"
+                },
+                {
+                    "internalType": "contract SemiFungiblePositionManager",
+                    "name": "_SFPM",
+                    "type": "address"
+                },
+                {
+                    "internalType": "contract IUniswapV3Factory",
+                    "name": "_univ3Factory",
+                    "type": "address"
+                },
+                {
+                    "internalType": "contract IDonorNFT",
+                    "name": "_donorNFT",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_poolReference",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_collateralReference",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
+            "inputs": [],
+            "name": "InvalidSalt",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "InvalidUniswapCallback",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "NotOwner",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "PoolAlreadyInitialized",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "TransferFailed",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "UniswapPoolNotInitialized",
+            "type": "error"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "oldOwner",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "newOwner",
+                    "type": "address"
+                }
+            ],
+            "name": "OwnershipTransferred",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "contract PanopticPool",
+                    "name": "poolAddress",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "contract IUniswapV3Pool",
+                    "name": "uniswapPool",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "contract CollateralTracker",
+                    "name": "collateralTracker0",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "contract CollateralTracker",
+                    "name": "collateralTracker1",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "amount0",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "amount1",
+                    "type": "uint256"
+                }
+            ],
+            "name": "PoolDeployed",
+            "type": "event"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "token0",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "token1",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint24",
+                    "name": "fee",
+                    "type": "uint24"
+                },
+                {
+                    "internalType": "bytes32",
+                    "name": "salt",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "deployNewPool",
+            "outputs": [
+                {
+                    "internalType": "contract PanopticPool",
+                    "name": "newPoolContract",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "contract IUniswapV3Pool",
+                    "name": "univ3pool",
+                    "type": "address"
+                }
+            ],
+            "name": "getPanopticPool",
+            "outputs": [
+                {
+                    "internalType": "contract PanopticPool",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_owner",
+                    "type": "address"
+                }
+            ],
+            "name": "initialize",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "salt",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "loops",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "minTargetRarity",
+                    "type": "uint256"
+                }
+            ],
+            "name": "minePoolAddress",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "bestSalt",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "highestRarity",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "bytes[]",
+                    "name": "data",
+                    "type": "bytes[]"
+                }
+            ],
+            "name": "multicall",
+            "outputs": [
+                {
+                    "internalType": "bytes[]",
+                    "name": "results",
+                    "type": "bytes[]"
+                }
+            ],
+            "stateMutability": "payable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "owner",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "newOwner",
+                    "type": "address"
+                }
+            ],
+            "name": "transferOwnership",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "amount0Owed",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amount1Owed",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "bytes",
+                    "name": "data",
+                    "type": "bytes"
+                }
+            ],
+            "name": "uniswapV3MintCallback",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+    ]
+}

@@ -132,6 +132,10 @@ configurations:
     configurationPath: carbon.yml
     schemaPath: carbon-schema.json
 
+  $namespace panoptic:
+    configurationPath: panoptic.yml
+    schemaPath: panoptic-schema.json
+
   $namespace balancer:
     configurationPath: balancer.yml
     schemaPath: cronos-connector-schema.json

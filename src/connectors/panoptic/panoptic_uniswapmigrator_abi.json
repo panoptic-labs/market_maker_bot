@@ -1,0 +1,49 @@
+{
+    "address": "0xB5Cf92427FF8B388bb333c074ED4bf961683B282",
+    "abi": [
+        {
+            "inputs": [
+                {
+                    "internalType": "contract INonfungiblePositionManager",
+                    "name": "_NFPM",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
+            "inputs": [],
+            "name": "UnauthorizedMigration",
+            "type": "error"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                },
+                {
+                    "internalType": "uint256[2][]",
+                    "name": "amountMins",
+                    "type": "uint256[2][]"
+                },
+                {
+                    "internalType": "contract CollateralTracker",
+                    "name": "ct0",
+                    "type": "address"
+                },
+                {
+                    "internalType": "contract CollateralTracker",
+                    "name": "ct1",
+                    "type": "address"
+                }
+            ],
+            "name": "migrate",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+    ]
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "allowedSlippage": {
+      "type": "string"
+    },
+    "gasLimitEstimate": {
+      "type": "integer"
+    },
+    "ttl": {
+      "type": "integer"
+    },
+    "contractAddresses": {
+      "type": "object",
+      "patternProperties": {
+        "[\\w-]+$": {
+          "type": "object",
+          "patternProperties": {
+            "^\\w+$": {
+              "type": "object",
+              "properties": {
+                "routerAddress": {
+                  "type": "string"
+                },
+                "multiCallAddress": {
+                  "type": "string"
+                },
+                "UniswapV3Factory": {
+                  "type": "string"
+                },
+                "NonFungiblePositionManager": {
+                  "type": "string"
+                },
+                "SemiFungiblePositionManager": {
+                  "type": "string"
+                },
+                "PanopticFactory": {
+                  "type": "string"
+                },
+                "PanopticHelper": {
+                  "type": "string"
+                },
+                "UniswapMigrator": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "routerAddress"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "allowedSlippage",
+    "gasLimitEstimate",
+    "ttl",
+    "contractAddresses"
+  ]
+}
