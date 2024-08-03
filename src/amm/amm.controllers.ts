@@ -45,6 +45,9 @@ import {
   estimateGas as panopticEstimateGas,
 } from '../connectors/panoptic/panoptic.controllers';
 import {
+  mintTokenizedPosition as panopticMint,
+} from '../connectors/panoptic/panoptic';
+import {
   price as refPrice,
   trade as refTrade,
   estimateGas as refEstimateGas,
@@ -126,6 +129,17 @@ export async function price(req: PriceRequest): Promise<PriceResponse> {
   } else {
     return refPrice(<Nearish>chain, connector as RefAMMish, req);
   }
+}
+
+export async function mint(req: any): Promise<TradeResponse> {
+  // const chain = await getInitializedChain<Panoptic>(req.chain, req.network);
+  // const connector: Uniswapish = 
+  //   await getConnector<Panoptic>(
+  //     req.chain, 
+  //     req.network, 
+  //     req.connector
+  //   ); 
+  return panopticMint(req.address, req.tokenId, req.positionSize, req.tickLimitHigh, req.tickLimitLow, req.panopticPool); 
 }
 
 export async function trade(req: TradeRequest): Promise<TradeResponse> {

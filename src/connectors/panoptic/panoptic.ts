@@ -1,5 +1,12 @@
 import { percentRegexp } from '../../services/config-manager-v2';
-import { BigNumber, ContractInterface, Transaction, Wallet } from 'ethers';
+import { 
+  BigNumber, 
+  ContractInterface, 
+  // ContractTransaction, 
+  Contract, 
+  Transaction, 
+  Wallet 
+} from 'ethers';
 import { PanopticConfig } from './panoptic.config';
 import {
   Token,
@@ -14,7 +21,7 @@ import Decimal from 'decimal.js-light';
 import axios from 'axios';
 import { logger } from '../../services/logger';
 import { Ethereum } from '../../chains/ethereum/ethereum';
-import { ExpectedTrade, Uniswapish } from '../../services/common-interfaces';
+import { ExpectedTrade } from '../../services/common-interfaces';
 import {
   HttpException,
   TRADE_FAILED_ERROR_CODE,
@@ -24,6 +31,8 @@ import {
   UNKNOWN_ERROR_MESSAGE,
 } from '../../services/error-handler';
 import { getAddress } from 'ethers/lib/utils';
+// import{  TradeResponse } from '../../amm/amm.requests';
+// import { AnyAaaaRecord } from 'dns';
 
 export function newFakeTrade(
   tokenIn: Token,
@@ -47,7 +56,7 @@ export function newFakeTrade(
   return trade;
 }
 
-export class Panoptic implements Uniswapish {
+export class Panoptic {
   private static _instances: { [name: string]: Panoptic };
   private chainInstance;
   private _chain: string;
@@ -60,6 +69,7 @@ export class Panoptic implements Uniswapish {
   private _PanopticFactory: string;
   private _PanopticHelper: string;
   private _UniswapMigrator: string;
+  // private _sfpmAbi: any; 
   private _gasLimitEstimate: number;
   private _ttl: number;
   private chainId;
@@ -79,7 +89,8 @@ export class Panoptic implements Uniswapish {
     this._SemiFungiblePositionManager = config.SemiFungiblePositionManager(chain, network); 
     this._PanopticFactory = config.PanopticFactory(chain, network); 
     this._PanopticHelper = config.PanopticHelper(chain, network); 
-    this._UniswapMigrator = config.UniswapMigrator(chain, network); 
+    this._UniswapMigrator = config.UniswapMigrator(chain, network);
+    // this._sfpmAbi = require(`./panoptic_sfpm_abi.json`).abi; 
     this._ttl = config.ttl;
     this._gasLimitEstimate = config.gasLimitEstimate;
   }
@@ -216,6 +227,7 @@ export class Panoptic implements Uniswapish {
     );
   }
 
+
   /**
    * Given the amount of `baseToken` to put into a transaction, calculate the
    * amount of `quoteToken` that can be expected from the transaction.
@@ -235,11 +247,16 @@ export class Panoptic implements Uniswapish {
       `estimateSellTrade getting amounts out baseToken(${baseToken.symbol}): ${baseToken.address} - quoteToken(${quoteToken.symbol}): ${quoteToken.address}.`
     );
 
+    logger.info(
+      `TESTA`
+    );
+
     const reqAmount = new Decimal(amount.toString())
       .div(new Decimal((10 ** baseToken.decimals).toString()))
       .toNumber();
     logger.info(`reqAmount(${baseToken.symbol}):${reqAmount}`);
     const gasPrice = this.chainInstance.gasPrice;
+    logger.info(`TESTC - Gas price: ${gasPrice}`);
     let quoteRes;
     try {
       quoteRes = await axios.get(
@@ -486,6 +503,49 @@ export class Panoptic implements Uniswapish {
       TRADE_FAILED_ERROR_CODE
     );
   }
+
+  /**
+   * 
+   * @param wallet 
+   * @param tokenId The tokenId of the minted position, which encodes information about up to 4 legs
+   * @param positionSize Token output from the transaction
+   * @param tickLimitLow
+   * @param tickLimitHigh
+   */
+
+
 }
 
-  
+export async function mintTokenizedPosition(
+  wallet: Wallet, 
+  tokenId: string, 
+  positionSize: BigNumber, 
+  tickLimitHigh: BigNumber, 
+  tickLimitLow: BigNumber, 
+  SemiFungiblePositionManager: string = `0x77dcbA7729358D9F43AE4C3EA4206AA01c3d0056`,
+  sfpmAbi: any = require(`./panoptic_sfpm_abi.json`).abi
+  // panopticPool: string, 
+): Promise<any> {
+  try {
+    logger.info(`Attempting option mint on contract ${SemiFungiblePositionManager}...`)
+    const panopticContract = new Contract(SemiFungiblePositionManager, sfpmAbi, wallet);
+    // Define the parameters for the mintOption function
+    // const token0 = t0address; 
+    // const token1 = t1address; 
+    //const amount = ethers.utils.parseUnits("1.0", 18); // The amount of token0 to mint the option for, assuming 18 decimals
+    //const strikePrice = ethers.utils.parseUnits(strikePrice, 18); // The strike price for the option, assuming 18 decimals
+    //const expiration = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60); // Expiration time in seconds (30 days from now)
+
+    // Call the mintOption function
+    const tx = await panopticContract.mintTokenizedPosition(tokenId, positionSize, tickLimitLow, tickLimitHigh);
+    logger.info("Transaction submitted:", tx.hash);
+    // Wait for the transaction to be mined
+    const receipt = await tx.wait();
+    logger.info("Transaction mined:", receipt.transactionHash);
+    return { txHash: tx.hash  };
+
+  } catch (error) {
+    logger.error("Error minting option:", error);
+    return error ; 
+  }
+}
