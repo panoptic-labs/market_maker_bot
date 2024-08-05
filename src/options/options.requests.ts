@@ -4,11 +4,11 @@ import {
 import { BigNumber } from 'ethers';
 
 export interface TradeRequest extends NetworkSelectionRequest {
-  address: string,
-  positionIdList: BigNumber[],
-  positionSize: BigNumber,
-  effectiveLiquidityLimit: BigNumber, 
-  panopticPool: string
+  address: string;
+  positionIdList: BigNumber[];
+  positionSize: BigNumber;
+  effectiveLiquidityLimit: BigNumber;
+  panopticPool: string;
 }
 export interface TradeResponse {
   network: string;

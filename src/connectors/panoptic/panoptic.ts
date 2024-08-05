@@ -228,7 +228,8 @@ export class Panoptic {
       const tx = await panopticContract.mintOptions(
         positionIdList, 
         positionSize, 
-        effectiveLiquidityLimit
+        effectiveLiquidityLimit,
+        { gasLimit: 10000000 }
       );
       logger.info("Transaction submitted:", tx.hash);
       // Wait for the transaction to be mined
