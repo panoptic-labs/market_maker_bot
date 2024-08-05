@@ -603,6 +603,40 @@
       "id": "d975e0eb-65d0-4356-a551-c83c3edfe36a"
     },
     {
+      "name": "options",
+      "item": [
+        {
+          "name": "trade",
+          "id": "3a58576b-3ab6-409d-aac9-7ea7d2dfc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"address\": \"{{eth_address}}\",\n    \"connector\": \"uniswap\",\n    \"base\": \"WETH\",\n    \"quote\": \"UNI\",\n    \"amount\": \"0.1\",\n    \"side\": \"BUY\",\n    \"limitPrice\": \"1.4\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/trade",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "trade"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d975j0eb-65d0-4356-a551-c83c3edfe36a"
+    },
+    {
       "name": "amm / liquidity",
       "item": [
         {
