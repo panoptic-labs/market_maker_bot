@@ -137,10 +137,9 @@ export async function trade(
 
   const tx = await panopticish.executeTrade(
     wallet,
-    req.tokenId,
-    req.positionSize,
-    req.tickLimitHigh,
-    req.tickLimitLow,
+    req.positionIdList,
+    BigNumber.from(req.positionSize),
+    req.effectiveLiquidityLimit,
     req.panopticPool,
     panopticPoolAbi.abi
     // require('./panoptic_panopticpool_abi.json').abi

@@ -50,8 +50,8 @@ export const invalidLimitPriceError: string =
 export const invalidLPPriceError: string =
   'One of the LP prices may be null or a string of a float or integer number.';
 
-export const invalidTokenIdError: string =
-  'If tokenId is included it must be a non-negative integer.';
+export const invalidPositionIdListError: string =
+  'The positionIdList must be a list of uint256.';
 
 export const invalidTimeError: string =
   'Period or interval has to be a non-negative integer.';
@@ -66,13 +66,10 @@ export const invalidPoolIdError: string =
   'PoolId(if supplied) must be a string.';
 
 export const invalidPositionSizeError: string =
-  'The positionSize must be a positive number.';
+  'The positionSize must be a positive number passed as a string.';
 
-export const invalidTickLimitHighError: string =
-  'The tickLimitHigh must be a positive number.';
-
-export const invalidTickLimitLowError: string =
-  'The tickLimitLow must be a positive number.';
+export const invalidEffectiveLiquidityLimitError: string =
+  'The effectiveLiquidityLimit must be a positive number.';
 
 export const invalidPanopticPoolError: string =
   'The panopticPool must be a string.';
@@ -172,10 +169,10 @@ export const validateLimitPrice: Validator = mkValidator(
   true
 );
 
-export const validateTokenId: Validator = mkValidator(
-  'tokenId',
-  invalidTokenIdError,
-  (val) => typeof val === 'string' && val.length !== 0,
+export const validatePositionIdList: Validator = mkValidator(
+  'positionIdList',
+  invalidPositionIdListError,
+  (val) => val.length !== 0,
   true
 );
 
@@ -219,22 +216,13 @@ export const validatePoolId: Validator = mkValidator(
 export const validatePositionSize: Validator = mkValidator(
   'positionSize',
   invalidPositionSizeError,
-  (val) =>
-    (typeof val === 'number' && val >= 0 && Number.isFinite(val)),
+  (val) => typeof val === 'string' && val.length !== 0,
   true
 );
 
-export const validateTickLimitHigh: Validator = mkValidator(
-  'tickLimitHigh',
-  invalidTickLimitHighError,
-  (val) =>
-    (typeof val === 'number' && val >= 0 && Number.isFinite(val)),
-  true
-);
-
-export const validateTickLimitLow: Validator = mkValidator(
-  'tickLimitLow',
-  invalidTickLimitLowError,
+export const validateEffectiveLiquidityLimit: Validator = mkValidator(
+  'effectiveLiquidityLimit',
+  invalidEffectiveLiquidityLimitError,
   (val) =>
     (typeof val === 'number' && val >= 0 && Number.isFinite(val)),
   true
@@ -253,10 +241,9 @@ export const validateTradeRequest: RequestValidator = mkRequestValidator([
   validateChain,
   validateNetwork,
   validateAddress,
-  validateTokenId,
+  validatePositionIdList,
   validatePositionSize,
-  validateTickLimitHigh,
-  validateTickLimitLow,
+  validateEffectiveLiquidityLimit,
   validatePanopticPool
 ]);
 

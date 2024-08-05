@@ -1,7 +1,7 @@
 import asyncio
 
 from hummingbot.client.settings import GatewayConnectionSetting
-from hummingbot.core.event.events import TradeType
+# from hummingbot.core.event.events import TradeType
 from hummingbot.core.gateway.gateway_http_client import GatewayHttpClient
 from hummingbot.core.utils.async_utils import safe_ensure_future
 from hummingbot.strategy.script_strategy_base import Decimal, ScriptStrategyBase
@@ -14,11 +14,10 @@ class TradePanoptions(ScriptStrategyBase):
     # swap params
     connector_chain_network = "panoptic_ethereum_sepolia"
     trading_pair = {"t0-t1"}
-    tokenId = "0x3cff3cc4c0403cff3db480803cff3cc460c03cff3db4204000ac3730726f75c"
-    positionSize = 123456789000000000000000000
+    positionIdList = ["0x3cff3cc4c0403cff3db480803cff3cc460c03cff3db4204000ac3730726f75c"]
+    positionSize = "123456789000000000000000000"
     panopticPool = "0xc34C41289e6c433723542BB1Eba79c6919504EDD"
-    tickLimitHigh = 0
-    tickLimitLow= 0 
+    effectiveLiquidityLimit = 0
     markets = {}
     on_going_task = False
 
@@ -43,26 +42,25 @@ class TradePanoptions(ScriptStrategyBase):
         address = wallet[0]['wallet_address']
         self.logger().info(f"Trading options using wallet address: {address}")
         await self.get_balance(chain, network, address, base, quote)
-
+        self.logger().info(f"Proceeding to submit trade...")
         # execute swap
-        self.logger().info(f"POST /options/mint [ connector: {connector}, base: {base}, quote: {quote}, amount (i.e. position size): {self.positionSize}, tokenId (i.e. position): {self.tokenId}]")
+        self.logger().info(f"POST /options/trade [ connector: {connector}, base: {base}, quote: {quote}, amount (i.e. position size): {self.positionSize}, tokenId (i.e. position): {self.positionIdList}]")
         request_payload = {
             "chain": chain,
             "network": network,
             "connector": connector,
             "address": address,
-            "tokenId": self.tokenId,
+            "positionIdList": self.positionIdList,
             "positionSize": self.positionSize,
-            "tickLimitHigh": self.tickLimitHigh, 
-            "tickLimitLow": self.tickLimitLow, 
+            "effectiveLiquidityLimit": self.effectiveLiquidityLimit, 
             "panopticPool": self.panopticPool
         } 
     
         tradeData = await GatewayHttpClient.get_instance().api_request(
-            "post",
-            "options/mint",
-            request_payload,
-            fail_silently=fail_silently,
+            method="post",
+            path_url="options/trade",
+            params=request_payload,
+            fail_silently=False
         )
 
         self.logger().info(f"api_request submitted... txHash: {tradeData['txHash']}")

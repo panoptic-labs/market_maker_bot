@@ -208,10 +208,9 @@ export class Panoptic {
 
   async executeTrade(
     wallet: Wallet,
-    tokenId: string,
+    positionIdList: BigNumber[],
     positionSize: BigNumber,
-    tickLimitHigh: BigNumber,
-    tickLimitLow: BigNumber,
+    effectiveLiquidityLimit: BigNumber,
     panopticPool: string,
     panopticPoolAbi: any = require('./panoptic_panopticpool_abi.json').abi
   ): Promise<any> {
@@ -227,11 +226,9 @@ export class Panoptic {
 
       // Call the mintOption function
       const tx = await panopticContract.mintOptions(
-        tokenId, 
+        positionIdList, 
         positionSize, 
-        0.0, 
-        tickLimitLow, 
-        tickLimitHigh
+        effectiveLiquidityLimit
       );
       logger.info("Transaction submitted:", tx.hash);
       // Wait for the transaction to be mined

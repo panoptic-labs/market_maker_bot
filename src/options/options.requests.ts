@@ -5,10 +5,9 @@ import { BigNumber } from 'ethers';
 
 export interface TradeRequest extends NetworkSelectionRequest {
   address: string,
-  tokenId: string,
+  positionIdList: BigNumber[],
   positionSize: BigNumber,
-  tickLimitHigh: BigNumber, 
-  tickLimitLow: BigNumber, 
+  effectiveLiquidityLimit: BigNumber, 
   panopticPool: string
 }
 export interface TradeResponse {
