@@ -160,7 +160,8 @@ export type ConnectorUnion =
   | XRPLCLOB
   | Curve
   | KujiraCLOB
-  | QuipuSwap;
+  | QuipuSwap
+  | Panoptic;
 
 export type Connector<T> = T extends Uniswapish
   ? Uniswapish
@@ -182,7 +183,9 @@ export type Connector<T> = T extends Uniswapish
                   ? KujiraCLOB
                   : T extends QuipuSwap
                     ? QuipuSwap
-                    : never;
+                    : T extends Panoptic
+                      ? Panoptic
+                        : never;  
 
 export async function getConnector<T>(
   chain: string,

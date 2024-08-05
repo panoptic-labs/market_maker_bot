@@ -187,7 +187,8 @@ export namespace ConnectorsRoutes {
           },
           {
             name: 'panoptic',
-            trading_type: PanopticConfig.config.tradingTypes,
+            // trading_type: PanopticConfig.config.tradingTypes,
+            trading_type: ['Options'],
             chain_type: PanopticConfig.config.chainType,
             available_networks: PanopticConfig.config.availableNetworks,
           },

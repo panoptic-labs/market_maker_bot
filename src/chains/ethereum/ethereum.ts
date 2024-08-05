@@ -204,7 +204,7 @@ export class Ethereum extends EthereumBase implements Ethereumish {
         this._chain,
       ).carbonControllerAddress;
     } else if (reqSpender === 'panoptic') {
-      spender = PanopticConfig.config.routerAddress(
+      spender = PanopticConfig.config.SemiFungiblePositionManager(
         'ethereum',
         this._chain,
       );
