@@ -10,16 +10,16 @@ import {
 import {
   validateChain,
   validateNetwork,
-  validateNonce,
-  validateMaxFeePerGas,
-  validateMaxPriorityFeePerGas,
+  // validateNonce,
+  // validateMaxFeePerGas,
+  // validateMaxPriorityFeePerGas,
   isAddress as isEthereumAddress,
   invalidAddressError,
 } from '../chains/ethereum/ethereum.validators';
 
-import {
-  isValidCosmosAddress
-} from '../chains/cosmos/cosmos.validators';
+// import {
+//   isValidCosmosAddress
+// } from '../chains/cosmos/cosmos.validators';
 
 import { FeeAmount } from '@uniswap/v3-sdk';
 
@@ -65,6 +65,18 @@ export const invalidAllowedSlippageError: string =
 export const invalidPoolIdError: string =
   'PoolId(if supplied) must be a string.';
 
+export const invalidPositionSizeError: string =
+  'The positionSize must be a positive number.';
+
+export const invalidTickLimitHighError: string =
+  'The tickLimitHigh must be a positive number.';
+
+export const invalidTickLimitLowError: string =
+  'The tickLimitLow must be a positive number.';
+
+export const invalidPanopticPoolError: string =
+  'The panopticPool must be a string.';
+
 export const validateConnector: Validator = mkValidator(
   'connector',
   invalidConnectorError,
@@ -75,7 +87,7 @@ export const validateConnector: Validator = mkValidator(
 export const validateAddress: Validator = mkValidator(
   'address',
   invalidAddressError,
-  (val) => typeof val === 'string' && (isEthereumAddress(val) || isValidCosmosAddress(val))
+  (val) => typeof val === 'string' && (isEthereumAddress(val))
 );
 
 export const validateQuote: Validator = mkValidator(
@@ -136,7 +148,7 @@ export const validateFee: Validator = mkValidator(
   'fee',
   invalidFeeTier,
   (val) =>
-  typeof val === 'string' && Object.keys(FeeAmount).includes(val.toUpperCase())
+    typeof val === 'string' && Object.keys(FeeAmount).includes(val.toUpperCase())
 );
 
 export const validateLowerPrice: Validator = mkValidator(
@@ -163,7 +175,7 @@ export const validateLimitPrice: Validator = mkValidator(
 export const validateTokenId: Validator = mkValidator(
   'tokenId',
   invalidTokenIdError,
-  (val) => typeof val === 'number' && val >= 0 && Number.isInteger(val),
+  (val) => typeof val === 'string' && val.length !== 0,
   true
 );
 
@@ -204,159 +216,47 @@ export const validatePoolId: Validator = mkValidator(
   true
 );
 
-export const validatePriceRequest: RequestValidator = mkRequestValidator([
-  validateConnector,
-  validateChain,
-  validateNetwork,
-  validateQuote,
-  validateBase,
-  validateAmount,
-  validateSide,
-  validateAllowedSlippage,
-  validatePoolId,
-]);
+export const validatePositionSize: Validator = mkValidator(
+  'positionSize',
+  invalidPositionSizeError,
+  (val) =>
+    (typeof val === 'number' && val >= 0 && Number.isFinite(val)),
+  true
+);
+
+export const validateTickLimitHigh: Validator = mkValidator(
+  'tickLimitHigh',
+  invalidTickLimitHighError,
+  (val) =>
+    (typeof val === 'number' && val >= 0 && Number.isFinite(val)),
+  true
+);
+
+export const validateTickLimitLow: Validator = mkValidator(
+  'tickLimitLow',
+  invalidTickLimitLowError,
+  (val) =>
+    (typeof val === 'number' && val >= 0 && Number.isFinite(val)),
+  true
+);
+
+export const validatePanopticPool: Validator = mkValidator(
+  'panopticPool',
+  invalidPanopticPoolError,
+  (val) => typeof val === 'string' && val.length !== 0,
+  true
+);
+
 
 export const validateTradeRequest: RequestValidator = mkRequestValidator([
   validateConnector,
   validateChain,
   validateNetwork,
-  validateQuote,
-  validateBase,
-  validateAmount,
-  validateSide,
-  validateLimitPrice,
-  validateNonce,
-  validateMaxFeePerGas,
-  validateMaxPriorityFeePerGas,
-  validateAllowedSlippage,
-  validatePoolId,
-]);
-
-export const validatePerpPositionRequest: RequestValidator = mkRequestValidator(
-  [
-    validateConnector,
-    validateChain,
-    validateNetwork,
-    validateQuote,
-    validateBase,
-    validateAddress,
-  ]
-);
-
-export const validatePerpBalanceRequest: RequestValidator = mkRequestValidator([
-  validateConnector,
-  validateChain,
-  validateNetwork,
-  validateAddress,
-]);
-
-export const validatePerpMarketStatusRequest: RequestValidator =
-  mkRequestValidator([
-    validateConnector,
-    validateChain,
-    validateNetwork,
-    validateQuote,
-    validateBase,
-  ]);
-
-export const validatePerpPairsRequest: RequestValidator = mkRequestValidator([
-  validateConnector,
-  validateChain,
-  validateNetwork,
-]);
-
-export const validatePerpOpenTradeRequest: RequestValidator =
-  mkRequestValidator([
-    validateConnector,
-    validateChain,
-    validateNetwork,
-    validateQuote,
-    validateBase,
-    validateAmount,
-    validateAddress,
-    validatePerpSide,
-    validateNonce,
-    validateAllowedSlippage,
-  ]);
-
-export const validatePerpCloseTradeRequest: RequestValidator =
-  mkRequestValidator([
-    validateConnector,
-    validateChain,
-    validateNetwork,
-    validateQuote,
-    validateBase,
-    validateAddress,
-    validateNonce,
-    validateAllowedSlippage,
-  ]);
-
-export const validateEstimateGasRequest: RequestValidator = mkRequestValidator([
-  validateConnector,
-  validateChain,
-  validateNetwork,
-]);
-
-export const validateAddLiquidityRequest: RequestValidator = mkRequestValidator(
-  [
-    validateConnector,
-    validateChain,
-    validateNetwork,
-    validateToken0,
-    validateToken1,
-    validateAmount0,
-    validateAmount1,
-    validateAddress,
-    validateFee,
-    validateUpperPrice,
-    validateLowerPrice,
-    validateTokenId,
-    validateNonce,
-    validateMaxFeePerGas,
-    validateMaxPriorityFeePerGas,
-    validatePoolId,
-  ]
-);
-
-export const validateRemoveLiquidityRequest: RequestValidator =
-  mkRequestValidator([
-    validateConnector,
-    validateChain,
-    validateNetwork,
-    validateAddress,
-    validateTokenId,
-    validateDecreasePercent,
-    validateNonce,
-    validateMaxFeePerGas,
-    validateMaxPriorityFeePerGas,
-  ]);
-
-export const validateCollectFeeRequest: RequestValidator = mkRequestValidator([
-  validateConnector,
-  validateChain,
-  validateNetwork,
   validateAddress,
   validateTokenId,
-  validateNonce,
-  validateMaxFeePerGas,
-  validateMaxPriorityFeePerGas,
+  validatePositionSize,
+  validateTickLimitHigh,
+  validateTickLimitLow,
+  validatePanopticPool
 ]);
 
-export const validatePositionRequest: RequestValidator = mkRequestValidator([
-  validateConnector,
-  validateChain,
-  validateNetwork,
-  validateTokenId,
-]);
-
-export const validatePoolPriceRequest: RequestValidator = mkRequestValidator([
-  validateConnector,
-  validateChain,
-  validateNetwork,
-  validateToken0,
-  validateToken1,
-  validateFee,
-  validateInterval,
-  validatePeriod,
-  validatePoolId,
-]);

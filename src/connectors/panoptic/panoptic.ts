@@ -213,7 +213,7 @@ export class Panoptic {
     tickLimitHigh: BigNumber,
     tickLimitLow: BigNumber,
     panopticPool: string,
-    panopticPoolAbi: any = require(`./panoptic_panopticpool_abi.json`)
+    panopticPoolAbi: any = require('./panoptic_panopticpool_abi.json').abi
   ): Promise<any> {
     try {
       logger.info(`Attempting option trade on contract ${panopticPool}...`)

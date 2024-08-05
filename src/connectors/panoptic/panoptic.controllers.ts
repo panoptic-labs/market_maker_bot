@@ -28,6 +28,7 @@ import {
   // TradeResponse,
 } from '../../options/options.requests';
 import { Panoptic } from '../panoptic/panoptic';
+import panopticPoolAbi from './panoptic_panopticpool_abi.json';
 
 export interface TradeInfo {
   baseToken: Tokenish;
@@ -141,7 +142,8 @@ export async function trade(
     req.tickLimitHigh,
     req.tickLimitLow,
     req.panopticPool,
-    require(`./panoptic_panopticpool_abi.json`)
+    panopticPoolAbi.abi
+    // require('./panoptic_panopticpool_abi.json').abi
   );
 
   if (tx.hash) {
