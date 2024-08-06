@@ -14,7 +14,13 @@ class TradePanoptions(ScriptStrategyBase):
     # swap params
     connector_chain_network = "panoptic_ethereum_sepolia"
     trading_pair = {"t0-t1"}
-    positionIdList = ["0x3cff3cc4c0403cff3db480803cff3cc460c03cff3db4204000ac3730726f75c"]
+    positionIdList = [
+        "77322973700535398579242074044252",
+        "77322919308318248886668502693724",
+        "77322919313040615369538147907420",
+        "77323000906088706391268150146908", 
+        "0x3cff3cc4c0403cff3db480803cff3cc460c03cff3db4204000ac3730726f75c"
+    ]
     positionSize = "123456789000000000000000000"
     panopticPool = "0xc34C41289e6c433723542BB1Eba79c6919504EDD"
     effectiveLiquidityLimit = 0
