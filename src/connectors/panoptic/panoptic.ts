@@ -229,6 +229,8 @@ export class Panoptic {
         positionIdList, 
         positionSize, 
         effectiveLiquidityLimit,
+        -887272, 
+        887272,
         { gasLimit: 10000000 }
       );
       logger.info("Transaction submitted:", tx.hash);
