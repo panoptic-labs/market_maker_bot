@@ -15,6 +15,7 @@ export namespace PanopticConfig {
     PanopticHelper: (chain: string, network: string) => string;
     UniswapMigrator: (chain: string, network: string) => string;
     PanopticPool: (chain: string, network: string) => string;
+    tradingTypes: Array<string>;
     chainType: string;
     availableNetworks: Array<AvailableNetworks>;
   }
@@ -99,7 +100,7 @@ export namespace PanopticConfig {
         network +
         '.PanopticPool'
       ),
-    // tradingTypes: ['Options'],
+    tradingTypes: ['AMM'],
     chainType: 'EVM',
     availableNetworks: [
       { chain: 'ethereum', networks: ['sepolia'] },
