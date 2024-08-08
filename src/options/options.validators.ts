@@ -22,6 +22,7 @@ import {
 // } from '../chains/cosmos/cosmos.validators';
 
 import { FeeAmount } from '@uniswap/v3-sdk';
+// import { validateTokenId } from '../amm/amm.validators';
 
 export const invalidConnectorError: string =
   'The connector param is not a string.';
@@ -71,8 +72,17 @@ export const invalidPositionSizeError: string =
 export const invalidEffectiveLiquidityLimitError: string =
   'The effectiveLiquidityLimit must be a positive number.';
 
-export const invalidPanopticPoolError: string =
-  'The panopticPool must be a string.';
+export const invalidTickLimitLowError: string =
+  'The tickLimitLow must be a number between -887272 and 0.';
+
+export const invalidTickLimitHighError: string =
+  'The tickLimitHigh must be a number between 0 and 887272.';
+
+export const invalidNewPositionIdListError: string =
+  'The newPositionIdList must be a list of BigNumbers.';
+
+  export const invalidBurnTokenIdError: string =
+  'The burnTokenId must be a BigNumber.';
 
 export const validateConnector: Validator = mkValidator(
   'connector',
@@ -228,15 +238,37 @@ export const validateEffectiveLiquidityLimit: Validator = mkValidator(
   true
 );
 
-export const validatePanopticPool: Validator = mkValidator(
-  'panopticPool',
-  invalidPanopticPoolError,
-  (val) => typeof val === 'string' && val.length !== 0,
+export const validateTickLimitLow: Validator = mkValidator(
+  'tickLimitLow',
+  invalidTickLimitLowError,
+  (val) =>
+    (typeof val === 'number' && val <= 0 && val >= -887272),
   true
 );
 
+export const validateTickLimitHigh: Validator = mkValidator(
+  'tickLimitHigh',
+  invalidTickLimitHighError,
+  (val) =>
+    (typeof val === 'number' && val >= 0 && val <= 887272),
+  true
+);
 
-export const validateTradeRequest: RequestValidator = mkRequestValidator([
+export const validateNewPositionIdList: Validator = mkValidator(
+  'newPositionIdList',
+  invalidNewPositionIdListError,
+  (val) => val.length !== 0,
+  true
+);
+
+export const validateBurnTokenId: Validator = mkValidator(
+  'burnTokenId',
+  invalidBurnTokenIdError,
+  (val) => typeof val === 'string'
+);
+
+
+export const validateMintRequest: RequestValidator = mkRequestValidator([
   validateConnector,
   validateChain,
   validateNetwork,
@@ -244,6 +276,18 @@ export const validateTradeRequest: RequestValidator = mkRequestValidator([
   validatePositionIdList,
   validatePositionSize,
   validateEffectiveLiquidityLimit,
-  validatePanopticPool
+  validateTickLimitLow,
+  validateTickLimitHigh
+]);
+
+export const validateBurnRequest: RequestValidator = mkRequestValidator([
+  validateConnector,
+  validateChain,
+  validateNetwork,
+  validateAddress,
+  validateBurnTokenId,
+  validateNewPositionIdList,
+  validateTickLimitLow,
+  validateTickLimitHigh,
 ]);
 

@@ -1,6 +1,6 @@
 # allowedSlippage: how much the execution price is allowed to move unfavorably from the trade
 # execution price. It uses a rational number for precision.
-#allowedSlippage: '1/100'
+allowedSlippage: '1/100'
 
 # ttl: how long a trade is valid in seconds. After this time passes panoptic will not
 # perform the trade, but the gas will still be sent.
@@ -18,7 +18,7 @@ contractAddresses:
     sepolia:
 
         # Router Address????
-        #routerAddress: '0x77dcbA7729358D9F43AE4C3EA4206AA01c3d0056' #Just copying SFPM address
+        routerAddress: '0x77dcbA7729358D9F43AE4C3EA4206AA01c3d0056' #Just copying SFPM address
         ###################   
         ###################   
         # Uniswap addresses
@@ -46,4 +46,7 @@ contractAddresses:
         PanopticHelper: '0xd0dd31343e902edf4707461c7b81e1da9ff7969b'
         # UniswapMigrator - 
         UniswapMigrator: '0xb5cf92427ff8b388bb333c074ed4bf961683b282'
+        # PanopticPool - 
+        PanopticPool: '0xc34C41289e6c433723542BB1Eba79c6919504EDD'
+        
         

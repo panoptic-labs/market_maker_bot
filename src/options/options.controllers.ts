@@ -1,35 +1,24 @@
 import {
-  TradeRequest,
-  TradeResponse,
+  BurnRequest,
+  BurnResponse,
+  MintRequest,
+  MintResponse,
 } from './options.requests';
 import {
-  // price as panopticPrice,
-  // estimateGas as panopticEstimateGas,
-  trade as panopticTrade,
+  mint as panopticMint,
+  burn as panopticBurn,
 } from '../connectors/panoptic/panoptic.controllers';
-// import {
-//   // price as refPrice,
-//   trade as refTrade,
-//   // estimateGas as refEstimateGas,
-// } from '../connectors/ref/ref.controllers';
 import {
   getInitializedChain,
   getConnector,
 } from '../services/connection-manager';
 import {
   Chain as Ethereumish,
-  // Nearish,
-  // NetworkSelectionRequest,
-  // Perpish,
-  // RefAMMish,
-  // Tezosish,
-  // Uniswapish,
-  // UniswapLPish,
 } from '../services/common-interfaces';
 import { Panoptic } from '../connectors/panoptic/panoptic';
 
 
-export async function trade(req: TradeRequest): Promise<TradeResponse> {
+export async function mint(req: MintRequest): Promise<MintResponse> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -40,9 +29,26 @@ export async function trade(req: TradeRequest): Promise<TradeResponse> {
     );
 
   if (connector instanceof Panoptic) {
-    return panopticTrade(<Ethereumish>chain, connector, req);
+    return panopticMint(<Ethereumish>chain, connector, req);
   } else {
-    return panopticTrade(<Ethereumish>chain, connector, req);
+    return panopticMint(<Ethereumish>chain, connector, req);
+  }
+}
+
+export async function burn(req: BurnRequest): Promise<BurnResponse> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+
+  if (connector instanceof Panoptic) {
+    return panopticBurn(<Ethereumish>chain, connector, req);
+  } else {
+    return panopticBurn(<Ethereumish>chain, connector, req);
   }
 }
 

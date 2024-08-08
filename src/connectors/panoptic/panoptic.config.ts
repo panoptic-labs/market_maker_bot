@@ -3,9 +3,10 @@ import { ConfigManagerV2 } from '../../services/config-manager-v2';
 
 export namespace PanopticConfig {
   export interface NetworkConfig {
-    // allowedSlippage: string;
+    allowedSlippage: string;
     gasLimitEstimate: number;
     ttl: number;
+    routerAddress: (chain: string, network: string) => string;
     multiCallAddress: (chain: string, network: string) => string;
     UniswapV3Factory: (chain: string, network: string) => string;
     NonFungiblePositionManager: (chain: string, network: string) => string;
@@ -13,27 +14,27 @@ export namespace PanopticConfig {
     PanopticFactory: (chain: string, network: string) => string;
     PanopticHelper: (chain: string, network: string) => string;
     UniswapMigrator: (chain: string, network: string) => string;
-    // tradingTypes: Array<string>;
+    PanopticPool: (chain: string, network: string) => string;
     chainType: string;
     availableNetworks: Array<AvailableNetworks>;
   }
 
   export const config: NetworkConfig = {
-    // allowedSlippage: ConfigManagerV2.getInstance().get(
-    //   'panoptic.allowedSlippage'
-    // ),
+    allowedSlippage: ConfigManagerV2.getInstance().get(
+      'panoptic.allowedSlippage'
+    ),
     gasLimitEstimate: ConfigManagerV2.getInstance().get(
       `panoptic.gasLimitEstimate`
     ),
     ttl: ConfigManagerV2.getInstance().get('panoptic.ttl'),
-    // routerAddress: (chain: string, network: string) =>
-    //   ConfigManagerV2.getInstance().get(
-    //     'panoptic.contractAddresses.' +
-    //       chain +
-    //       '.' +
-    //       network +
-    //       '.routerAddress'
-    //   ),
+    routerAddress: (chain: string, network: string) =>
+      ConfigManagerV2.getInstance().get(
+        'panoptic.contractAddresses.' +
+        chain +
+        '.' +
+        network +
+        '.routerAddress'
+      ),
     multiCallAddress: (chain: string, network: string) =>
       ConfigManagerV2.getInstance().get(
         'panoptic.contractAddresses.' +
@@ -90,7 +91,14 @@ export namespace PanopticConfig {
         network +
         '.UniswapMigrator'
       ),
-
+    PanopticPool: (chain: string, network: string) =>
+      ConfigManagerV2.getInstance().get(
+        'panoptic.contractAddresses.' +
+        chain +
+        '.' +
+        network +
+        '.PanopticPool'
+      ),
     // tradingTypes: ['Options'],
     chainType: 'EVM',
     availableNetworks: [

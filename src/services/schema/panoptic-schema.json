@@ -43,6 +43,9 @@
                 },
                 "UniswapMigrator": {
                   "type": "string"
+                },
+                "PanopticPool": {
+                  "type": "string"
                 }
               },
               "required": [
