@@ -39,11 +39,6 @@ import {
   trade as carbonTrade,
   estimateGas as carbonEstimateGas,
 } from '../connectors/carbon/carbon.controllers';
-// import {
-//   price as panopticPrice,
-//   trade as panopticTrade,
-//   estimateGas as panopticEstimateGas,
-// } from '../connectors/panoptic/panoptic.controllers';
 import {
   price as refPrice,
   trade as refTrade,
@@ -93,7 +88,6 @@ import { Plenty } from '../connectors/plenty/plenty';
 import { QuipuSwap } from '../connectors/quipuswap/quipuswap';
 import { Osmosis } from '../chains/osmosis/osmosis';
 import { Carbonamm } from '../connectors/carbon/carbonAMM';
-// import { Panoptic } from '../connectors/panoptic/panoptic';
 
 export async function price(req: PriceRequest): Promise<PriceResponse> {
   const chain = await getInitializedChain<
@@ -116,8 +110,6 @@ export async function price(req: PriceRequest): Promise<PriceResponse> {
     return quipuPrice(<Tezosish>chain, connector, req);
   } else if (connector instanceof Carbonamm) {
     return carbonPrice(<Ethereumish>chain, connector, req);
-  // } else if (connector instanceof Panoptic) {
-  //   return panopticPrice(<Ethereumish>chain, connector, req);
   } else if ('routerAbi' in connector) {
     // we currently use the presence of routerAbi to distinguish Uniswapish from RefAMMish
     return uniswapPrice(<Ethereumish>chain, connector, req);
@@ -149,8 +141,6 @@ export async function trade(req: TradeRequest): Promise<TradeResponse> {
     return quipuTrade(<Tezosish>chain, connector, req);
   } else if (connector instanceof Carbonamm) {
     return carbonTrade(<Ethereumish>chain, connector, req);
-  // } else if (connector instanceof Panoptic) {
-  //   return panopticTrade(<Ethereumish>chain, connector, req);
   } else if ('routerAbi' in connector) {
     // we currently use the presence of routerAbi to distinguish Uniswapish from RefAMMish
     return uniswapTrade(<Ethereumish>chain, connector, req);
@@ -261,8 +251,6 @@ export async function estimateGas(
     return quipuEstimateGas(<Tezosish>chain, connector);
   } else if (connector instanceof Carbonamm) {
     return carbonEstimateGas(<Ethereumish>chain, connector);
-  // } else if (connector instanceof Panoptic) {
-  //   return panopticEstimateGas(<Ethereumish>chain, connector);
   } else if ('routerAbi' in connector) {
     // we currently use the presence of routerAbi to distinguish Uniswapish from RefAMMish
     return uniswapEstimateGas(<Ethereumish>chain, connector);
