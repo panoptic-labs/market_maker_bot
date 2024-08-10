@@ -156,8 +156,7 @@ export class Panoptic {
     tickLimitHigh: number = 887272
   ): Promise<any> {
     try {
-      // const panopticpool = this.PanopticPool
-      const panopticpool = '0xc34C41289e6c433723542BB1Eba79c6919504EDD'
+      const panopticpool = this.PanopticPool; 
       logger.info(`Attempting option mint on contract ${panopticpool}...`);
       const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
 
@@ -190,13 +189,12 @@ export class Panoptic {
     tickLimitHigh: number = 887272
   ): Promise<any> {
     try {
-      // const panopticpool = this.PanopticPool
-      const panopticpool = '0xc34C41289e6c433723542BB1Eba79c6919504EDD'
+      const panopticpool = this.PanopticPool; 
       logger.info(`Attempting option burn on contract ${panopticpool}...`);
       const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
 
       // Call the burnOption function
-      const tx = await panopticContract.burnOptions(
+      const tx = await panopticContract["burnOptions(uint256,uint256[],int24,int24)"](
         burnTokenId, 
         newPositionIdList, 
         tickLimitLow,
