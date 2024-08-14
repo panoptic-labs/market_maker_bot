@@ -173,7 +173,7 @@ export class Panoptic {
       // Wait for the transaction to be mined
       const receipt = await tx.wait();
       logger.info("Transaction mined:", receipt.transactionHash);
-      return { txHash: tx.hash };
+      return { hash: tx.hash, nonce: tx.nonce };
 
     } catch (error) {
       logger.error("Error minting option:", error);
@@ -212,4 +212,38 @@ export class Panoptic {
       return error;
     }
   }
+
+  async collateralToken0(wallet: Wallet): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool; 
+      logger.info(`Fetching CollateralTracker for token 0 from contract ${panopticpool}...`);
+      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+
+      // Call the collateralToken0 function
+      const tx = await panopticContract.collateralToken0();
+      return tx;
+
+    } catch (error) {
+      logger.error("Error fetching collateral token 0:", error);
+      return error;
+    }
+  }
+
+  async collateralToken1(wallet: Wallet): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool; 
+      logger.info(`Fetching CollateralTracker for token 1 from contract ${panopticpool}...`);
+      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+
+      // Call the collateralToken1 function
+      const tx = await panopticContract.collateralToken1();
+      return tx;
+
+    } catch (error) {
+      logger.error("Error fetching collateral token 1:", error);
+      return error;
+    }
+  }
+
+
 }

@@ -90,7 +90,7 @@ export async function mint(
   }
 
   logger.info(
-    `Trade has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+    `Trade has been executed, tx: ${tx}, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
   );
 
   return {
@@ -144,4 +144,34 @@ export async function burn(
     nonce: tx.nonce,
     txHash: tx.hash,
   };
+}
+
+export async function getCollateralToken0(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any 
+): Promise<string> {
+  const { wallet } =
+  await txWriteData(
+    ethereumish,
+    req.address
+  );
+
+  const token0 = await panopticish.collateralToken0(wallet);
+  return token0;
+}
+
+export async function getCollateralToken1(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any 
+): Promise<string> {
+  const { wallet } =
+  await txWriteData(
+    ethereumish,
+    req.address
+  );
+
+  const token1 = await panopticish.collateralToken1(wallet);
+  return token1;
 }

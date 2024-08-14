@@ -671,6 +671,74 @@
       "id": "d975j0eb-65e0-4356-a551-c83c3edfe36a"
     },
     {
+      "name": "options",
+      "item": [
+        {
+          "name": "getCollateralToken0",
+          "id": "3a58576b-3ac6-409d-aac9-7fa7d2dfc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/getCollateralToken0",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "getCollateralToken0"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d975j0ec-65e0-4356-a551-c83c3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "getCollateralToken1",
+          "id": "3a58576b-3ac6-409d-aac9-7fa7d2efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/getCollateralToken1",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "getCollateralToken1"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d975j0ec-65f0-4356-a551-c83c3edfe36a"
+    },
+    {
       "name": "amm / liquidity",
       "item": [
         {
