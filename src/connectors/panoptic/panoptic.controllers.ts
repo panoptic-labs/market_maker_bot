@@ -175,3 +175,94 @@ export async function getCollateralToken1(
   const token1 = await panopticish.collateralToken1(wallet);
   return token1;
 }
+
+export async function getAsset(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any 
+): Promise<string> {
+  const { wallet } =
+  await txWriteData(
+    ethereumish,
+    req.address
+  );
+
+  const asset = await panopticish.getAsset(
+    wallet,
+    req.collateralTracker
+  );
+  return asset;
+}
+
+export async function deposit(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any 
+): Promise<string> {
+  const { wallet } =
+  await txWriteData(
+    ethereumish,
+    req.address
+  );
+
+  const asset = await panopticish.deposit(
+    wallet,
+    req.collateralTracker,
+    BigNumber.from(req.assets)
+  );
+  return asset;
+}
+
+export async function withdraw(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any 
+): Promise<string> {
+  const { wallet } =
+  await txWriteData(
+    ethereumish,
+    req.address
+  );
+
+  const shares = await panopticish.withdraw(
+    wallet,
+    req.collateralTracker,
+    BigNumber.from(req.assets)
+  );
+  return shares;
+}
+
+export async function maxWithdraw(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any 
+): Promise<string> {
+  const { wallet } =
+  await txWriteData(
+    ethereumish,
+    req.address
+  );
+
+  const limit = await panopticish.maxWithdraw(
+    wallet,
+    req.collateralTracker
+  );
+  return limit;
+}
+
+export async function numberOfPositions(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any 
+): Promise<string> {
+  const { wallet } =
+  await txWriteData(
+    ethereumish,
+    req.address
+  );
+
+  const positions = await panopticish.numberOfPositions(
+    wallet
+  );
+  return positions;
+}

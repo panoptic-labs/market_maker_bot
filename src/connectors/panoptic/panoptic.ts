@@ -11,6 +11,7 @@ import { logger } from '../../services/logger';
 import { Ethereum } from '../../chains/ethereum/ethereum';
 import { getAddress } from 'ethers/lib/utils';
 import panopticPoolAbi from './panoptic_panopticpool_abi.json';
+import collateralTrackerAbi from './panoptic_collateraltracker_abi.json';
 
 export class Panoptic {
   private static _instances: { [name: string]: Panoptic };
@@ -221,6 +222,15 @@ export class Panoptic {
 
       // Call the collateralToken0 function
       const tx = await panopticContract.collateralToken0();
+      logger.info(`CollateralTracker contract for token 0: ${tx}`);
+
+      const tokenContract = new Contract(tx, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token 0: ${asset}`);
+
+      const symbol = await tokenContract.symbol();
+      logger.info(`Symbol token 0: ${symbol}`);
+
       return tx;
 
     } catch (error) {
@@ -245,5 +255,102 @@ export class Panoptic {
     }
   }
 
+  async getAsset(wallet: Wallet, collateralTrackerContract: any): Promise<any> {
+    try {
+      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token 0: ${asset}`);
+
+      return asset; 
+
+    } catch (error) {
+      logger.error("Error fetching collateral token 1:", error);
+      return error;
+    }
+  }
+
+  async deposit(
+    wallet: Wallet, 
+    collateralTrackerContract: any,
+    assets: BigNumber
+  ): Promise<any> {
+    try {
+      logger.info(`Attempting token deposit...`)
+      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token asset: ${asset}`);
+      logger.info(`Wallet: ${wallet.address}, Assets: ${assets}`);
+      const depositEvent = await tokenContract.deposit(assets, wallet.address);
+      const shares = depositEvent.shares; // Accessing the "shares" property
+      logger.info(`Shares: ${shares}`);
+
+      return shares; 
+
+    } catch (error) {
+      logger.error("Error depositing collateral:", error);
+      return error;
+    }
+  }
+
+  async withdraw(
+    wallet: Wallet, 
+    collateralTrackerContract: any,
+    assets: BigNumber
+  ): Promise<any> {
+    try {
+      logger.info(`Attempting token withdrawal...`)
+      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token asset: ${asset}`);
+      logger.info(`Wallet: ${wallet.address}, Assets: ${assets}`);
+      const withdrawEvent = await tokenContract.withdraw(assets, wallet.address, wallet.address, { gasLimit: 10000000 });
+      const shares = withdrawEvent.shares; // Accessing the "assets" property
+      logger.info(`Assets: ${shares}`);
+
+      return shares; 
+
+    } catch (error) {
+      logger.error("Error withdrawing collateral:", error);
+      return error;
+    }
+  }
+
+  async maxWithdraw(
+    wallet: Wallet, 
+    collateralTrackerContract: any
+  ): Promise<any> {
+    try {
+      logger.info(`Attempting token withdrawal...`)
+      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token asset: ${asset}`);
+      logger.info(`Wallet: ${wallet.address}`);
+      const withdrawLimit = await tokenContract.maxWithdraw(wallet.address);
+      logger.info(`Withdrawal limit: ${withdrawLimit}`);
+
+      return withdrawLimit; 
+
+    } catch (error) {
+      logger.error("Error finding max withdrawal limit:", error);
+      return error;
+    }
+  }
+
+  async numberOfPositions(
+    wallet: Wallet
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool; 
+      logger.info(`Querying open positions...`)
+      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+
+      const positions = await panopticContract.numberOfPositions(wallet.address);
+      return positions;
+
+    } catch (error) {
+      logger.error("Error querying open positions:", error);
+      return error;
+    }
+  }
 
 }

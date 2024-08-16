@@ -39,11 +39,11 @@ contractAddresses:
         ####################   
         #
         # SemiFungiblePositionManager - manages Panoptic Uniswap LP positions
-        SemiFungiblePositionManager: '0x77dcbA7729358D9F43AE4C3EA4206AA01c3d0056'
+        SemiFungiblePositionManager: '0x60e2ecd11b82f382a6368e6244bc659ab4584171'
         # PanopticFactory - creates/manages new Panoptic Pools
-        PanopticFactory: '0x26387BF27Fb993Dc97C3366fb6AB4a56d163cF43'
+        PanopticFactory: '0x17b393d0c5a27136dec50ac94715ccca1d8a0b0e'
         # PanopticHelper - 
-        PanopticHelper: '0xd0dd31343e902edf4707461c7b81e1da9ff7969b'
+        PanopticHelper: '0x4acc8a06e7567f3a40a53d3254ad5888b22f902e'
         # UniswapMigrator - 
         UniswapMigrator: '0xb5cf92427ff8b388bb333c074ed4bf961683b282'
         # PanopticPool - 

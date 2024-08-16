@@ -6,7 +6,12 @@ import {
   mint,
   burn, 
   getCollateralToken0,
-  getCollateralToken1
+  getCollateralToken1,
+  getAsset,
+  deposit,
+  withdraw,
+  maxWithdraw,
+  numberOfPositions
 } from './options.controllers';
 import {
   MintRequest,
@@ -69,6 +74,66 @@ export namespace OptionsRoutes {
         res: Response<any | string, {}>
       ) => {
         res.status(200).json(await getCollateralToken1(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/getAsset',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await getAsset(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/deposit',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await deposit(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/withdraw',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await withdraw(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/maxWithdraw',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await maxWithdraw(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/numberOfPositions',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await numberOfPositions(req.body));
       }
     )
   );
