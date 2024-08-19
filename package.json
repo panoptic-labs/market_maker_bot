@@ -23,9 +23,9 @@
     "test:scripts": "jest -i --verbose ./test-scripts/*.test.ts"
   },
   "dependencies": {
-    "@cosmjs/amino": "^0.32.2",
     "@balancer-labs/sdk": "^1.1.5",
     "@bancor/carbon-sdk": "^0.0.93-DEV",
+    "@cosmjs/amino": "^0.32.2",
     "@cosmjs/proto-signing": "^0.31.1",
     "@cosmjs/stargate": "^0.31.1",
     "@cosmjs/tendermint-rpc": "^0.32.2",
@@ -34,7 +34,7 @@
     "@ethersproject/address": "5.7.0",
     "@ethersproject/contracts": "5.7.0",
     "@ethersproject/networks": "5.7.0",
-    "@ethersproject/providers": "5.7.0",
+    "@ethersproject/providers": "^5.7.2",
     "@ethersproject/solidity": "5.7.0",
     "@harmony-js/core": "^0.1.57",
     "@harmony-js/utils": "^0.1.56",

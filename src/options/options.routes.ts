@@ -11,7 +11,10 @@ import {
   deposit,
   withdraw,
   maxWithdraw,
-  numberOfPositions
+  numberOfPositions,
+  querySubgraph,
+  queryOpenPositions,
+  queryGreeks,
 } from './options.controllers';
 import {
   MintRequest,
@@ -138,5 +141,42 @@ export namespace OptionsRoutes {
     )
   );
 
+  router.post(
+    '/querySubgraph',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await querySubgraph(req.body));
+      }
+    )
+  ); 
+
+  router.post(
+    '/queryOpenPositions',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await queryOpenPositions(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/queryGreeks',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await queryGreeks(req.body));
+      }
+    )
+  );
+
 }
+
 

@@ -25,18 +25,18 @@ export interface BurnResponse {
   base: string;
   quote: string;
   amount: string; // traderequest.amount
-  finalAmountReceived?: string; // Cosmos
+  finalAmountReceived?: string; // 
   rawAmount: string;
-  finalAmountReceived_basetoken?: string; // Cosmos
+  finalAmountReceived_basetoken?: string; // 
   expectedIn?: string;
-  expectedOut?: string;  // Cosmos: expectedAmountReceived
-  expectedPrice?: string;  // Cosmos
-  price: string; // Cosmos: finalPrice
+  expectedOut?: string;  // : expectedAmountReceived
+  expectedPrice?: string;  // 
+  price: string; // : finalPrice
   gasPrice: number;
   gasPriceToken: string;
   gasLimit: number;
-  gasWanted?: string; // Cosmos
-  gasCost: string; // Cosmos: gasUsed
+  gasWanted?: string; // 
+  gasCost: string; // : gasUsed
   nonce?: number;
   txHash: string | any | undefined;
 }
@@ -48,18 +48,18 @@ export interface MintResponse {
   base: string;
   quote: string;
   amount: string; // traderequest.amount
-  finalAmountReceived?: string; // Cosmos
+  finalAmountReceived?: string; // 
   rawAmount: string;
-  finalAmountReceived_basetoken?: string; // Cosmos
+  finalAmountReceived_basetoken?: string; // 
   expectedIn?: string;
-  expectedOut?: string;  // Cosmos: expectedAmountReceived
-  expectedPrice?: string;  // Cosmos
-  price: string; // Cosmos: finalPrice
+  expectedOut?: string;  // : expectedAmountReceived
+  expectedPrice?: string;  // 
+  price: string; // : finalPrice
   gasPrice: number;
   gasPriceToken: string;
   gasLimit: number;
-  gasWanted?: string; // Cosmos
-  gasCost: string; // Cosmos: gasUsed
+  gasWanted?: string; // 
+  gasCost: string; // : gasUsed
   nonce?: number;
   txHash: string | any | undefined;
 }

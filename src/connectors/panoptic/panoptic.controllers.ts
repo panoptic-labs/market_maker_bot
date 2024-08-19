@@ -63,12 +63,7 @@ export async function mint(
   req: MintRequest
 ): Promise<any> {
   const startTimestamp: number = Date.now();
-
-  const { wallet } =
-    await txWriteData(
-      ethereumish,
-      req.address
-    );
+  const { wallet } = await txWriteData(ethereumish, req.address);
 
   const gasPrice: number = ethereumish.gasPrice;
 
@@ -107,15 +102,8 @@ export async function burn(
   req: BurnRequest
 ): Promise<any> {
   const startTimestamp: number = Date.now();
-
-  const { wallet } =
-    await txWriteData(
-      ethereumish,
-      req.address
-    );
-
+  const { wallet } = await txWriteData(ethereumish, req.address);
   const gasPrice: number = ethereumish.gasPrice;
-
   const tx = await panopticish.executeBurn(
     wallet,
     req.burnTokenId,
@@ -149,14 +137,9 @@ export async function burn(
 export async function getCollateralToken0(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any 
+  req: any
 ): Promise<string> {
-  const { wallet } =
-  await txWriteData(
-    ethereumish,
-    req.address
-  );
-
+  const { wallet } = await txWriteData(ethereumish, req.address);
   const token0 = await panopticish.collateralToken0(wallet);
   return token0;
 }
@@ -164,14 +147,9 @@ export async function getCollateralToken0(
 export async function getCollateralToken1(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any 
+  req: any
 ): Promise<string> {
-  const { wallet } =
-  await txWriteData(
-    ethereumish,
-    req.address
-  );
-
+  const { wallet } = await txWriteData(ethereumish, req.address);
   const token1 = await panopticish.collateralToken1(wallet);
   return token1;
 }
@@ -179,14 +157,9 @@ export async function getCollateralToken1(
 export async function getAsset(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any 
+  req: any
 ): Promise<string> {
-  const { wallet } =
-  await txWriteData(
-    ethereumish,
-    req.address
-  );
-
+  const { wallet } = await txWriteData(ethereumish, req.address);
   const asset = await panopticish.getAsset(
     wallet,
     req.collateralTracker
@@ -197,14 +170,9 @@ export async function getAsset(
 export async function deposit(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any 
+  req: any
 ): Promise<string> {
-  const { wallet } =
-  await txWriteData(
-    ethereumish,
-    req.address
-  );
-
+  const { wallet } = await txWriteData(ethereumish, req.address);
   const asset = await panopticish.deposit(
     wallet,
     req.collateralTracker,
@@ -216,14 +184,9 @@ export async function deposit(
 export async function withdraw(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any 
+  req: any
 ): Promise<string> {
-  const { wallet } =
-  await txWriteData(
-    ethereumish,
-    req.address
-  );
-
+  const { wallet } = await txWriteData(ethereumish, req.address);
   const shares = await panopticish.withdraw(
     wallet,
     req.collateralTracker,
@@ -235,14 +198,9 @@ export async function withdraw(
 export async function maxWithdraw(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any 
+  req: any
 ): Promise<string> {
-  const { wallet } =
-  await txWriteData(
-    ethereumish,
-    req.address
-  );
-
+  const { wallet } = await txWriteData(ethereumish, req.address);
   const limit = await panopticish.maxWithdraw(
     wallet,
     req.collateralTracker
@@ -253,16 +211,39 @@ export async function maxWithdraw(
 export async function numberOfPositions(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any 
+  req: any
 ): Promise<string> {
-  const { wallet } =
-  await txWriteData(
-    ethereumish,
-    req.address
-  );
-
+  const { wallet } = await txWriteData(ethereumish, req.address);
   const positions = await panopticish.numberOfPositions(
     wallet
   );
   return positions;
+}
+
+export async function querySubgraph(
+  panopticish: Panoptic,
+  req: any
+): Promise<any> {
+  const result = await panopticish.querySubgraph(req.query, req.variables);
+  return result;
+}
+
+export async function queryOpenPositions(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<any> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const result = await panopticish.queryOpenPositions(wallet);
+  return result;
+}
+
+export async function queryGreeks(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<any> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const result = await panopticish.queryGreeks(wallet, req.tick, req.positionIdList, req.greek);
+  return result;
 }

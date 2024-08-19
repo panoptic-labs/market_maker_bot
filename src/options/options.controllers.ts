@@ -14,6 +14,9 @@ import {
   withdraw as panopticWithdraw,
   maxWithdraw as panopticMaxWithdraw,
   numberOfPositions as panopticNumberOfPositions,
+  querySubgraph as panopticQuerySubgraph,
+  queryOpenPositions as panopticQueryOpenPositions,
+  queryGreeks as panopticQueryGreeks,
 } from '../connectors/panoptic/panoptic.controllers';
 import {
   getInitializedChain,
@@ -23,9 +26,10 @@ import {
   Chain as Ethereumish,
 } from '../services/common-interfaces';
 import { Panoptic } from '../connectors/panoptic/panoptic';
+import e from 'express';
 
 
-export async function mint(req: MintRequest): Promise<MintResponse> {
+export async function mint(req: MintRequest): Promise<MintResponse | undefined> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -38,11 +42,11 @@ export async function mint(req: MintRequest): Promise<MintResponse> {
   if (connector instanceof Panoptic) {
     return panopticMint(<Ethereumish>chain, connector, req);
   } else {
-    return panopticMint(<Ethereumish>chain, connector, req);
+    return;
   }
 }
 
-export async function burn(req: BurnRequest): Promise<BurnResponse> {
+export async function burn(req: BurnRequest): Promise<BurnResponse | undefined> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -55,7 +59,7 @@ export async function burn(req: BurnRequest): Promise<BurnResponse> {
   if (connector instanceof Panoptic) {
     return panopticBurn(<Ethereumish>chain, connector, req);
   } else {
-    return panopticBurn(<Ethereumish>chain, connector, req);
+    return;
   }
 }
 
@@ -164,3 +168,40 @@ export async function numberOfPositions(req: any): Promise<any> {
   } 
 }
 
+export async function querySubgraph(req: any): Promise<any> {
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticQuerySubgraph(connector, req);
+  } 
+}
+
+export async function queryOpenPositions(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticQueryOpenPositions(<Ethereumish>chain, connector, req);
+  } 
+}
+
+export async function queryGreeks(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticQueryGreeks(<Ethereumish>chain, connector, req);
+  } 
+}

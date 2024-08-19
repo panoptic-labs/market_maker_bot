@@ -1,4 +1,5 @@
 import asyncio
+import numpy as np
 
 from hummingbot.client.settings import GatewayConnectionSetting
 # from hummingbot.core.event.events import TradeType
@@ -44,25 +45,101 @@ class TradePanoptions(ScriptStrategyBase):
             "address": address,
         } 
     
-        data0 = await GatewayHttpClient.get_instance().api_request(
+        # fetch collateralTracker contracts for token0 and token1 on Panoptic Pool 
+        colatteralTracker0 = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/getCollateralToken0",
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"api_request submitted for collateralToken0 ... tradeData: {data0}")
-        
-        data1 = await GatewayHttpClient.get_instance().api_request(
+        self.logger().info(f"CollateralTracker contract address for token0: {colatteralTracker0}")
+
+        colatteralTracker1 = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/getCollateralToken1",
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"api_request submitted for collateralToken1 ... tradeData: {data1}")
+        self.logger().info(f"CollateralTracker contract address for token1: {colatteralTracker1}")
 
-        # poll for swap result and print resulting balances
-        # await self.poll_transaction(chain, network, data['txHash'])
-        # await self.get_balance(chain, network, address, base, quote)
+        request_payload["collateralTracker"] = colatteralTracker0
+        assetToken0 = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/getAsset",
+            params=request_payload,
+            fail_silently=False
+        )
+        self.logger().info(f"Asset contract address for token0: {assetToken0}")
+
+        request_payload["collateralTracker"] = colatteralTracker0
+        self.logger().info(f"Checking withdrawal limit for token0...")
+        self.logger().info(f"POST /options/maxWithdraw [ connector: {connector} ]")
+        maxWithdraw = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/maxWithdraw",
+            params=request_payload,
+            fail_silently=False
+        )
+
+        request_payload["collateralTracker"] = colatteralTracker1
+        self.logger().info(f"Checking withdrawal limit for token1...")
+        self.logger().info(f"POST /options/maxWithdraw [ connector: {connector} ]")
+        maxWithdraw = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/maxWithdraw",
+            params=request_payload,
+            fail_silently=False
+        )
+
+        self.logger().info(f"Checking number of open positions...")
+        self.logger().info(f"POST /options/numberOfPositions [ connector: {connector} ]")
+        numberOfPositions = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/numberOfPositions",
+            params=request_payload,
+            fail_silently=False
+        )
+        self.logger().info(f"Number of open positions: {int(numberOfPositions['hex'], 16)}")
+
+        self.logger().info(f"Collecting open positions...")
+        self.logger().info(f"POST /options/queryOpenPositions [ connector: {connector} ]")
+        openPositions = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/queryOpenPositions",
+            params=request_payload,
+            fail_silently=False
+        )
+        self.logger().info(f"Open positions: {openPositions}")
+
+        self.logger().info(f"Querying greeks...")
+        self.logger().info(f"POST /options/queryGreeks [ connector: {connector} ]")
+        request_payload["tick"] = 1
+        request_payload["greek"] = "delta"
+        delta = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/queryGreeks",
+            params=request_payload,
+            fail_silently=False
+        )
+        request_payload["greek"] = "gamma"
+        delta = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/queryGreeks",
+            params=request_payload,
+            fail_silently=False
+        )
+        self.logger().info(f"Delta: {delta}")
+        self.logger().info(f"Gamma: {gamma}")
+
+
+        # self.logger().info(f"MAKING DEPOSIT...")
+        # request_payload["assets"] = str(int(np.power(10, 30)))
+        # depositToken0 = await GatewayHttpClient.get_instance().api_request(
+        #     method="post",
+        #     path_url="options/deposit",
+        #     params=request_payload,
+        #     fail_silently=False
+        # )
+
 
         self.logger().info("End of trade strategy...")
-

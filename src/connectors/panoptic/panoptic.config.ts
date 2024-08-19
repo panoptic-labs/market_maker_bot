@@ -107,5 +107,3 @@ export namespace PanopticConfig {
     ],
   };
 }
-
-

@@ -1,7 +1,7 @@
-import { 
-  BigNumber, 
-  Contract, 
-  Wallet 
+import {
+  BigNumber,
+  Contract,
+  Wallet
 } from 'ethers';
 import { PanopticConfig } from './panoptic.config';
 import {
@@ -11,23 +11,26 @@ import { logger } from '../../services/logger';
 import { Ethereum } from '../../chains/ethereum/ethereum';
 import { getAddress } from 'ethers/lib/utils';
 import panopticPoolAbi from './panoptic_panopticpool_abi.json';
+import panopticHelperAbi from './panoptic_panoptichelper_abi.json';
 import collateralTrackerAbi from './panoptic_collateraltracker_abi.json';
+import axios from 'axios';
 
 export class Panoptic {
   private static _instances: { [name: string]: Panoptic };
   private chainInstance;
   private _chain: string;
   private _network: string;
-  private _multiCallAddress: string;
+  private _MulticallAddress: string;
   private _UniswapV3Factory: string;
   private _NonFungiblePositionManager: string;
   private _SemiFungiblePositionManager: string;
   private _PanopticFactory: string;
   private _PanopticHelper: string;
   private _UniswapMigrator: string;
-  private _PanopticPool: string; 
+  private _PanopticPool: string;
   private _gasLimitEstimate: number;
   private _ttl: number;
+  private _subgraph_api_url: string;
   private chainId;
   private tokenList: Record<string, Token> = {};
   private _ready: boolean = false;
@@ -38,15 +41,16 @@ export class Panoptic {
     const config = PanopticConfig.config;
     this.chainInstance = this.getChainInstance(network);
     this.chainId = this.chainInstance.chainId;
-    this._multiCallAddress = config.multiCallAddress(chain, network);
+    this._MulticallAddress = config.multiCallAddress(chain, network);
     this._UniswapV3Factory = config.UniswapV3Factory(chain, network);
     this._NonFungiblePositionManager = config.NonFungiblePositionManager(chain, network);
     this._SemiFungiblePositionManager = config.SemiFungiblePositionManager(chain, network);
     this._PanopticFactory = config.PanopticFactory(chain, network);
     this._PanopticHelper = config.PanopticHelper(chain, network);
     this._UniswapMigrator = config.UniswapMigrator(chain, network);
-    this._PanopticPool = config.PanopticPool(chain, network); 
+    this._PanopticPool = config.PanopticPool(chain, network);
     this._ttl = config.ttl;
+    this._subgraph_api_url = 'https://api.goldsky.com/api/public/project_cl9gc21q105380hxuh8ks53k3/subgraphs/panoptic-subgraph-sepolia/beta7/gn';
     this._gasLimitEstimate = config.gasLimitEstimate;
   }
 
@@ -103,7 +107,7 @@ export class Panoptic {
    * Router address.
    */
   public get multiCallAddress(): string {
-    return this._multiCallAddress;
+    return this._MulticallAddress;
   }
   public get UniswapV3Factory(): string {
     return this._UniswapV3Factory;
@@ -126,6 +130,12 @@ export class Panoptic {
   public get PanopticPool(): string {
     return this._PanopticPool;
   }
+  public get LOWEST_POSSIBLE_TICK(): number {
+    return -887272;
+  }
+  public get HIGHEST_POSSIBLE_TICK(): number {
+    return 887272;
+  }
 
   /**
    * Default gas limit for swap transactions.
@@ -141,6 +151,10 @@ export class Panoptic {
     return this._ttl;
   }
 
+  public get subgraph_api_url(): string {
+    return this._subgraph_api_url;
+  }
+
   public get chainName(): string {
     if (this._chain === 'ethereum' && this._network === 'sepolia') {
       return 'eth';
@@ -153,20 +167,20 @@ export class Panoptic {
     positionIdList: BigNumber[],
     positionSize: BigNumber,
     effectiveLiquidityLimit: BigNumber,
-    tickLimitLow: number = -887272,
-    tickLimitHigh: number = 887272
+    tickLimitLow: number = this.LOWEST_POSSIBLE_TICK,
+    tickLimitHigh: number = this.HIGHEST_POSSIBLE_TICK
   ): Promise<any> {
     try {
-      const panopticpool = this.PanopticPool; 
+      const panopticpool = this.PanopticPool;
       logger.info(`Attempting option mint on contract ${panopticpool}...`);
       const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
 
       // Call the mintOption function
       const tx = await panopticContract.mintOptions(
-        positionIdList, 
-        positionSize, 
+        positionIdList,
+        positionSize,
         effectiveLiquidityLimit,
-        tickLimitLow, 
+        tickLimitLow,
         tickLimitHigh,
         { gasLimit: 10000000 }
       );
@@ -186,18 +200,18 @@ export class Panoptic {
     wallet: Wallet,
     burnTokenId: BigNumber,
     newPositionIdList: BigNumber[],
-    tickLimitLow: number = -887272,
-    tickLimitHigh: number = 887272
+    tickLimitLow: number = this.LOWEST_POSSIBLE_TICK,
+    tickLimitHigh: number = this.HIGHEST_POSSIBLE_TICK
   ): Promise<any> {
     try {
-      const panopticpool = this.PanopticPool; 
+      const panopticpool = this.PanopticPool;
       logger.info(`Attempting option burn on contract ${panopticpool}...`);
       const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
 
       // Call the burnOption function
       const tx = await panopticContract["burnOptions(uint256,uint256[],int24,int24)"](
-        burnTokenId, 
-        newPositionIdList, 
+        burnTokenId,
+        newPositionIdList,
         tickLimitLow,
         tickLimitHigh,
         { gasLimit: 10000000 }
@@ -216,12 +230,12 @@ export class Panoptic {
 
   async collateralToken0(wallet: Wallet): Promise<any> {
     try {
-      const panopticpool = this.PanopticPool; 
+      const panopticpool = this.PanopticPool;
       logger.info(`Fetching CollateralTracker for token 0 from contract ${panopticpool}...`);
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
 
       // Call the collateralToken0 function
-      const tx = await panopticContract.collateralToken0();
+      const tx = await panopticPoolContract.collateralToken0();
       logger.info(`CollateralTracker contract for token 0: ${tx}`);
 
       const tokenContract = new Contract(tx, collateralTrackerAbi.abi, wallet);
@@ -241,7 +255,7 @@ export class Panoptic {
 
   async collateralToken1(wallet: Wallet): Promise<any> {
     try {
-      const panopticpool = this.PanopticPool; 
+      const panopticpool = this.PanopticPool;
       logger.info(`Fetching CollateralTracker for token 1 from contract ${panopticpool}...`);
       const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
 
@@ -261,7 +275,7 @@ export class Panoptic {
       const asset = await tokenContract.asset();
       logger.info(`Collateral token 0: ${asset}`);
 
-      return asset; 
+      return asset;
 
     } catch (error) {
       logger.error("Error fetching collateral token 1:", error);
@@ -270,7 +284,7 @@ export class Panoptic {
   }
 
   async deposit(
-    wallet: Wallet, 
+    wallet: Wallet,
     collateralTrackerContract: any,
     assets: BigNumber
   ): Promise<any> {
@@ -284,7 +298,7 @@ export class Panoptic {
       const shares = depositEvent.shares; // Accessing the "shares" property
       logger.info(`Shares: ${shares}`);
 
-      return shares; 
+      return shares;
 
     } catch (error) {
       logger.error("Error depositing collateral:", error);
@@ -293,7 +307,7 @@ export class Panoptic {
   }
 
   async withdraw(
-    wallet: Wallet, 
+    wallet: Wallet,
     collateralTrackerContract: any,
     assets: BigNumber
   ): Promise<any> {
@@ -307,7 +321,7 @@ export class Panoptic {
       const shares = withdrawEvent.shares; // Accessing the "assets" property
       logger.info(`Assets: ${shares}`);
 
-      return shares; 
+      return shares;
 
     } catch (error) {
       logger.error("Error withdrawing collateral:", error);
@@ -316,7 +330,7 @@ export class Panoptic {
   }
 
   async maxWithdraw(
-    wallet: Wallet, 
+    wallet: Wallet,
     collateralTrackerContract: any
   ): Promise<any> {
     try {
@@ -328,7 +342,7 @@ export class Panoptic {
       const withdrawLimit = await tokenContract.maxWithdraw(wallet.address);
       logger.info(`Withdrawal limit: ${withdrawLimit}`);
 
-      return withdrawLimit; 
+      return withdrawLimit;
 
     } catch (error) {
       logger.error("Error finding max withdrawal limit:", error);
@@ -340,7 +354,7 @@ export class Panoptic {
     wallet: Wallet
   ): Promise<any> {
     try {
-      const panopticpool = this.PanopticPool; 
+      const panopticpool = this.PanopticPool;
       logger.info(`Querying open positions...`)
       const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
 
@@ -349,6 +363,85 @@ export class Panoptic {
 
     } catch (error) {
       logger.error("Error querying open positions:", error);
+      return error;
+    }
+  }
+
+  async querySubgraph(
+    query: string,
+    variables: any
+  ): Promise<any> {
+    try {
+      logger.info(`Querying subgraph...`)
+      const response = await axios.post(this.subgraph_api_url, { query, variables });
+      logger.info(`Panoptic Subgraph response: ${response.data}`);
+      return response.data;
+
+    } catch (error) {
+      logger.error("Error querying Panoptic Subgraph:", error);
+      return error;
+    }
+  }
+
+  async queryOpenPositions(
+    wallet: Wallet
+  ): Promise<any> {
+    try {
+      const query = `
+      query AccountBalances($account: String!, $tokenCount_gt: BigInt) {
+        panopticPoolAccounts(where: { account: $account, panopticPool_: {underlyingPool: $panopticPool} }) {
+          accountBalances(
+            first: 32
+            where: {isOpen: 1}
+            orderBy: createdBlockNumber
+            orderDirection: desc
+            where: { tokenCount_gt: $tokenCount_gt }
+          ) {
+            tokenId
+            # Add other fields you need from the AccountBalance fragment
+          }
+        }
+      }
+    `;
+
+      const variables = {
+        account: wallet.address, 
+        panopticPool: this.PanopticPool,
+      };
+
+      const response = await this.querySubgraph(query, variables);
+      return response;
+
+    } catch (error) {
+      logger.error("Error querying open positions:", error);
+      return error;
+    }
+  }
+
+  async queryGreeks(
+    wallet: Wallet,
+    tick: number, 
+    positionIdList: BigNumber[], 
+    greek: string
+  ): Promise<any> {
+    try {
+      const panopticHelper = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelper, panopticHelperAbi.abi, wallet);
+
+      let greekValue;
+      if (greek === "delta") {
+        greekValue = await panopticHelperContract.delta(this.PanopticPool, wallet.address, tick, positionIdList);
+      } else if (greek === "gamma") {
+        greekValue = await panopticHelperContract.gamma(this.PanopticPool, wallet.address, tick, positionIdList);
+      } else {
+        throw new Error("Invalid greek");
+      }
+      
+      logger.info(`PanopticHelper reports ${greek} = ${greekValue}`);
+      return greekValue;
+
+    } catch (error) {
+      logger.error(`Error checking ${greek}...`, error);
       return error;
     }
   }
