@@ -35,8 +35,10 @@ class TradePanoptions(ScriptStrategyBase):
             return
         wallet = [w for w in gateway_connections_conf if w["chain"] == chain and w["connector"] == connector and w["network"] == network]
         address = wallet[0]['wallet_address']
-        self.logger().info(f"Trading options using wallet address: {address}")
-        self.logger().info(f"Proceeding to check token collateral on Panoptic Pool...")
+        self.logger().info(f"Trading options using wallet address: {address}...")
+
+
+        self.logger().info(f"Checking getCollateralToken0...")
         self.logger().info(f"POST /options/getCollateralToken0 [ connector: {connector} ]")
         request_payload = {
             "chain": chain,
@@ -44,8 +46,6 @@ class TradePanoptions(ScriptStrategyBase):
             "connector": connector,
             "address": address,
         } 
-    
-        # fetch collateralTracker contracts for token0 and token1 on Panoptic Pool 
         colatteralTracker0 = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/getCollateralToken0",
@@ -91,7 +91,7 @@ class TradePanoptions(ScriptStrategyBase):
             fail_silently=False
         )
 
-        self.logger().info(f"Checking number of open positions...")
+        self.logger().info(f"Checking numberOfPositions...")
         self.logger().info(f"POST /options/numberOfPositions [ connector: {connector} ]")
         numberOfPositions = await GatewayHttpClient.get_instance().api_request(
             method="post",
@@ -99,9 +99,9 @@ class TradePanoptions(ScriptStrategyBase):
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"Number of open positions: {int(numberOfPositions['hex'], 16)}")
+        self.logger().info(f"numberOfPositions: {int(numberOfPositions['hex'], 16)}")
 
-        self.logger().info(f"Collecting open positions...")
+        self.logger().info(f"Checking queryOpenPositions...")
         self.logger().info(f"POST /options/queryOpenPositions [ connector: {connector} ]")
         openPositions = await GatewayHttpClient.get_instance().api_request(
             method="post",
@@ -109,27 +109,54 @@ class TradePanoptions(ScriptStrategyBase):
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"Open positions: {openPositions}")
+        self.logger().info(f"queryOpenPositions: {openPositions}")
 
-        self.logger().info(f"Querying greeks...")
-        self.logger().info(f"POST /options/queryGreeks [ connector: {connector} ]")
-        request_payload["tick"] = 1
-        request_payload["greek"] = "delta"
-        delta = await GatewayHttpClient.get_instance().api_request(
+        request_payload["collateralTracker"] = colatteralTracker0
+        self.logger().info(f"Checking getPoolData...")
+        self.logger().info(f"POST /options/getPoolData [ connector: {connector} ]")
+        data = await GatewayHttpClient.get_instance().api_request(
             method="post",
-            path_url="options/queryGreeks",
+            path_url="options/getPoolData",
             params=request_payload,
             fail_silently=False
         )
-        request_payload["greek"] = "gamma"
-        delta = await GatewayHttpClient.get_instance().api_request(
+        poolAssets = data['poolAssets']['hex']
+        insideAMM = data['insideAMM']['hex']
+        currentPoolUtilization = data['currentPoolUtilization']['hex']
+        self.logger().info(f"getPoolData...")
+        self.logger().info(f"... poolAssets: {poolAssets}")
+        self.logger().info(f"... insideAMM: {insideAMM}")
+        self.logger().info(f"... currentPoolUtilization: {currentPoolUtilization}")
+
+        self.logger().info(f"Checking pokeMedian...")
+        self.logger().info(f"POST /options/pokeMedian [ connector: {connector} ]")
+        response = await GatewayHttpClient.get_instance().api_request(
             method="post",
-            path_url="options/queryGreeks",
+            path_url="options/pokeMedian",
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"Delta: {delta}")
-        self.logger().info(f"Gamma: {gamma}")
+        self.logger().info(f"pokeMedian: {response}")
+
+        # self.logger().info(f"Querying greeks...")
+        # self.logger().info(f"POST /options/queryGreeks [ connector: {connector} ]")
+        # request_payload["tick"] = 1
+        # request_payload["greek"] = "delta"
+        # delta = await GatewayHttpClient.get_instance().api_request(
+        #     method="post",
+        #     path_url="options/queryGreeks",
+        #     params=request_payload,
+        #     fail_silently=False
+        # )
+        # request_payload["greek"] = "gamma"
+        # delta = await GatewayHttpClient.get_instance().api_request(
+        #     method="post",
+        #     path_url="options/queryGreeks",
+        #     params=request_payload,
+        #     fail_silently=False
+        # )
+        # self.logger().info(f"Delta: {delta}")
+        # self.logger().info(f"Gamma: {gamma}")
 
 
         # self.logger().info(f"MAKING DEPOSIT...")

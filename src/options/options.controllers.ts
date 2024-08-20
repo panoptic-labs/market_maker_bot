@@ -12,11 +12,14 @@ import {
   getAsset as panopticGetAsset,
   deposit as panopticDeposit,
   withdraw as panopticWithdraw,
+  getPoolData as panopticGetPoolData, 
   maxWithdraw as panopticMaxWithdraw,
   numberOfPositions as panopticNumberOfPositions,
   querySubgraph as panopticQuerySubgraph,
   queryOpenPositions as panopticQueryOpenPositions,
   queryGreeks as panopticQueryGreeks,
+  calculateAccumulatedFeesBatch as panopticCalculateAccumulatedFeesBatch,
+  pokeMedian as panopticPokeMedian,
 } from '../connectors/panoptic/panoptic.controllers';
 import {
   getInitializedChain,
@@ -26,7 +29,6 @@ import {
   Chain as Ethereumish,
 } from '../services/common-interfaces';
 import { Panoptic } from '../connectors/panoptic/panoptic';
-import e from 'express';
 
 
 export async function mint(req: MintRequest): Promise<MintResponse | undefined> {
@@ -138,6 +140,21 @@ export async function withdraw(req: any): Promise<any> {
   } 
 }
 
+export async function getPoolData(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+
+  if (connector instanceof Panoptic) {
+    return panopticGetPoolData(<Ethereumish>chain, connector, req);
+  } 
+}
+
 export async function maxWithdraw(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   
@@ -203,5 +220,31 @@ export async function queryGreeks(req: any): Promise<any> {
     );
   if (connector instanceof Panoptic) {
     return panopticQueryGreeks(<Ethereumish>chain, connector, req);
+  } 
+}
+
+export async function calculateAccumulatedFeesBatch(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticCalculateAccumulatedFeesBatch(<Ethereumish>chain, connector, req);
+  } 
+}
+
+export async function pokeMedian(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticPokeMedian(<Ethereumish>chain, connector, req);
   } 
 }

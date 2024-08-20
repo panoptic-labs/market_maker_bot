@@ -154,7 +154,7 @@ export class Panoptic {
   public get subgraph_api_url(): string {
     return this._subgraph_api_url;
   }
-
+  
   public get chainName(): string {
     if (this._chain === 'ethereum' && this._network === 'sepolia') {
       return 'eth';
@@ -162,36 +162,157 @@ export class Panoptic {
     return this._chain;
   }
 
-  async executeMint(
+  // 
+  // 
+  // Subgraph interactions...
+  // 
+  // 
+
+  async queryOpenPositions(
+    wallet: Wallet
+  ): Promise<any> {
+    try {
+      const query = `
+      query GetAccountsPositions(
+        $account: String!
+      ) {
+       panopticPoolAccounts(
+          where: { account: $account }
+        ) {
+          accountBalances(
+            first: 32
+            orderBy: createdBlockNumber
+            orderDirection: desc
+          ) {
+            tokenId { id }
+          }
+          closedAccountBalances: accountBalances(
+            first: 1000
+            orderBy: closedTimestamp
+            orderDirection: desc
+            where: {
+              isOpen: 0
+              txnClosed_not: null
+              txnClosed_: { eventType_in: [OptionBurn, AccountLiquidated, ForcedExercised] }
+            }
+          ) {
+            tokenId { id }
+          }
+        }
+      }
+    `;
+      const variables = {
+        account: wallet.address.toLowerCase(),
+      };
+      const response = await this.querySubgraph(query, variables);
+      return response;
+    } catch (error) {
+      logger.error("Error querying open positions:", error);
+      return error;
+    }
+  }
+
+  async querySubgraph(
+    query: string,
+    variables: any
+  ): Promise<any> {
+    try {
+      logger.info(`Querying subgraph...`)
+      const response = await axios.post(this.subgraph_api_url, { query, variables });
+      logger.info(`Panoptic Subgraph response: ${response.data}`);
+      return response.data;
+    } catch (error) {
+      logger.error("Error querying Panoptic Subgraph:", error);
+      return error;
+    }
+  }
+
+  // 
+  // 
+  // PanopticHelper interactions...
+  // 
+  // 
+
+  async queryGreeks(
     wallet: Wallet,
+    tick: number,
     positionIdList: BigNumber[],
-    positionSize: BigNumber,
-    effectiveLiquidityLimit: BigNumber,
-    tickLimitLow: number = this.LOWEST_POSSIBLE_TICK,
-    tickLimitHigh: number = this.HIGHEST_POSSIBLE_TICK
+    greek: string
+  ): Promise<any> {
+    try {
+      const panopticHelper = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelper, panopticHelperAbi.abi, wallet);
+      let greekValue;
+      if (greek === "delta") {
+        greekValue = await panopticHelperContract.delta(this.PanopticPool, wallet.address, tick, positionIdList);
+      } else if (greek === "gamma") {
+        greekValue = await panopticHelperContract.gamma(this.PanopticPool, wallet.address, tick, positionIdList);
+      } else {
+        throw new Error("Invalid greek");
+      }
+      logger.info(`PanopticHelper reports ${greek} = ${greekValue}`);
+      return greekValue;
+    } catch (error) {
+      logger.error(`Error checking ${greek}...`, error);
+      return error;
+    }
+  }
+
+  // 
+  // 
+  // PanopticPool interactions...
+  // 
+  // 
+
+  async calculateAccumulatedFeesBatch(
+    wallet: Wallet, 
+    includePendingPremium: boolean = false, 
+    positionIdList: BigNumber[]
   ): Promise<any> {
     try {
       const panopticpool = this.PanopticPool;
-      logger.info(`Attempting option mint on contract ${panopticpool}...`);
+      logger.info(`Checking calculateAccumulatedFeesBatch...`)
       const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-
-      // Call the mintOption function
-      const tx = await panopticContract.mintOptions(
-        positionIdList,
-        positionSize,
-        effectiveLiquidityLimit,
-        tickLimitLow,
-        tickLimitHigh,
-        { gasLimit: 10000000 }
+      const data = await panopticContract.calculateAccumulatedFeesBatch(
+        wallet.address,
+        includePendingPremium,
+        positionIdList
       );
-      logger.info("Transaction submitted:", tx.hash);
-      // Wait for the transaction to be mined
-      const receipt = await tx.wait();
-      logger.info("Transaction mined:", receipt.transactionHash);
-      return { hash: tx.hash, nonce: tx.nonce };
-
+      return data;
     } catch (error) {
-      logger.error("Error minting option:", error);
+      logger.error("Error on calculateAccumulatedFeesBatch:", error);
+      return error;
+    }
+  }
+
+  async collateralToken0(wallet: Wallet): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Fetching CollateralTracker for token 0 from contract ${panopticpool}...`);
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.collateralToken0();
+      logger.info(`CollateralTracker contract for token 0: ${tx}`);
+      const tokenContract = new Contract(tx, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token 0: ${asset}`);
+      const symbol = await tokenContract.symbol();
+      logger.info(`Symbol token 0: ${symbol}`);
+      return tx;
+    } catch (error) {
+      logger.error("Error fetching collateral token 0:", error);
+      return error;
+    }
+  }
+
+  async collateralToken1(wallet: Wallet): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Fetching CollateralTracker for token 1 from contract ${panopticpool}...`);
+      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticContract.collateralToken1();
+      return tx;
+    } catch (error) {
+      logger.error("Error fetching collateral token 1:", error);
       return error;
     }
   }
@@ -207,8 +328,6 @@ export class Panoptic {
       const panopticpool = this.PanopticPool;
       logger.info(`Attempting option burn on contract ${panopticpool}...`);
       const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-
-      // Call the burnOption function
       const tx = await panopticContract["burnOptions(uint256,uint256[],int24,int24)"](
         burnTokenId,
         newPositionIdList,
@@ -217,71 +336,84 @@ export class Panoptic {
         { gasLimit: 10000000 }
       );
       logger.info("Transaction submitted:", tx.hash);
-      // Wait for the transaction to be mined
       const receipt = await tx.wait();
       logger.info("Transaction mined:", receipt.transactionHash);
       return { txHash: tx.hash };
-
     } catch (error) {
       logger.error("Error burning option:", error);
       return error;
     }
   }
 
-  async collateralToken0(wallet: Wallet): Promise<any> {
+  async executeMint(
+    wallet: Wallet,
+    positionIdList: BigNumber[],
+    positionSize: BigNumber,
+    effectiveLiquidityLimit: BigNumber,
+    tickLimitLow: number = this.LOWEST_POSSIBLE_TICK,
+    tickLimitHigh: number = this.HIGHEST_POSSIBLE_TICK
+  ): Promise<any> {
     try {
       const panopticpool = this.PanopticPool;
-      logger.info(`Fetching CollateralTracker for token 0 from contract ${panopticpool}...`);
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-
-      // Call the collateralToken0 function
-      const tx = await panopticPoolContract.collateralToken0();
-      logger.info(`CollateralTracker contract for token 0: ${tx}`);
-
-      const tokenContract = new Contract(tx, collateralTrackerAbi.abi, wallet);
-      const asset = await tokenContract.asset();
-      logger.info(`Collateral token 0: ${asset}`);
-
-      const symbol = await tokenContract.symbol();
-      logger.info(`Symbol token 0: ${symbol}`);
-
-      return tx;
-
-    } catch (error) {
-      logger.error("Error fetching collateral token 0:", error);
-      return error;
-    }
-  }
-
-  async collateralToken1(wallet: Wallet): Promise<any> {
-    try {
-      const panopticpool = this.PanopticPool;
-      logger.info(`Fetching CollateralTracker for token 1 from contract ${panopticpool}...`);
+      logger.info(`Attempting option mint on contract ${panopticpool}...`);
       const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-
-      // Call the collateralToken1 function
-      const tx = await panopticContract.collateralToken1();
-      return tx;
-
+      const tx = await panopticContract.mintOptions(
+        positionIdList,
+        positionSize,
+        effectiveLiquidityLimit,
+        tickLimitLow,
+        tickLimitHigh,
+        { gasLimit: 10000000 }
+      );
+      logger.info("Transaction submitted:", tx.hash);
+      const receipt = await tx.wait();
+      logger.info("Transaction mined:", receipt.transactionHash);
+      return { hash: tx.hash, nonce: tx.nonce };
     } catch (error) {
-      logger.error("Error fetching collateral token 1:", error);
+      logger.error("Error minting option:", error);
       return error;
     }
   }
 
-  async getAsset(wallet: Wallet, collateralTrackerContract: any): Promise<any> {
+  async numberOfPositions(
+    wallet: Wallet
+  ): Promise<any> {
     try {
-      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
-      const asset = await tokenContract.asset();
-      logger.info(`Collateral token 0: ${asset}`);
-
-      return asset;
-
+      const panopticpool = this.PanopticPool;
+      logger.info(`Checking numberOfPositions...`)
+      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const positions = await panopticContract.numberOfPositions(wallet.address);
+      logger.info(`numberOfPositions: ${positions}`);
+      return positions;
     } catch (error) {
-      logger.error("Error fetching collateral token 1:", error);
+      logger.error("Error querying open positions:", error);
       return error;
     }
   }
+
+  async pokeMedian(
+    wallet: Wallet
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Checking pokeMedian...`)
+      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const positions = await panopticContract.pokeMedian();
+      logger.info(`pokeMedian: ${positions}`);
+      return positions;
+    } catch (error) {
+      logger.error("Error on pokeMedian:", error);
+      return error;
+    }
+  }
+
+
+
+  // 
+  // 
+  // CollateralTracker interactions...
+  // 
+  // 
 
   async deposit(
     wallet: Wallet,
@@ -297,11 +429,62 @@ export class Panoptic {
       const depositEvent = await tokenContract.deposit(assets, wallet.address);
       const shares = depositEvent.shares; // Accessing the "shares" property
       logger.info(`Shares: ${shares}`);
-
       return shares;
-
     } catch (error) {
       logger.error("Error depositing collateral:", error);
+      return error;
+    }
+  }
+
+  async getAsset(wallet: Wallet, collateralTrackerContract: any): Promise<any> {
+    try {
+      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token 0: ${asset}`);
+      return asset;
+    } catch (error) {
+      logger.error("Error fetching collateral token 1:", error);
+      return error;
+    }
+  }
+
+  async getPoolData(
+    wallet: Wallet,
+    collateralTrackerContract: any
+  ): Promise<any> {
+    try {
+      logger.info(`Attempting getPoolData on CollateralTracker...`)
+      const CollateralTracker = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const data = await CollateralTracker.getPoolData();
+      logger.info(`CollateralTracker getPoolData: ${data}`);
+      const [poolAssets_val, insideAMM_val, currentPoolUtilization_val] = data;
+      const output = {
+        poolAssets: poolAssets_val,
+        insideAMM: insideAMM_val,
+        currentPoolUtilization: currentPoolUtilization_val
+      };
+      return output;
+    } catch (error) {
+      logger.error("Error on getPoolData on CollateralTracker:", error);
+      return error;
+    }
+  }
+
+  async maxWithdraw(
+    wallet: Wallet,
+    collateralTrackerContract: any
+  ): Promise<any> {
+    try {
+      logger.info(`Attempting token withdrawal...`)
+      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token asset: ${asset}`);
+      logger.info(`Wallet: ${wallet.address}`);
+      const withdrawLimit = await tokenContract.maxWithdraw(wallet.address);
+      logger.info(`Withdrawal limit: ${withdrawLimit}`);
+      return withdrawLimit;
+    } catch (error) {
+      logger.error("Error finding max withdrawal limit:", error);
       return error;
     }
   }
@@ -320,130 +503,17 @@ export class Panoptic {
       const withdrawEvent = await tokenContract.withdraw(assets, wallet.address, wallet.address, { gasLimit: 10000000 });
       const shares = withdrawEvent.shares; // Accessing the "assets" property
       logger.info(`Assets: ${shares}`);
-
       return shares;
-
     } catch (error) {
       logger.error("Error withdrawing collateral:", error);
       return error;
     }
   }
 
-  async maxWithdraw(
-    wallet: Wallet,
-    collateralTrackerContract: any
-  ): Promise<any> {
-    try {
-      logger.info(`Attempting token withdrawal...`)
-      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
-      const asset = await tokenContract.asset();
-      logger.info(`Collateral token asset: ${asset}`);
-      logger.info(`Wallet: ${wallet.address}`);
-      const withdrawLimit = await tokenContract.maxWithdraw(wallet.address);
-      logger.info(`Withdrawal limit: ${withdrawLimit}`);
-
-      return withdrawLimit;
-
-    } catch (error) {
-      logger.error("Error finding max withdrawal limit:", error);
-      return error;
-    }
-  }
-
-  async numberOfPositions(
-    wallet: Wallet
-  ): Promise<any> {
-    try {
-      const panopticpool = this.PanopticPool;
-      logger.info(`Querying open positions...`)
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-
-      const positions = await panopticContract.numberOfPositions(wallet.address);
-      return positions;
-
-    } catch (error) {
-      logger.error("Error querying open positions:", error);
-      return error;
-    }
-  }
-
-  async querySubgraph(
-    query: string,
-    variables: any
-  ): Promise<any> {
-    try {
-      logger.info(`Querying subgraph...`)
-      const response = await axios.post(this.subgraph_api_url, { query, variables });
-      logger.info(`Panoptic Subgraph response: ${response.data}`);
-      return response.data;
-
-    } catch (error) {
-      logger.error("Error querying Panoptic Subgraph:", error);
-      return error;
-    }
-  }
-
-  async queryOpenPositions(
-    wallet: Wallet
-  ): Promise<any> {
-    try {
-      const query = `
-      query AccountBalances($account: String!, $tokenCount_gt: BigInt) {
-        panopticPoolAccounts(where: { account: $account, panopticPool_: {underlyingPool: $panopticPool} }) {
-          accountBalances(
-            first: 32
-            where: {isOpen: 1}
-            orderBy: createdBlockNumber
-            orderDirection: desc
-            where: { tokenCount_gt: $tokenCount_gt }
-          ) {
-            tokenId
-            # Add other fields you need from the AccountBalance fragment
-          }
-        }
-      }
-    `;
-
-      const variables = {
-        account: wallet.address, 
-        panopticPool: this.PanopticPool,
-      };
-
-      const response = await this.querySubgraph(query, variables);
-      return response;
-
-    } catch (error) {
-      logger.error("Error querying open positions:", error);
-      return error;
-    }
-  }
-
-  async queryGreeks(
-    wallet: Wallet,
-    tick: number, 
-    positionIdList: BigNumber[], 
-    greek: string
-  ): Promise<any> {
-    try {
-      const panopticHelper = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelper, panopticHelperAbi.abi, wallet);
-
-      let greekValue;
-      if (greek === "delta") {
-        greekValue = await panopticHelperContract.delta(this.PanopticPool, wallet.address, tick, positionIdList);
-      } else if (greek === "gamma") {
-        greekValue = await panopticHelperContract.gamma(this.PanopticPool, wallet.address, tick, positionIdList);
-      } else {
-        throw new Error("Invalid greek");
-      }
-      
-      logger.info(`PanopticHelper reports ${greek} = ${greekValue}`);
-      return greekValue;
-
-    } catch (error) {
-      logger.error(`Error checking ${greek}...`, error);
-      return error;
-    }
-  }
+  // 
+  // 
+  // SemiFungiblePositionManager interactions...
+  // 
+  // 
 
 }

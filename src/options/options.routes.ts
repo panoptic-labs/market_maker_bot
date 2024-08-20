@@ -10,11 +10,14 @@ import {
   getAsset,
   deposit,
   withdraw,
+  getPoolData,
   maxWithdraw,
   numberOfPositions,
   querySubgraph,
   queryOpenPositions,
   queryGreeks,
+  calculateAccumulatedFeesBatch,
+  pokeMedian
 } from './options.controllers';
 import {
   MintRequest,
@@ -118,6 +121,18 @@ export namespace OptionsRoutes {
   );
 
   router.post(
+    '/getPoolData',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await getPoolData(req.body));
+      }
+    )
+  );
+
+  router.post(
     '/maxWithdraw',
     asyncHandler(
       async (
@@ -173,6 +188,30 @@ export namespace OptionsRoutes {
         res: Response<any | string, {}>
       ) => {
         res.status(200).json(await queryGreeks(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/calculateAccumulatedFeesBatch',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await calculateAccumulatedFeesBatch(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/pokeMedian',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await pokeMedian(req.body));
       }
     )
   );

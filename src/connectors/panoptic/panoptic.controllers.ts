@@ -57,81 +57,64 @@ export async function txWriteData(
   return { wallet, maxFeePerGasBigNumber, maxPriorityFeePerGasBigNumber };
 }
 
-export async function mint(
+// 
+// 
+// Subgraph interactions...
+// 
+// 
+
+export async function queryOpenPositions(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: MintRequest
+  req: any
 ): Promise<any> {
-  const startTimestamp: number = Date.now();
   const { wallet } = await txWriteData(ethereumish, req.address);
-
-  const gasPrice: number = ethereumish.gasPrice;
-
-  const tx = await panopticish.executeMint(
-    wallet,
-    req.positionIdList,
-    BigNumber.from(req.positionSize),
-    req.effectiveLiquidityLimit,
-  );
-
-  if (tx.hash) {
-    await ethereumish.txStorage.saveTx(
-      ethereumish.chain,
-      ethereumish.chainId,
-      tx.hash,
-      new Date(),
-      ethereumish.gasPrice
-    );
-  }
-
-  logger.info(
-    `Trade has been executed, tx: ${tx}, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
-  );
-
-  return {
-    network: ethereumish.chain,
-    timestamp: startTimestamp,
-    nonce: tx.nonce,
-    txHash: tx.hash,
-  };
+  const result = await panopticish.queryOpenPositions(wallet);
+  return result;
 }
 
-export async function burn(
+export async function querySubgraph(
+  panopticish: Panoptic,
+  req: any
+): Promise<any> {
+  const result = await panopticish.querySubgraph(req.query, req.variables);
+  return result;
+}
+
+// 
+// 
+// PanopticHelper interactions...
+// 
+// 
+
+export async function queryGreeks(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: BurnRequest
+  req: any
 ): Promise<any> {
-  const startTimestamp: number = Date.now();
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const gasPrice: number = ethereumish.gasPrice;
-  const tx = await panopticish.executeBurn(
+  const result = await panopticish.queryGreeks(wallet, req.tick, req.positionIdList, req.greek);
+  return result;
+}
+
+// 
+// 
+// PanopticPool interactions...
+// 
+// 
+
+export async function calculateAccumulatedFeesBatch(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<any> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const result = await panopticish.calculateAccumulatedFeesBatch(
     wallet,
-    req.burnTokenId,
-    req.newPositionIdList,
-    req.tickLimitLow,
-    req.tickLimitHigh,
+    req.includePendingPremium,
+    req.positionIdList
   );
-
-  if (tx.hash) {
-    await ethereumish.txStorage.saveTx(
-      ethereumish.chain,
-      ethereumish.chainId,
-      tx.hash,
-      new Date(),
-      ethereumish.gasPrice
-    );
-  }
-
-  logger.info(
-    `Trade has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
-  );
-
-  return {
-    network: ethereumish.chain,
-    timestamp: startTimestamp,
-    nonce: tx.nonce,
-    txHash: tx.hash,
-  };
+  return result;
 }
 
 export async function getCollateralToken0(
@@ -154,18 +137,110 @@ export async function getCollateralToken1(
   return token1;
 }
 
-export async function getAsset(
+export async function burn(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: BurnRequest
+): Promise<any> {
+  const startTimestamp: number = Date.now();
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const gasPrice: number = ethereumish.gasPrice;
+  const tx = await panopticish.executeBurn(
+    wallet,
+    req.burnTokenId,
+    req.newPositionIdList,
+    req.tickLimitLow,
+    req.tickLimitHigh,
+  );
+  if (tx.hash) {
+    await ethereumish.txStorage.saveTx(
+      ethereumish.chain,
+      ethereumish.chainId,
+      tx.hash,
+      new Date(),
+      ethereumish.gasPrice
+    );
+  }
+  logger.info(
+    `Trade has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+  );
+  return {
+    network: ethereumish.chain,
+    timestamp: startTimestamp,
+    nonce: tx.nonce,
+    txHash: tx.hash,
+  };
+}
+
+export async function mint(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: MintRequest
+): Promise<any> {
+  const startTimestamp: number = Date.now();
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const gasPrice: number = ethereumish.gasPrice;
+  const tx = await panopticish.executeMint(
+    wallet,
+    req.positionIdList,
+    BigNumber.from(req.positionSize),
+    req.effectiveLiquidityLimit,
+  );
+  if (tx.hash) {
+    await ethereumish.txStorage.saveTx(
+      ethereumish.chain,
+      ethereumish.chainId,
+      tx.hash,
+      new Date(),
+      ethereumish.gasPrice
+    );
+  }
+  logger.info(
+    `Trade has been executed, tx: ${tx}, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+  );
+  return {
+    network: ethereumish.chain,
+    timestamp: startTimestamp,
+    nonce: tx.nonce,
+    txHash: tx.hash,
+  };
+}
+
+export async function numberOfPositions(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: any
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const asset = await panopticish.getAsset(
-    wallet,
-    req.collateralTracker
+  const positions = await panopticish.numberOfPositions(
+    wallet
   );
-  return asset;
+  return positions;
 }
+
+export async function pokeMedian(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const positions = await panopticish.pokeMedian(
+    wallet
+  );
+  return positions;
+}
+
+// 
+// 
+// CollateralTracker interactions...
+// 
+// 
+
+// 
+// 
+// SemiFungiblePositionManager interactions...
+// 
+// 
 
 export async function deposit(
   ethereumish: Ethereumish,
@@ -181,16 +256,28 @@ export async function deposit(
   return asset;
 }
 
-export async function withdraw(
+export async function getAsset(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: any
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const shares = await panopticish.withdraw(
+  const asset = await panopticish.getAsset(
     wallet,
-    req.collateralTracker,
-    BigNumber.from(req.assets)
+    req.collateralTracker
+  );
+  return asset;
+}
+
+export async function getPoolData(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const shares = await panopticish.getPoolData(
+    wallet,
+    req.collateralTracker
   );
   return shares;
 }
@@ -208,42 +295,16 @@ export async function maxWithdraw(
   return limit;
 }
 
-export async function numberOfPositions(
+export async function withdraw(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: any
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const positions = await panopticish.numberOfPositions(
-    wallet
+  const shares = await panopticish.withdraw(
+    wallet,
+    req.collateralTracker,
+    BigNumber.from(req.assets)
   );
-  return positions;
-}
-
-export async function querySubgraph(
-  panopticish: Panoptic,
-  req: any
-): Promise<any> {
-  const result = await panopticish.querySubgraph(req.query, req.variables);
-  return result;
-}
-
-export async function queryOpenPositions(
-  ethereumish: Ethereumish,
-  panopticish: Panoptic,
-  req: any
-): Promise<any> {
-  const { wallet } = await txWriteData(ethereumish, req.address);
-  const result = await panopticish.queryOpenPositions(wallet);
-  return result;
-}
-
-export async function queryGreeks(
-  ethereumish: Ethereumish,
-  panopticish: Panoptic,
-  req: any
-): Promise<any> {
-  const { wallet } = await txWriteData(ethereumish, req.address);
-  const result = await panopticish.queryGreeks(wallet, req.tick, req.positionIdList, req.greek);
-  return result;
+  return shares;
 }
