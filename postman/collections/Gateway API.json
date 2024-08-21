@@ -912,6 +912,108 @@
       "name": "options",
       "item": [
         {
+          "name": "optionPositionBalance",
+          "id": "5a58575b-3ac6-409d-acc9-7fa7e3efc9f8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/optionPositionBalance",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "optionPositionBalance"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e065j0ec-62f0-4356-b451-c83d3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "forceExercise",
+          "id": "5a58525b-3ac6-409d-acc9-7fa1e3efc9f8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/forceExercise",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "forceExercise"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e065j0ec-62f5-43a6-b451-c83d3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "liquidate",
+          "id": "5a58525b-3ac6-409d-acc9-7fa7e3efc9f8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/liquidate",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "liquidate"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e065j0ec-62f5-4356-b451-c83d3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
           "name": "pokeMedian",
           "id": "5a58575b-3ac6-409d-acc9-7fa7e3efc9e8",
           "protocolProfileBehavior": {
@@ -941,6 +1043,40 @@
         }
       ],
       "id": "e065j0ec-65f0-4356-b451-c83d3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "settleLongPremium",
+          "id": "5a58575b-3ac6-409d-acc9-7fa7ebefc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/settleLongPremium",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "settleLongPremium"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e065j0ec-d5f0-4356-b451-c83d3edfe36a"
     },
     {
       "name": "options",

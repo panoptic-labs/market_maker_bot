@@ -7,6 +7,8 @@ import {
 import {
   mint as panopticMint,
   burn as panopticBurn,
+  forceExercise as panopticForceExercise,
+  liquidate as panopticLiquidate,
   getCollateralToken0 as panopticGetCollateralToken0,
   getCollateralToken1 as panopticGetCollateralToken1,
   getAsset as panopticGetAsset,
@@ -19,7 +21,9 @@ import {
   queryOpenPositions as panopticQueryOpenPositions,
   queryGreeks as panopticQueryGreeks,
   calculateAccumulatedFeesBatch as panopticCalculateAccumulatedFeesBatch,
+  optionPositionBalance as panopticOptionPositionBalance,
   pokeMedian as panopticPokeMedian,
+  settleLongPremium as panopticSettleLongPremium,
 } from '../connectors/panoptic/panoptic.controllers';
 import {
   getInitializedChain,
@@ -63,6 +67,36 @@ export async function burn(req: BurnRequest): Promise<BurnResponse | undefined> 
   } else {
     return;
   }
+}
+
+export async function forceExercise(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+
+  if (connector instanceof Panoptic) {
+    return panopticForceExercise(<Ethereumish>chain, connector, req);
+  } 
+}
+
+export async function liquidate(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+
+  if (connector instanceof Panoptic) {
+    return panopticLiquidate(<Ethereumish>chain, connector, req);
+  } 
 }
 
 export async function getCollateralToken0(req: any): Promise<any> {
@@ -236,6 +270,19 @@ export async function calculateAccumulatedFeesBatch(req: any): Promise<any> {
   } 
 }
 
+export async function optionPositionBalance(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticOptionPositionBalance(<Ethereumish>chain, connector, req);
+  } 
+}
+
 export async function pokeMedian(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
@@ -246,5 +293,18 @@ export async function pokeMedian(req: any): Promise<any> {
     );
   if (connector instanceof Panoptic) {
     return panopticPokeMedian(<Ethereumish>chain, connector, req);
+  } 
+}
+
+export async function settleLongPremium(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticSettleLongPremium(<Ethereumish>chain, connector, req);
   } 
 }

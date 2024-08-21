@@ -5,6 +5,7 @@ import { asyncHandler } from '../services/error-handler';
 import {
   mint,
   burn, 
+  liquidate,
   getCollateralToken0,
   getCollateralToken1,
   getAsset,
@@ -17,7 +18,10 @@ import {
   queryOpenPositions,
   queryGreeks,
   calculateAccumulatedFeesBatch,
-  pokeMedian
+  optionPositionBalance,
+  pokeMedian,
+  forceExercise,
+  settleLongPremium,
 } from './options.controllers';
 import {
   MintRequest,
@@ -29,7 +33,6 @@ import {
   validateMintRequest,
   validateBurnRequest,
 } from './options.validators';
-// import { NetworkSelectionRequest } from '../services/common-interfaces';
 
 export namespace OptionsRoutes {
   export const router = Router();
@@ -56,6 +59,30 @@ export namespace OptionsRoutes {
       ) => {
         validateBurnRequest(req.body);
         res.status(200).json(await burn(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/forceExercise',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await forceExercise(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/liquidate',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await liquidate(req.body));
       }
     )
   );
@@ -205,6 +232,18 @@ export namespace OptionsRoutes {
   );
 
   router.post(
+    '/optionPositionBalance',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await optionPositionBalance(req.body));
+      }
+    )
+  );
+
+  router.post(
     '/pokeMedian',
     asyncHandler(
       async (
@@ -212,6 +251,18 @@ export namespace OptionsRoutes {
         res: Response<any | string, {}>
       ) => {
         res.status(200).json(await pokeMedian(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/settleLongPremium',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await settleLongPremium(req.body));
       }
     )
   );

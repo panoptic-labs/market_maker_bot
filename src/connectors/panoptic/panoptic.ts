@@ -154,7 +154,7 @@ export class Panoptic {
   public get subgraph_api_url(): string {
     return this._subgraph_api_url;
   }
-  
+
   public get chainName(): string {
     if (this._chain === 'ethereum' && this._network === 'sepolia') {
       return 'eth';
@@ -265,8 +265,8 @@ export class Panoptic {
   // 
 
   async calculateAccumulatedFeesBatch(
-    wallet: Wallet, 
-    includePendingPremium: boolean = false, 
+    wallet: Wallet,
+    includePendingPremium: boolean = false,
     positionIdList: BigNumber[]
   ): Promise<any> {
     try {
@@ -345,6 +345,61 @@ export class Panoptic {
     }
   }
 
+  async forceExercise(
+    wallet: Wallet,
+    touchedId: BigNumber[],
+    positionIdListExercisee: BigNumber[],
+    positionIdListExercisor: BigNumber[]
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Attempting force exercise on contract ${panopticpool}...`);
+      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticContract.forceExercise(
+        wallet.address,
+        touchedId,
+        positionIdListExercisee,
+        positionIdListExercisor,
+        { gasLimit: 10000000 }
+      );
+      logger.info("Transaction submitted:", tx.hash);
+      const receipt = await tx.wait();
+      logger.info("Transaction mined:", receipt.transactionHash);
+      return { txHash: tx.hash };
+    } catch (error) {
+      logger.error("Error on force exercise:", error);
+      return error;
+    }
+  }
+
+  async liquidate(
+    wallet: Wallet,
+    positionIdListLiquidator: BigNumber[],
+    liquidatee: BigNumber,
+    delegations: number,
+    positionIdList: BigNumber[],
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Attempting liquidation on contract ${panopticpool}...`);
+      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticContract.liquidate(
+        positionIdListLiquidator,
+        liquidatee,
+        delegations,
+        positionIdList,
+        { gasLimit: 10000000 }
+      );
+      logger.info("Transaction submitted:", tx.hash);
+      const receipt = await tx.wait();
+      logger.info("Transaction mined:", receipt.transactionHash);
+      return { txHash: tx.hash };
+    } catch (error) {
+      logger.error("Error on liquidation:", error);
+      return error;
+    }
+  }
+
   async executeMint(
     wallet: Wallet,
     positionIdList: BigNumber[],
@@ -370,7 +425,7 @@ export class Panoptic {
       logger.info("Transaction mined:", receipt.transactionHash);
       return { hash: tx.hash, nonce: tx.nonce };
     } catch (error) {
-      logger.error("Error minting option:", error);
+      logger.error("Error on mintOptions:", error);
       return error;
     }
   }
@@ -386,7 +441,27 @@ export class Panoptic {
       logger.info(`numberOfPositions: ${positions}`);
       return positions;
     } catch (error) {
-      logger.error("Error querying open positions:", error);
+      logger.error("Error on numberOfPositions:", error);
+      return error;
+    }
+  }
+
+  async optionPositionBalance(
+    wallet: Wallet,
+    tokenId: BigNumber
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Checking optionPositionBalance...`)
+      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const balance = await panopticContract.optionPositionBalance(
+        wallet.address,
+        tokenId
+      );
+      logger.info(`optionPositionBalance: ${balance}`);
+      return balance;
+    } catch (error) {
+      logger.error("Error on optionPositionBalance:", error);
       return error;
     }
   }
@@ -403,6 +478,32 @@ export class Panoptic {
       return positions;
     } catch (error) {
       logger.error("Error on pokeMedian:", error);
+      return error;
+    }
+  }
+
+  async settleLongPremium(
+    wallet: Wallet,
+    positionIdList: BigNumber[],
+    owner: BigNumber,
+    legIndex: BigNumber
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Attempting settleLongPremium on contract ${panopticpool}...`)
+      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticContract.settleLongPremium(
+        positionIdList,
+        owner,
+        legIndex,
+        { gasLimit: 10000000 }
+      );
+      logger.info("Transaction submitted:", tx.hash);
+      const receipt = await tx.wait();
+      logger.info("Transaction mined:", receipt.transactionHash);
+      return { txHash: tx.hash };
+    } catch (error) {
+      logger.error("Error on settleLongPremium:", error);
       return error;
     }
   }

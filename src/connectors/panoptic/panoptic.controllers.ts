@@ -172,6 +172,75 @@ export async function burn(
   };
 }
 
+export async function forceExercise(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<any> {
+  const startTimestamp: number = Date.now();
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const gasPrice: number = ethereumish.gasPrice;
+  const tx = await panopticish.forceExercise(
+    wallet,
+    req.touchedId,
+    req.positionIdListExercisee,
+    req.positionIdListExercisor,
+  );
+  if (tx.hash) {
+    await ethereumish.txStorage.saveTx(
+      ethereumish.chain,
+      ethereumish.chainId,
+      tx.hash,
+      new Date(),
+      ethereumish.gasPrice
+    );
+  }
+  logger.info(
+    `Trade has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+  );
+  return {
+    network: ethereumish.chain,
+    timestamp: startTimestamp,
+    nonce: tx.nonce,
+    txHash: tx.hash,
+  };
+}
+
+export async function liquidate(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<any> {
+  const startTimestamp: number = Date.now();
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const gasPrice: number = ethereumish.gasPrice;
+  const tx = await panopticish.liquidate(
+    wallet,
+    req.positionIdListLiquidator,
+    req.liquidatee,
+    req.delegations,
+    req.positionIdList
+  );
+  if (tx.hash) {
+    await ethereumish.txStorage.saveTx(
+      ethereumish.chain,
+      ethereumish.chainId,
+      tx.hash,
+      new Date(),
+      ethereumish.gasPrice
+    );
+  }
+  logger.info(
+    `Trade has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+  );
+  return {
+    network: ethereumish.chain,
+    timestamp: startTimestamp,
+    nonce: tx.nonce,
+    txHash: tx.hash,
+  };
+}
+
 export async function mint(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
@@ -218,6 +287,19 @@ export async function numberOfPositions(
   return positions;
 }
 
+export async function optionPositionBalance(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const result = await panopticish.optionPositionBalance(
+    wallet, 
+    req.tokenId
+  );
+  return result;
+}
+
 export async function pokeMedian(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
@@ -226,6 +308,21 @@ export async function pokeMedian(
   const { wallet } = await txWriteData(ethereumish, req.address);
   const positions = await panopticish.pokeMedian(
     wallet
+  );
+  return positions;
+}
+
+export async function settleLongPremium(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const positions = await panopticish.settleLongPremium(
+    wallet,
+    req.positionIdList,
+    req.owner,
+    req.legIndex
   );
   return positions;
 }
