@@ -37,31 +37,35 @@ class TradePanoptions(ScriptStrategyBase):
         address = wallet[0]['wallet_address']
         self.logger().info(f"Trading options using wallet address: {address}...")
 
-
-        self.logger().info(f"Checking getCollateralToken0...")
-        self.logger().info(f"POST /options/getCollateralToken0 [ connector: {connector} ]")
         request_payload = {
             "chain": chain,
             "network": network,
             "connector": connector,
             "address": address,
         } 
+
+        self.logger().info(f"Checking getCollateralToken0...")
+        self.logger().info(f"POST /options/getCollateralToken0 [ connector: {connector} ]")
         colatteralTracker0 = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/getCollateralToken0",
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"CollateralTracker contract address for token0: {colatteralTracker0}")
+        self.logger().info(f"getCollateralToken0 response: {colatteralTracker0}")
 
+        self.logger().info(f"Checking getCollateralToken1...")
+        self.logger().info(f"POST /options/getCollateralToken1 [ connector: {connector} ]")
         colatteralTracker1 = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/getCollateralToken1",
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"CollateralTracker contract address for token1: {colatteralTracker1}")
+        self.logger().info(f"getCollateralToken1 response: {colatteralTracker1}")
 
+        self.logger().info(f"Checking getAsset on token0...")
+        self.logger().info(f"POST /options/getAsset [ connector: {connector} ]")
         request_payload["collateralTracker"] = colatteralTracker0
         assetToken0 = await GatewayHttpClient.get_instance().api_request(
             method="post",
@@ -69,17 +73,29 @@ class TradePanoptions(ScriptStrategyBase):
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"Asset contract address for token0: {assetToken0}")
+        self.logger().info(f"getAsset response: {assetToken0}")
+
+        self.logger().info(f"Checking getAsset on token1...")
+        self.logger().info(f"POST /options/getAsset [ connector: {connector} ]")
+        request_payload["collateralTracker"] = colatteralTracker1
+        assetToken1 = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/getAsset",
+            params=request_payload,
+            fail_silently=False
+        )
+        self.logger().info(f"getAsset response: {assetToken1}")
 
         request_payload["collateralTracker"] = colatteralTracker0
-        self.logger().info(f"Checking withdrawal limit for token0...")
+        self.logger().info(f"Checking maxWithdraw on token0...")
         self.logger().info(f"POST /options/maxWithdraw [ connector: {connector} ]")
-        maxWithdraw = await GatewayHttpClient.get_instance().api_request(
+        response = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/maxWithdraw",
             params=request_payload,
             fail_silently=False
         )
+        self.logger().info(f"maxWithdraw response: {response}")
 
         request_payload["collateralTracker"] = colatteralTracker1
         self.logger().info(f"Checking withdrawal limit for token1...")
@@ -90,6 +106,7 @@ class TradePanoptions(ScriptStrategyBase):
             params=request_payload,
             fail_silently=False
         )
+        self.logger().info(f"maxWithdraw response: {maxWithdraw}")
 
         self.logger().info(f"Checking numberOfPositions...")
         self.logger().info(f"POST /options/numberOfPositions [ connector: {connector} ]")
@@ -99,7 +116,7 @@ class TradePanoptions(ScriptStrategyBase):
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"numberOfPositions: {int(numberOfPositions['hex'], 16)}")
+        self.logger().info(f"numberOfPositions response: {int(numberOfPositions['hex'], 16)}")
 
         self.logger().info(f"Checking queryOpenPositions...")
         self.logger().info(f"POST /options/queryOpenPositions [ connector: {connector} ]")
@@ -109,7 +126,7 @@ class TradePanoptions(ScriptStrategyBase):
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"queryOpenPositions: {openPositions}")
+        self.logger().info(f"queryOpenPositions response: {openPositions}")
 
         request_payload["collateralTracker"] = colatteralTracker0
         self.logger().info(f"Checking getPoolData...")
@@ -123,7 +140,7 @@ class TradePanoptions(ScriptStrategyBase):
         poolAssets = data['poolAssets']['hex']
         insideAMM = data['insideAMM']['hex']
         currentPoolUtilization = data['currentPoolUtilization']['hex']
-        self.logger().info(f"getPoolData...")
+        self.logger().info(f"getPoolData response...")
         self.logger().info(f"... poolAssets: {poolAssets}")
         self.logger().info(f"... insideAMM: {insideAMM}")
         self.logger().info(f"... currentPoolUtilization: {currentPoolUtilization}")
@@ -136,7 +153,43 @@ class TradePanoptions(ScriptStrategyBase):
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"pokeMedian: {response}")
+        self.logger().info(f"pokeMedian response: {response}")
+
+        request_payload["tokenId"]="77322919313040615369538147907420"
+        self.logger().info(f"Checking optionPositionBalance on 77322919313040615369538147907420")
+        self.logger().info(f"POST /options/optionPositionBalance [ connector: {connector} ]")
+        response = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/optionPositionBalance",
+            params=request_payload,
+            fail_silently=False
+        )
+        self.logger().info(f"optionPositionBalance response: {response}")
+
+        request_payload["tokenId"]="77323000906088706391268150146908"
+        self.logger().info(f"Checking optionPositionBalance on 77323000906088706391268150146908")
+        self.logger().info(f"POST /option/optionPositionBalance [ connector: {connector} ]")
+        response = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/optionPositionBalance",
+            params=request_payload,
+            fail_silently=False
+        )
+        self.logger().info(f"optionPositionBalance response: {response}")
+
+        request_payload["includePendingPremium"]=True
+        request_payload["positionIdList"]=["1724358520355700724595784863781761016418202439334584929386932255284888270684","77323000906088706391268150146908","77322919308318248886668502693724"]
+        self.logger().info(f"Checking calculateAccumulatedFeesBatch")
+        self.logger().info(f"POST /option/calculateAccumulatedFeesBatch [ connector: {connector} ]")
+        response = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/calculateAccumulatedFeesBatch",
+            params=request_payload,
+            fail_silently=False
+        )
+        self.logger().info(f"calculateAccumulatedFeesBatch response: {response}")
+
+
 
         # self.logger().info(f"Querying greeks...")
         # self.logger().info(f"POST /options/queryGreeks [ connector: {connector} ]")
