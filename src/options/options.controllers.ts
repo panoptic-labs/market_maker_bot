@@ -24,6 +24,9 @@ import {
   optionPositionBalance as panopticOptionPositionBalance,
   pokeMedian as panopticPokeMedian,
   settleLongPremium as panopticSettleLongPremium,
+  getAccountLiquidity as panopticGetAccountLiquidity,
+  getAccountPremium as panopticGetAccountPremium,
+  getAccountFeesBase as panopticGetAccountFeesBase,
 } from '../connectors/panoptic/panoptic.controllers';
 import {
   getInitializedChain,
@@ -306,5 +309,44 @@ export async function settleLongPremium(req: any): Promise<any> {
     );
   if (connector instanceof Panoptic) {
     return panopticSettleLongPremium(<Ethereumish>chain, connector, req);
+  } 
+}
+
+export async function getAccountLiquidity(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticGetAccountLiquidity(<Ethereumish>chain, connector, req);
+  } 
+}
+
+export async function getAccountPremium(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticGetAccountPremium(<Ethereumish>chain, connector, req);
+  } 
+}
+
+export async function getAccountFeesBase(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticGetAccountFeesBase(<Ethereumish>chain, connector, req);
   } 
 }

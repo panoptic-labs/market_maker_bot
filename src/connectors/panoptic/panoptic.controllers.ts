@@ -333,11 +333,6 @@ export async function settleLongPremium(
 // 
 // 
 
-// 
-// 
-// SemiFungiblePositionManager interactions...
-// 
-// 
 
 export async function deposit(
   ethereumish: Ethereumish,
@@ -404,4 +399,63 @@ export async function withdraw(
     BigNumber.from(req.assets)
   );
   return shares;
+}
+
+// 
+// 
+// SemiFungiblePositionManager interactions...
+// 
+// 
+
+export async function getAccountLiquidity(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const liquidity = await panopticish.getAccountLiquidity(
+    wallet,
+    req.univ3pool,
+    req.owner, 
+    req.tokenType, 
+    req.tickLower,
+    req.tickUpper
+  );
+  return liquidity;
+}
+
+export async function getAccountPremium(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const liquidity = await panopticish.getAccountPremium(
+    wallet,
+    req.univ3pool,
+    req.owner, 
+    req.tokenType, 
+    req.tickLower,
+    req.tickUpper, 
+    req.atTick, 
+    req.isLong
+  );
+  return liquidity;
+}
+
+export async function getAccountFeesBase(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const response = await panopticish.getAccountFeesBase(
+    wallet,
+    req.univ3pool,
+    req.owner, 
+    req.tokenType, 
+    req.tickLower,
+    req.tickUpper
+  );
+  return response;
 }

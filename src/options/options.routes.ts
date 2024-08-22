@@ -22,6 +22,9 @@ import {
   pokeMedian,
   forceExercise,
   settleLongPremium,
+  getAccountLiquidity,
+  getAccountPremium,
+  getAccountFeesBase,
 } from './options.controllers';
 import {
   MintRequest,
@@ -263,6 +266,42 @@ export namespace OptionsRoutes {
         res: Response<any | string, {}>
       ) => {
         res.status(200).json(await settleLongPremium(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/getAccountLiquidity',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await getAccountLiquidity(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/getAccountPremium',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await getAccountPremium(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/getAccountFeesBase',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await getAccountFeesBase(req.body));
       }
     )
   );

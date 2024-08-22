@@ -13,6 +13,7 @@ import { getAddress } from 'ethers/lib/utils';
 import panopticPoolAbi from './panoptic_panopticpool_abi.json';
 import panopticHelperAbi from './panoptic_panoptichelper_abi.json';
 import collateralTrackerAbi from './panoptic_collateraltracker_abi.json';
+import semiFungiblePositionManagerAbi from './panoptic_sfpm_abi.json';
 import axios from 'axios';
 
 export class Panoptic {
@@ -616,5 +617,90 @@ export class Panoptic {
   // SemiFungiblePositionManager interactions...
   // 
   // 
+
+  async getAccountLiquidity(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    owner: BigNumber,
+    tokenType: BigNumber,
+    tickLower: number,
+    tickUpper: number 
+  ): Promise<any> {
+    try {
+      const semiFungiblePositionManager = this.SemiFungiblePositionManager;
+      logger.info(`Checking getAccountLiquidity...`)
+      const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
+      const liquidity = await semiFungiblePositionManagerContract.getAccountLiquidity(
+        univ3pool, 
+        owner,
+        tokenType,
+        tickLower,
+        tickUpper
+      );
+      logger.info(`getAccountLiquidity: ${liquidity}`);
+      return liquidity;
+    } catch (error) {
+      logger.error("Error on getAccountLiquidity:", error);
+      return error;
+    }
+  }
+
+  async getAccountPremium(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    owner: BigNumber,
+    tokenType: BigNumber,
+    tickLower: number,
+    tickUpper: number, 
+    atTick: number, 
+    isLong: BigNumber
+  ): Promise<any> {
+    try {
+      const semiFungiblePositionManager = this.SemiFungiblePositionManager;
+      logger.info(`Checking getAccountPremium...`)
+      const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
+      const response = await semiFungiblePositionManagerContract.getAccountPremium(
+        univ3pool, 
+        owner,
+        tokenType,
+        tickLower,
+        tickUpper, 
+        atTick,
+        isLong
+      );
+      logger.info(`getAccountPremium response: ${response}`);
+      return response;
+    } catch (error) {
+      logger.error("Error on getAccountPremium:", error);
+      return error;
+    }
+  }
+
+  async getAccountFeesBase(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    owner: BigNumber,
+    tokenType: BigNumber,
+    tickLower: number,
+    tickUpper: number
+  ): Promise<any> {
+    try {
+      const semiFungiblePositionManager = this.SemiFungiblePositionManager;
+      logger.info(`Checking getAccountFeesBase...`)
+      const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
+      const response = await semiFungiblePositionManagerContract.getAccountFeesBase(
+        univ3pool, 
+        owner,
+        tokenType,
+        tickLower,
+        tickUpper
+      );
+      logger.info(`getAccountFeesBase response: ${response}`);
+      return response;
+    } catch (error) {
+      logger.error("Error on getAccountFeesBase:", error);
+      return error;
+    }
+  }
 
 }
