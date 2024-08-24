@@ -10,10 +10,10 @@ import {
 import { logger } from '../../services/logger';
 import { Ethereum } from '../../chains/ethereum/ethereum';
 import { getAddress } from 'ethers/lib/utils';
-import panopticPoolAbi from './panoptic_panopticpool_abi.json';
-import panopticHelperAbi from './panoptic_panoptichelper_abi.json';
-import collateralTrackerAbi from './panoptic_collateraltracker_abi.json';
-import semiFungiblePositionManagerAbi from './panoptic_sfpm_abi.json';
+import panopticPoolAbi from './PanopticPool.ABI.json';
+import panopticHelperAbi from './PanopticHelper.ABI.json';
+import collateralTrackerAbi from './CollateralTracker.ABI.json';
+import semiFungiblePositionManagerAbi from './SFPM.ABI.json';
 import axios from 'axios';
 
 export class Panoptic {
@@ -273,8 +273,8 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       logger.info(`Checking calculateAccumulatedFeesBatch...`)
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const data = await panopticContract.calculateAccumulatedFeesBatch(
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const data = await panopticPoolContract.calculateAccumulatedFeesBatch(
         wallet.address,
         includePendingPremium,
         positionIdList
@@ -309,8 +309,8 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       logger.info(`Fetching CollateralTracker for token 1 from contract ${panopticpool}...`);
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const tx = await panopticContract.collateralToken1();
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.collateralToken1();
       return tx;
     } catch (error) {
       logger.error("Error fetching collateral token 1:", error);
@@ -328,13 +328,13 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       logger.info(`Attempting option burn on contract ${panopticpool}...`);
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const tx = await panopticContract["burnOptions(uint256,uint256[],int24,int24)"](
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract["burnOptions(uint256,uint256[],int24,int24)"](
         burnTokenId,
         newPositionIdList,
         tickLimitLow,
         tickLimitHigh,
-        { gasLimit: 10000000 }
+        { gasLimit: this.gasLimitEstimate }
       );
       logger.info("Transaction submitted:", tx.hash);
       const receipt = await tx.wait();
@@ -355,13 +355,13 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       logger.info(`Attempting force exercise on contract ${panopticpool}...`);
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const tx = await panopticContract.forceExercise(
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.forceExercise(
         wallet.address,
         touchedId,
         positionIdListExercisee,
         positionIdListExercisor,
-        { gasLimit: 10000000 }
+        { gasLimit: this.gasLimitEstimate }
       );
       logger.info("Transaction submitted:", tx.hash);
       const receipt = await tx.wait();
@@ -383,13 +383,13 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       logger.info(`Attempting liquidation on contract ${panopticpool}...`);
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const tx = await panopticContract.liquidate(
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.liquidate(
         positionIdListLiquidator,
         liquidatee,
         delegations,
         positionIdList,
-        { gasLimit: 10000000 }
+        { gasLimit: this.gasLimitEstimate }
       );
       logger.info("Transaction submitted:", tx.hash);
       const receipt = await tx.wait();
@@ -412,14 +412,14 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       logger.info(`Attempting option mint on contract ${panopticpool}...`);
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const tx = await panopticContract.mintOptions(
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.mintOptions(
         positionIdList,
         positionSize,
         effectiveLiquidityLimit,
         tickLimitLow,
         tickLimitHigh,
-        { gasLimit: 10000000 }
+        { gasLimit: this.gasLimitEstimate }
       );
       logger.info("Transaction submitted:", tx.hash);
       const receipt = await tx.wait();
@@ -437,8 +437,8 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       logger.info(`Checking numberOfPositions...`)
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const positions = await panopticContract.numberOfPositions(wallet.address);
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const positions = await panopticPoolContract.numberOfPositions(wallet.address);
       logger.info(`numberOfPositions: ${positions}`);
       return positions;
     } catch (error) {
@@ -454,8 +454,8 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       logger.info(`Checking optionPositionBalance...`)
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const balance = await panopticContract.optionPositionBalance(
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const balance = await panopticPoolContract.optionPositionBalance(
         wallet.address,
         tokenId
       );
@@ -473,8 +473,8 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       logger.info(`Checking pokeMedian...`)
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const positions = await panopticContract.pokeMedian();
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const positions = await panopticPoolContract.pokeMedian();
       logger.info(`pokeMedian: ${positions}`);
       return positions;
     } catch (error) {
@@ -492,12 +492,12 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       logger.info(`Attempting settleLongPremium on contract ${panopticpool}...`)
-      const panopticContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const tx = await panopticContract.settleLongPremium(
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.settleLongPremium(
         positionIdList,
         owner,
         legIndex,
-        { gasLimit: 10000000 }
+        { gasLimit: this.gasLimitEstimate }
       );
       logger.info("Transaction submitted:", tx.hash);
       const receipt = await tx.wait();
@@ -602,7 +602,12 @@ export class Panoptic {
       const asset = await tokenContract.asset();
       logger.info(`Collateral token asset: ${asset}`);
       logger.info(`Wallet: ${wallet.address}, Assets: ${assets}`);
-      const withdrawEvent = await tokenContract.withdraw(assets, wallet.address, wallet.address, { gasLimit: 10000000 });
+      const withdrawEvent = await tokenContract.withdraw(
+        assets, 
+        wallet.address, 
+        wallet.address, 
+        { gasLimit: this.gasLimitEstimate }
+      );
       const shares = withdrawEvent.shares; // Accessing the "assets" property
       logger.info(`Assets: ${shares}`);
       return shares;

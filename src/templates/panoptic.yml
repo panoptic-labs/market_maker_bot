@@ -7,7 +7,7 @@ allowedSlippage: '1/100'
 ttl: 300
 
 # The maximum gas used to estimate gasCost for a Panoptic trade.
-gasLimitEstimate: 200000
+gasLimitEstimate: 10000000
 
 # Type of matching using the Panoptic SDK matching engine
 # Available options: 'FAST', 'BEST'
