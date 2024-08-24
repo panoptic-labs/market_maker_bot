@@ -76,6 +76,23 @@ export async function estimateGas(
   };
 }
 
+export async function calculateDelta(
+  panopticish: Panoptic,
+  req: any
+): Promise<any> {
+  const result = await panopticish.calculateDelta(req.PRICE, req.RANGE, req.STRIKE);
+  return result;
+}
+
+export async function calculateGamma(
+  panopticish: Panoptic,
+  req: any
+): Promise<any> {
+  const result = await panopticish.calculateGamma(req.PRICE, req.RANGE, req.STRIKE);
+  return result;
+}
+
+
 // 
 // 
 // Subgraph interactions...

@@ -1351,6 +1351,74 @@
       "id": "e025j0ec-65f0-4356-b412-c83c3eafe36a"
     },
     {
+      "name": "options",
+      "item": [
+        {
+          "name": "calculateDelta",
+          "id": "5a59426b-3ad7-438d-aac9-7fa7e1efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/calculateDelta",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "calculateDelta"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e025j0ec-65f0-43b6-b412-c83c3eafe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "calculateGamma",
+          "id": "5a59421b-3ad7-438d-aac9-7fa7e1efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/calculateGamma",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "calculateGamma"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e025j0ec-65f0-43b6-b4a2-c83c3eafe36a"
+    },
+    {
       "name": "amm / liquidity",
       "item": [
         {

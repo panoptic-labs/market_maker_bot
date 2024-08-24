@@ -27,6 +27,8 @@ import {
   getAccountLiquidity as panopticGetAccountLiquidity,
   getAccountPremium as panopticGetAccountPremium,
   getAccountFeesBase as panopticGetAccountFeesBase,
+  calculateDelta as panopticCalculateDelta,
+  calculateGamma as panopticCalculateGamma,
 } from '../connectors/panoptic/panoptic.controllers';
 import {
   getInitializedChain,
@@ -348,5 +350,31 @@ export async function getAccountFeesBase(req: any): Promise<any> {
     );
   if (connector instanceof Panoptic) {
     return panopticGetAccountFeesBase(<Ethereumish>chain, connector, req);
+  } 
+}
+
+export async function calculateDelta(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticCalculateDelta(connector, req);
+  } 
+}
+
+export async function calculateGamma(req: any): Promise<any> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticCalculateGamma(connector, req);
   } 
 }

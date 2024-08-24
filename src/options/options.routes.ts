@@ -25,6 +25,8 @@ import {
   getAccountLiquidity,
   getAccountPremium,
   getAccountFeesBase,
+  calculateDelta,
+  calculateGamma, 
 } from './options.controllers';
 import {
   MintRequest,
@@ -302,6 +304,30 @@ export namespace OptionsRoutes {
         res: Response<any | string, {}>
       ) => {
         res.status(200).json(await getAccountFeesBase(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/calculateDelta',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await calculateDelta(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/calculateGamma',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<any | string, {}>
+      ) => {
+        res.status(200).json(await calculateGamma(req.body));
       }
     )
   );

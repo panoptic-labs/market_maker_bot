@@ -164,6 +164,112 @@ export class Panoptic {
     return this._chain;
   }
 
+  async calculateDelta(
+    STRIKE: number, 
+    RANGE: number, 
+    PRICE: number
+  ): Promise<number> {
+    const N = 1000;
+  
+    // Generate linspace array
+    const linspace = (start: number, end: number, num: number): number[] => {
+      const step = (end - start) / (num - 1);
+      return Array.from({ length: num }, (_, i) => start + (i * step));
+    };
+  
+    const p = linspace(STRIKE / 3, 1.75 * STRIKE, N);
+  
+    // Define the V function
+    const V = (x: number, K: number, r: number): number => {
+      if (x <= K / r) {
+        return x;
+      } else if (x > K / r && x <= K * r) {
+        return (2 * Math.sqrt(x * K * r) - x - K) / (r - 1);
+      } else {
+        return K;
+      }
+    };
+  
+    // Calculate payoff
+    const payoff = p.map(x => V(x, STRIKE, RANGE) - V(PRICE, STRIKE, RANGE));
+  
+    // Calculate gradient
+    const gradient = (arr: number[]): number[] => {
+      return arr.map((val, index, array) => {
+        if (index === 0) {
+          return array[1] - array[0];
+        } else if (index === array.length - 1) {
+          return array[array.length - 1] - array[array.length - 2];
+        } else {
+          return (array[index + 1] - array[index - 1]) / 2;
+        }
+      });
+    };
+  
+    const payoffGradient = gradient(payoff);
+    const pGradient = gradient(p);
+  
+    // Find delta
+    const deltaIndex = p.findIndex(x => x >= PRICE);
+    const delta = Math.floor(100 * (payoffGradient[deltaIndex] / pGradient[deltaIndex]));
+  
+    return delta;
+  }
+  
+  async calculateGamma(
+    STRIKE: number, 
+    RANGE: number, 
+    PRICE: number
+  ): Promise<number>  {
+    const N = 1000;
+  
+    // Generate linspace array
+    const linspace = (start: number, end: number, num: number): number[] => {
+      const step = (end - start) / (num - 1);
+      return Array.from({ length: num }, (_, i) => start + (i * step));
+    };
+  
+    const p = linspace(STRIKE / 3, 1.75 * STRIKE, N);
+  
+    // Define the V function
+    const V = (x: number, K: number, r: number): number => {
+      if (x <= K / r) {
+        return x;
+      } else if (x > K / r && x <= K * r) {
+        return (2 * Math.sqrt(x * K * r) - x - K) / (r - 1);
+      } else {
+        return K;
+      }
+    };
+  
+    // Calculate payoff
+    const payoff = p.map(x => V(x, STRIKE, RANGE) - V(PRICE, STRIKE, RANGE));
+  
+    // Calculate gradient
+    const gradient = (arr: number[]): number[] => {
+      return arr.map((val, index, array) => {
+        if (index === 0) {
+          return array[1] - array[0];
+        } else if (index === array.length - 1) {
+          return array[array.length - 1] - array[array.length - 2];
+        } else {
+          return (array[index + 1] - array[index - 1]) / 2;
+        }
+      });
+    };
+  
+    const payoffGradient = gradient(payoff);
+    const pGradient = gradient(p);
+    const payoffGradient2 = gradient(payoffGradient);
+    const pGradient2 = gradient(pGradient);
+  
+    // Find gamma
+    const gammaIndex = p.findIndex(x => x >= PRICE);
+    const gamma = Math.floor(100 * (payoffGradient2[gammaIndex] / pGradient2[gammaIndex]));
+  
+    return gamma;
+  }
+
   // 
   // 
   // Subgraph interactions...
