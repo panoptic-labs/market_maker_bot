@@ -4,6 +4,7 @@ import {
   Wallet
 } from 'ethers';
 import { PanopticConfig } from './panoptic.config';
+// import { estimateGas } from './panoptic.controllers';
 import {
   Token
 } from '@uniswap/sdk';

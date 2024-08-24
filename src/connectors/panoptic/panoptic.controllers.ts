@@ -13,9 +13,11 @@ import {
 import { logger } from '../../services/logger';
 import {
   MintRequest,
-  BurnRequest
+  BurnRequest, 
+  EstimateGasResponse
 } from '../../options/options.requests';
 import { Panoptic } from '../panoptic/panoptic';
+import { gasCostInEthString } from '../../services/base';
 
 export interface TradeInfo {
   baseToken: Tokenish;
@@ -55,6 +57,23 @@ export async function txWriteData(
     );
   }
   return { wallet, maxFeePerGasBigNumber, maxPriorityFeePerGasBigNumber };
+}
+
+
+export async function estimateGas(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+): Promise<EstimateGasResponse> {
+  const gasPrice: number = ethereumish.gasPrice;
+  const gasLimit: number = panopticish.gasLimitEstimate;
+  return {
+    network: ethereumish.chain,
+    timestamp: Date.now(),
+    gasPrice,
+    gasPriceToken: ethereumish.nativeTokenSymbol,
+    gasLimit,
+    gasCost: gasCostInEthString(gasPrice, gasLimit),
+  };
 }
 
 // 

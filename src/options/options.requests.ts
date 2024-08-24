@@ -63,3 +63,12 @@ export interface MintResponse {
   nonce?: number;
   txHash: string | any | undefined;
 }
+
+export interface EstimateGasResponse {
+  network: string;
+  timestamp: number;
+  gasPrice: number;
+  gasPriceToken: string;
+  gasLimit: number;
+  gasCost: string;
+}
