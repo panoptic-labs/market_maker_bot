@@ -24,6 +24,7 @@ export namespace PanopticConfig {
     allowedSlippage: ConfigManagerV2.getInstance().get(
       'panoptic.allowedSlippage'
     ),
+    // TODO: Add a getTransactionGasLimitEstimate(unsignedTransactionPayload) here
     gasLimitEstimate: ConfigManagerV2.getInstance().get(
       `panoptic.gasLimitEstimate`
     ),

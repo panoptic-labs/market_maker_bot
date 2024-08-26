@@ -2,11 +2,12 @@
 # execution price. It uses a rational number for precision.
 allowedSlippage: '1/100'
 
-# ttl: how long a trade is valid in seconds. After this time passes panoptic will not
-# perform the trade, but the gas will still be sent.
+# ttl: how long a trade is valid in seconds. TODO: This is a placeholder; Panoptic has no such
+# concept. We'll remove this eventually.
 ttl: 300
 
-# The maximum gas used to estimate gasCost for a Panoptic trade.
+# The maximum gas used to estimate gasCost for a Panoptic trade. TODO: This will eventually be
+# dynamic.
 gasLimitEstimate: 10000000
 
 # Type of matching using the Panoptic SDK matching engine
@@ -16,14 +17,13 @@ gasLimitEstimate: 10000000
 contractAddresses:
   ethereum:
     sepolia:
-
-        # Router Address????
-        routerAddress: '0x77dcbA7729358D9F43AE4C3EA4206AA01c3d0056' #Just copying SFPM address
-        ###################   
-        ###################   
+        # Router Address
+        routerAddress: '0x77dcbA7729358D9F43AE4C3EA4206AA01c3d0056' # SFPM address
+        ###################
+        ###################
         # Uniswap addresses
-        ###################   
-        ###################   
+        ###################
+        ###################
         #
         # MultiCall2 Ethererum Sepolia
         multiCallAddress: '0xD7F33bCdb21b359c8ee6F0251d30E94832baAd07'
@@ -32,20 +32,19 @@ contractAddresses:
         # NonfungiblePositionManager Ethereum Sepolia
         NonFungiblePositionManager: '0x1238536071E1c677A632429e3655c799b22cDA52'
         #
-        ####################   
-        ####################   
+        ####################
+        ####################
         # Panoptic addresses
-        ####################   
-        ####################   
+        ####################
+        ####################
         #
-        # SemiFungiblePositionManager - manages Panoptic Uniswap LP positions
+        # SemiFungiblePositionManager - manages Panoptic Uniswap LP positions.
         SemiFungiblePositionManager: '0x60e2ecd11b82f382a6368e6244bc659ab4584171'
-        # PanopticFactory - creates/manages new Panoptic Pools
+        # PanopticFactory - creates/manages new Panoptic Pools.
         PanopticFactory: '0x17b393d0c5a27136dec50ac94715ccca1d8a0b0e'
-        # PanopticHelper - 
+        # PanopticHelper - periphery contract to help format inputs and outputs.
         PanopticHelper: '0x4acc8a06e7567f3a40a53d3254ad5888b22f902e'
-        # UniswapMigrator - 
+        # UniswapMigrator - helper contract to assist with mass-un-LPing from Uniswap, to re-LP via the SFPM.
         UniswapMigrator: '0xb5cf92427ff8b388bb333c074ed4bf961683b282'
-        # PanopticPool - 
+        # PanopticPool - Example PanopticPool on Sepolia; TODO: This will be dynamic in the future.
         PanopticPool: '0xc34C41289e6c433723542BB1Eba79c6919504EDD'
-        

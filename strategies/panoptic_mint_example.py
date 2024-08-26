@@ -1,7 +1,6 @@
 import asyncio
 
 from hummingbot.client.settings import GatewayConnectionSetting
-# from hummingbot.core.event.events import TradeType
 from hummingbot.core.gateway.gateway_http_client import GatewayHttpClient
 from hummingbot.core.utils.async_utils import safe_ensure_future
 from hummingbot.strategy.script_strategy_base import Decimal, ScriptStrategyBase
@@ -18,8 +17,8 @@ class TradePanoptions(ScriptStrategyBase):
         "77322973700535398579242074044252",
         "77322919308318248886668502693724",
         "77322919313040615369538147907420",
-        "77323000906088706391268150146908", 
-        "0x3cff3cc4c0403cff3db480803cff3cc460c03cff3db4204000ac3730726f75c" 
+        "77323000906088706391268150146908",
+        "0x3cff3cc4c0403cff3db480803cff3cc460c03cff3db4204000ac3730726f75c"
     ]
     positionSize = "123456789000000000000000000"
     effectiveLiquidityLimit = 0
@@ -29,7 +28,7 @@ class TradePanoptions(ScriptStrategyBase):
     on_going_task = False
 
     def on_tick(self):
-        # only execute once. Remove flag to execute each tick. 
+        # only execute once. Remove flag to execute each tick.
         if not self.on_going_task:
             self.on_going_task = True
             # wrap async task in safe_ensure_future
@@ -62,8 +61,8 @@ class TradePanoptions(ScriptStrategyBase):
             "effectiveLiquidityLimit": self.effectiveLiquidityLimit,
             "tickLimitLow": self.tickLimitLow,
             "tickLimitHigh": self.tickLimitHigh
-        } 
-    
+        }
+
         tradeData = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/mint",

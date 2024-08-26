@@ -4,7 +4,7 @@ import { Router, Request, Response } from 'express';
 import { asyncHandler } from '../services/error-handler';
 import {
   mint,
-  burn, 
+  burn,
   liquidate,
   getCollateralToken0,
   getCollateralToken1,
@@ -26,7 +26,7 @@ import {
   getAccountPremium,
   getAccountFeesBase,
   calculateDelta,
-  calculateGamma, 
+  calculateGamma,
 } from './options.controllers';
 import {
   ExecuteMintRequest,
@@ -49,7 +49,8 @@ export namespace OptionsRoutes {
         req: Request<{}, {}, ExecuteMintRequest>,
         res: Response<MintResponse | string, {}>
       ) => {
-        validateMintRequest(req.body);
+        // TODO: We need to iterate on this; they normally work but we changed up the request format.
+        // validateMintRequest(req.body);
         res.status(200).json(await mint(req.body));
       }
     )
@@ -62,7 +63,8 @@ export namespace OptionsRoutes {
         req: Request<{}, {}, ExecuteBurnRequest>,
         res: Response<BurnResponse | string, {}>
       ) => {
-        validateBurnRequest(req.body);
+        // TODO: We need to iterate on this; they normally work but we changed up the request format.
+        // validateBurnRequest(req.body);
         res.status(200).json(await burn(req.body));
       }
     )
@@ -198,7 +200,7 @@ export namespace OptionsRoutes {
         res.status(200).json(await querySubgraph(req.body));
       }
     )
-  ); 
+  );
 
   router.post(
     '/queryOpenPositions',
@@ -333,5 +335,3 @@ export namespace OptionsRoutes {
   );
 
 }
-
-

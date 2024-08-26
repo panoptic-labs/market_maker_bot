@@ -2,7 +2,6 @@ import asyncio
 import numpy as np
 
 from hummingbot.client.settings import GatewayConnectionSetting
-# from hummingbot.core.event.events import TradeType
 from hummingbot.core.gateway.gateway_http_client import GatewayHttpClient
 from hummingbot.core.utils.async_utils import safe_ensure_future
 from hummingbot.strategy.script_strategy_base import Decimal, ScriptStrategyBase
@@ -18,13 +17,15 @@ class TradePanoptions(ScriptStrategyBase):
     on_going_task = False
 
     def on_tick(self):
-        # only execute once. Remove flag to execute each tick. 
+        # By default, this stub strategy will only execute once.
+        # Remove the on_going_task flag to execute each tick.
         if not self.on_going_task:
             self.on_going_task = True
             # wrap async task in safe_ensure_future
             safe_ensure_future(self.async_task())
 
-    # async task since we are using Gateway
+    # async task: This is what gets executed each tick. The below will get relevant data that could
+    # power per-tick decisionmaking.
     async def async_task(self):
         connector, chain, network = self.connector_chain_network.split("_")
 
@@ -42,7 +43,7 @@ class TradePanoptions(ScriptStrategyBase):
             "network": network,
             "connector": connector,
             "address": address,
-        } 
+        }
 
         self.logger().info(f"Checking getCollateralToken0...")
         self.logger().info(f"POST /options/getCollateralToken0 [ connector: {connector} ]")
@@ -155,6 +156,7 @@ class TradePanoptions(ScriptStrategyBase):
         )
         self.logger().info(f"pokeMedian response: {response}")
 
+        # Example tokenID from real testnet user:
         request_payload["tokenId"]="77322919313040615369538147907420"
         self.logger().info(f"Checking optionPositionBalance on 77322919313040615369538147907420")
         self.logger().info(f"POST /options/optionPositionBalance [ connector: {connector} ]")
@@ -177,8 +179,13 @@ class TradePanoptions(ScriptStrategyBase):
         )
         self.logger().info(f"optionPositionBalance response: {response}")
 
+        # Pre-existing TokenIDs for the example testnet user:
         request_payload["includePendingPremium"]=True
-        request_payload["positionIdList"]=["1724358520355700724595784863781761016418202439334584929386932255284888270684","77323000906088706391268150146908","77322919308318248886668502693724"]
+        request_payload["positionIdList"]=[
+            "1724358520355700724595784863781761016418202439334584929386932255284888270684",
+            "77323000906088706391268150146908",
+            "77322919308318248886668502693724"
+        ]
         self.logger().info(f"Checking calculateAccumulatedFeesBatch")
         self.logger().info(f"POST /option/calculateAccumulatedFeesBatch [ connector: {connector} ]")
         response = await GatewayHttpClient.get_instance().api_request(
@@ -188,47 +195,6 @@ class TradePanoptions(ScriptStrategyBase):
             fail_silently=False
         )
         self.logger().info(f"calculateAccumulatedFeesBatch response: {response}")
-
-        # self.logger().info(f"Querying greeks...")
-        # self.logger().info(f"POST /options/calculateDelta [ connector: {connector} ]")
-        # request_payload["tick"] = 1
-        # request_payload["greek"] = "delta"
-        # delta = await GatewayHttpClient.get_instance().api_request(
-        #     method="post",
-        #     path_url="options/queryGreeks",
-        #     params=request_payload,
-        #     fail_silently=False
-        # )
-
-        # self.logger().info(f"Querying greeks...")
-        # self.logger().info(f"POST /options/queryGreeks [ connector: {connector} ]")
-        # request_payload["tick"] = 1
-        # request_payload["greek"] = "delta"
-        # delta = await GatewayHttpClient.get_instance().api_request(
-        #     method="post",
-        #     path_url="options/queryGreeks",
-        #     params=request_payload,
-        #     fail_silently=False
-        # )
-        # request_payload["greek"] = "gamma"
-        # gamma = await GatewayHttpClient.get_instance().api_request(
-        #     method="post",
-        #     path_url="options/queryGreeks",
-        #     params=request_payload,
-        #     fail_silently=False
-        # )
-        # self.logger().info(f"Delta: {delta}")
-        # self.logger().info(f"Gamma: {gamma}")
-
-
-        # self.logger().info(f"MAKING DEPOSIT...")
-        # request_payload["assets"] = str(int(np.power(10, 30)))
-        # depositToken0 = await GatewayHttpClient.get_instance().api_request(
-        #     method="post",
-        #     path_url="options/deposit",
-        #     params=request_payload,
-        #     fail_silently=False
-        # )
 
 
         self.logger().info("End of trade strategy...")

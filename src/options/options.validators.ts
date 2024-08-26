@@ -10,19 +10,11 @@ import {
 import {
   validateChain,
   validateNetwork,
-  // validateNonce,
-  // validateMaxFeePerGas,
-  // validateMaxPriorityFeePerGas,
   isAddress as isEthereumAddress,
   invalidAddressError,
 } from '../chains/ethereum/ethereum.validators';
 
-// import {
-//   isValidCosmosAddress
-// } from '../chains/cosmos/cosmos.validators';
-
 import { FeeAmount } from '@uniswap/v3-sdk';
-// import { validateTokenId } from '../amm/amm.validators';
 
 export const invalidConnectorError: string =
   'The connector param is not a string.';
@@ -90,7 +82,7 @@ export const validateConnector: Validator = mkValidator(
   (val) => typeof val === 'string'
 );
 
-// given a request, look for a key called address that is an Ethereum or Cosmos wallet
+// given a request, look for a key called address that is an Ethereum wallet
 export const validateAddress: Validator = mkValidator(
   'address',
   invalidAddressError,
@@ -179,6 +171,7 @@ export const validateLimitPrice: Validator = mkValidator(
   true
 );
 
+// TODO: Validate that each element is a valid tokenID
 export const validatePositionIdList: Validator = mkValidator(
   'positionIdList',
   invalidPositionIdListError,
@@ -242,7 +235,7 @@ export const validateTickLimitLow: Validator = mkValidator(
   'tickLimitLow',
   invalidTickLimitLowError,
   (val) =>
-    (typeof val === 'number' && val <= 0 && val >= -887272),
+    (typeof val === 'number' && val <= 887272 && val >= -887272),
   true
 );
 
@@ -250,7 +243,7 @@ export const validateTickLimitHigh: Validator = mkValidator(
   'tickLimitHigh',
   invalidTickLimitHighError,
   (val) =>
-    (typeof val === 'number' && val >= 0 && val <= 887272),
+    (typeof val === 'number' && val <= 887272 && val >= -887272),
   true
 );
 
@@ -290,4 +283,3 @@ export const validateBurnRequest: RequestValidator = mkRequestValidator([
   validateTickLimitLow,
   validateTickLimitHigh,
 ]);
-

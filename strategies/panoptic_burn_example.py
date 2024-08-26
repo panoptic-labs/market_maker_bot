@@ -1,7 +1,6 @@
 import asyncio
 
 from hummingbot.client.settings import GatewayConnectionSetting
-# from hummingbot.core.event.events import TradeType
 from hummingbot.core.gateway.gateway_http_client import GatewayHttpClient
 from hummingbot.core.utils.async_utils import safe_ensure_future
 from hummingbot.strategy.script_strategy_base import Decimal, ScriptStrategyBase
@@ -26,7 +25,7 @@ class TradePanoptions(ScriptStrategyBase):
     on_going_task = False
 
     def on_tick(self):
-        # only execute once. Remove flag to execute each tick. 
+        # only execute once. Remove flag to execute each tick.
         if not self.on_going_task:
             self.on_going_task = True
             # wrap async task in safe_ensure_future
@@ -58,8 +57,8 @@ class TradePanoptions(ScriptStrategyBase):
             "newPositionIdList": self.newPositionIdList,
             "tickLimitLow": self.tickLimitLow,
             "tickLimitHigh": self.tickLimitHigh
-        } 
-    
+        }
+
         tradeData = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/burn",

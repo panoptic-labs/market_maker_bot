@@ -4,7 +4,6 @@ import {
   Wallet
 } from 'ethers';
 import { PanopticConfig } from './panoptic.config';
-// import { estimateGas } from './panoptic.controllers';
 import {
   Token
 } from '@uniswap/sdk';
@@ -52,6 +51,7 @@ export class Panoptic {
     this._UniswapMigrator = config.UniswapMigrator(chain, network);
     this._PanopticPool = config.PanopticPool(chain, network);
     this._ttl = config.ttl;
+    // TODO: Move this to config
     this._subgraph_api_url = 'https://api.goldsky.com/api/public/project_cl9gc21q105380hxuh8ks53k3/subgraphs/panoptic-subgraph-sepolia/beta7/gn';
     this._gasLimitEstimate = config.gasLimitEstimate;
   }
@@ -164,119 +164,85 @@ export class Panoptic {
     return this._chain;
   }
 
+  async _gradient(arr: number[]): Promise<number[]> {
+    return arr.map((_, index, array) => {
+      if (index === 0) {
+        return array[1] - array[0];
+      } else if (index === array.length - 1) {
+        return array[array.length - 1] - array[array.length - 2];
+      } else {
+        return (array[index + 1] - array[index - 1]) / 2;
+      }
+    });
+  }
+
+  // TODO: Should check that this works
+  async _getPayoffGradients(
+      STRIKE: number,
+      RANGE: number,
+      PRICE: number
+  ): Promise<{ payoffGradient: number[], pGradient: number[], index: number }> {
+      const N = 1000;
+
+      // Generate linspace array
+      const linspace = (start: number, end: number, num: number): number[] => {
+        const step = (end - start) / (num - 1);
+        return Array.from({ length: num }, (_, i) => start + (i * step));
+      };
+
+      const p = linspace(STRIKE / 3, 1.75 * STRIKE, N);
+
+      // Define the V function
+      const V = (x: number, K: number, r: number): number => {
+        if (x <= K / r) {
+          return x;
+        } else if (x > K / r && x <= K * r) {
+          return (2 * Math.sqrt(x * K * r) - x - K) / (r - 1);
+        } else {
+          return K;
+        }
+      };
+
+      // Calculate payoff
+      const payoff = p.map(x => V(x, STRIKE, RANGE) - V(PRICE, STRIKE, RANGE));
+
+      const payoffGradient = await this._gradient(payoff);
+      const pGradient = await this._gradient(p);
+      return { payoffGradient, pGradient, index: p.findIndex(x => x >= PRICE)};
+  }
+
+  // TODO: In the future, we could deliver a calculateObservedDelta and denote this as merely the
+  //       Black-Scholles delta. Same for gamma.
+  // TODO: Write a opinionated gateway method that wraps this one but passes in the Uniswap.currentTick for PRICE
   async calculateDelta(
-    STRIKE: number, 
-    RANGE: number, 
+    STRIKE: number,
+    RANGE: number,
     PRICE: number
   ): Promise<number> {
-    const N = 1000;
-  
-    // Generate linspace array
-    const linspace = (start: number, end: number, num: number): number[] => {
-      const step = (end - start) / (num - 1);
-      return Array.from({ length: num }, (_, i) => start + (i * step));
-    };
-  
-    const p = linspace(STRIKE / 3, 1.75 * STRIKE, N);
-  
-    // Define the V function
-    const V = (x: number, K: number, r: number): number => {
-      if (x <= K / r) {
-        return x;
-      } else if (x > K / r && x <= K * r) {
-        return (2 * Math.sqrt(x * K * r) - x - K) / (r - 1);
-      } else {
-        return K;
-      }
-    };
-  
-    // Calculate payoff
-    const payoff = p.map(x => V(x, STRIKE, RANGE) - V(PRICE, STRIKE, RANGE));
-  
-    // Calculate gradient
-    const gradient = (arr: number[]): number[] => {
-      return arr.map((val, index, array) => {
-        logger.info(`val: ${val}, index: ${index}, array: ${array}`);
-        if (index === 0) {
-          return array[1] - array[0];
-        } else if (index === array.length - 1) {
-          return array[array.length - 1] - array[array.length - 2];
-        } else {
-          return (array[index + 1] - array[index - 1]) / 2;
-        }
-      });
-    };
-  
-    const payoffGradient = gradient(payoff);
-    const pGradient = gradient(p);
-  
-    // Find delta
-    const deltaIndex = p.findIndex(x => x >= PRICE);
-    const delta = Math.floor(100 * (payoffGradient[deltaIndex] / pGradient[deltaIndex]));
-  
+    const { payoffGradient, pGradient, index } = await this._getPayoffGradients(STRIKE, RANGE, PRICE);
+
+    const delta = Math.floor(100 * (payoffGradient[index] / pGradient[index]));
+
     return delta;
   }
-  
+
+  // TODO: Write a opinionated gateway method that wraps this one but passes in the Uniswap.currentTick for PRICE
   async calculateGamma(
-    STRIKE: number, 
-    RANGE: number, 
+    STRIKE: number,
+    RANGE: number,
     PRICE: number
   ): Promise<number>  {
-    const N = 1000;
-  
-    // Generate linspace array
-    const linspace = (start: number, end: number, num: number): number[] => {
-      const step = (end - start) / (num - 1);
-      return Array.from({ length: num }, (_, i) => start + (i * step));
-    };
-  
-    const p = linspace(STRIKE / 3, 1.75 * STRIKE, N);
-  
-    // Define the V function
-    const V = (x: number, K: number, r: number): number => {
-      if (x <= K / r) {
-        return x;
-      } else if (x > K / r && x <= K * r) {
-        return (2 * Math.sqrt(x * K * r) - x - K) / (r - 1);
-      } else {
-        return K;
-      }
-    };
-  
-    // Calculate payoff
-    const payoff = p.map(x => V(x, STRIKE, RANGE) - V(PRICE, STRIKE, RANGE)); 
-  
-    // Calculate gradient
-    const gradient = (arr: number[]): number[] => {
-      return arr.map((val, index, array) => {
-        logger.info(`val: ${val}, index: ${index}, array: ${array}`);
-        if (index === 0) {
-          return array[1] - array[0];
-        } else if (index === array.length - 1) {
-          return array[array.length - 1] - array[array.length - 2];
-        } else {
-          return (array[index + 1] - array[index - 1]) / 2;
-        }
-      });
-    };
-  
-    const payoffGradient = gradient(payoff);
-    const pGradient = gradient(p);
-    const payoffGradient2 = gradient(payoffGradient);
-    const pGradient2 = gradient(pGradient);
-  
-    // Find gamma
-    const gammaIndex = p.findIndex(x => x >= PRICE);
-    const gamma = Math.floor(100 * (payoffGradient2[gammaIndex] / pGradient2[gammaIndex]));
-  
+    const { payoffGradient, pGradient, index } = await this._getPayoffGradients(STRIKE, RANGE, PRICE);
+
+    const payoffGradient2 = await this._gradient(payoffGradient);
+    const pGradient2 = await this._gradient(pGradient);
+
+    const gamma = Math.floor(100 * (payoffGradient2[index] / pGradient2[index]));
+
     return gamma;
   }
 
-  // 
-  // 
-  // Subgraph interactions...
-  // 
-  // 
+  // Subgraph interactions
 
   async queryOpenPositions(
     wallet: Wallet
@@ -337,12 +303,10 @@ export class Panoptic {
     }
   }
 
-  // 
-  // 
-  // PanopticHelper interactions...
-  // 
-  // 
+  // PanopticHelper interactions
 
+  // TODO: These methods on the helper aren't live yet; eventually, this will be the easier way
+  //       to get multiple greeks in one call.
   async queryGreeks(
     wallet: Wallet,
     tick: number,
@@ -368,11 +332,7 @@ export class Panoptic {
     }
   }
 
-  // 
-  // 
-  // PanopticPool interactions...
-  // 
-  // 
+  // PanopticPool interactions
 
   async calculateAccumulatedFeesBatch(
     wallet: Wallet,
@@ -621,12 +581,7 @@ export class Panoptic {
   }
 
 
-
-  // 
-  // 
-  // CollateralTracker interactions...
-  // 
-  // 
+  // CollateralTracker interactions
 
   async deposit(
     wallet: Wallet,
@@ -650,7 +605,7 @@ export class Panoptic {
   }
 
   async getAsset(
-    wallet: Wallet, 
+    wallet: Wallet,
     collateralTrackerContract: any
   ): Promise<any> {
     try {
@@ -717,9 +672,9 @@ export class Panoptic {
       logger.info(`Collateral token asset: ${asset}`);
       logger.info(`Wallet: ${wallet.address}, Assets: ${assets}`);
       const withdrawEvent = await tokenContract.withdraw(
-        assets, 
-        wallet.address, 
-        wallet.address, 
+        assets,
+        wallet.address,
+        wallet.address,
         { gasLimit: this.gasLimitEstimate }
       );
       const shares = withdrawEvent.shares; // Accessing the "assets" property
@@ -731,11 +686,7 @@ export class Panoptic {
     }
   }
 
-  // 
-  // 
-  // SemiFungiblePositionManager interactions...
-  // 
-  // 
+  // SemiFungiblePositionManager interactions
 
   async getAccountLiquidity(
     wallet: Wallet,
@@ -743,14 +694,14 @@ export class Panoptic {
     owner: BigNumber,
     tokenType: BigNumber,
     tickLower: number,
-    tickUpper: number 
+    tickUpper: number
   ): Promise<any> {
     try {
       const semiFungiblePositionManager = this.SemiFungiblePositionManager;
       logger.info(`Checking getAccountLiquidity...`)
       const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
       const liquidity = await semiFungiblePositionManagerContract.getAccountLiquidity(
-        univ3pool, 
+        univ3pool,
         owner,
         tokenType,
         tickLower,
@@ -770,8 +721,8 @@ export class Panoptic {
     owner: BigNumber,
     tokenType: BigNumber,
     tickLower: number,
-    tickUpper: number, 
-    atTick: number, 
+    tickUpper: number,
+    atTick: number,
     isLong: BigNumber
   ): Promise<any> {
     try {
@@ -779,11 +730,11 @@ export class Panoptic {
       logger.info(`Checking getAccountPremium...`)
       const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
       const response = await semiFungiblePositionManagerContract.getAccountPremium(
-        univ3pool, 
+        univ3pool,
         owner,
         tokenType,
         tickLower,
-        tickUpper, 
+        tickUpper,
         atTick,
         isLong
       );
@@ -808,7 +759,7 @@ export class Panoptic {
       logger.info(`Checking getAccountFeesBase...`)
       const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
       const response = await semiFungiblePositionManagerContract.getAccountFeesBase(
-        univ3pool, 
+        univ3pool,
         owner,
         tokenType,
         tickLower,

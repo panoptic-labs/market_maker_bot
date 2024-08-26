@@ -1,4 +1,3 @@
-// import Decimal from 'decimal.js-light';
 import { BigNumber, Wallet } from 'ethers';
 import {
   HttpException,
@@ -12,7 +11,7 @@ import {
 } from '../../services/common-interfaces';
 import { logger } from '../../services/logger';
 import {
-  ExecuteBurnRequest, 
+  ExecuteBurnRequest,
   CalculateDeltaRequest,
   CalculateGammaRequest,
   GreekQueryRequest,
@@ -81,7 +80,8 @@ export async function txWriteData(
   return { wallet, maxFeePerGasBigNumber, maxPriorityFeePerGasBigNumber };
 }
 
-
+// NOTE: Relies on a hard-coded 10M gas limit for every transaction.
+// TODO: Replace with actual tx simulation logic.
 export async function estimateGas(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
@@ -97,6 +97,8 @@ export async function estimateGas(
     gasCost: gasCostInEthString(gasPrice, gasLimit),
   };
 }
+
+// TODO: Strongly type the return promises for each of the rest of the gateway methods.
 
 export async function calculateDelta(
   panopticish: Panoptic,
@@ -115,11 +117,7 @@ export async function calculateGamma(
 }
 
 
-// 
-// 
-// Subgraph interactions...
-// 
-// 
+// Subgraph interactions
 
 export async function queryOpenPositions(
   ethereumish: Ethereumish,
@@ -139,12 +137,11 @@ export async function querySubgraph(
   return result;
 }
 
-// 
-// 
-// PanopticHelper interactions...
-// 
-// 
+// PanopticHelper interactions
 
+// TODO: Eventually, we'll allow users to make 1 gateway call to get all 5 greeks, rather than
+//       calling calculateDelta, then calculateGamma, etc...
+//       NOT YET FUNCTIONAL
 export async function queryGreeks(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
@@ -155,11 +152,7 @@ export async function queryGreeks(
   return result;
 }
 
-// 
-// 
-// PanopticPool interactions...
-// 
-// 
+// PanopticPool interactions
 
 export async function calculateAccumulatedFeesBatch(
   ethereumish: Ethereumish,
@@ -220,7 +213,7 @@ export async function burn(
     );
   }
   logger.info(
-    `Trade has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+    `Burn has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
   );
   return {
     network: ethereumish.chain,
@@ -254,7 +247,7 @@ export async function forceExercise(
     );
   }
   logger.info(
-    `Trade has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+    `Force exercise has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
   );
   return {
     network: ethereumish.chain,
@@ -289,7 +282,7 @@ export async function liquidate(
     );
   }
   logger.info(
-    `Trade has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+    `Liquidation has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
   );
   return {
     network: ethereumish.chain,
@@ -323,7 +316,7 @@ export async function mint(
     );
   }
   logger.info(
-    `Trade has been executed, tx: ${tx}, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+    `Mint has been executed, tx: ${tx}, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
   );
   return {
     network: ethereumish.chain,
@@ -339,10 +332,11 @@ export async function numberOfPositions(
   req: NumberOfPositionsRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const positions = await panopticish.numberOfPositions(
+  const numOfPositions = await panopticish.numberOfPositions(
     wallet
   );
-  return positions;
+  // TODO: cast this to number/int
+  return numOfPositions;
 }
 
 export async function optionPositionBalance(
@@ -352,9 +346,10 @@ export async function optionPositionBalance(
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.optionPositionBalance(
-    wallet, 
+    wallet,
     req.tokenId
   );
+  // TODO: cast this to number/int
   return result;
 }
 
@@ -364,10 +359,8 @@ export async function pokeMedian(
   req: PokeMedianRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const positions = await panopticish.pokeMedian(
-    wallet
-  );
-  return positions;
+  const txData = await panopticish.pokeMedian();
+  return txData;
 }
 
 export async function settleLongPremium(
@@ -385,12 +378,7 @@ export async function settleLongPremium(
   return positions;
 }
 
-// 
-// 
-// CollateralTracker interactions...
-// 
-// 
-
+// CollateralTracker interactions
 
 export async function deposit(
   ethereumish: Ethereumish,
@@ -459,11 +447,7 @@ export async function withdraw(
   return shares;
 }
 
-// 
-// 
-// SemiFungiblePositionManager interactions...
-// 
-// 
+// SemiFungiblePositionManager interactions
 
 export async function getAccountLiquidity(
   ethereumish: Ethereumish,
@@ -474,8 +458,8 @@ export async function getAccountLiquidity(
   const liquidity = await panopticish.getAccountLiquidity(
     wallet,
     req.univ3pool,
-    req.owner, 
-    req.tokenType, 
+    req.owner,
+    req.tokenType,
     req.tickLower,
     req.tickUpper
   );
@@ -491,11 +475,11 @@ export async function getAccountPremium(
   const liquidity = await panopticish.getAccountPremium(
     wallet,
     req.univ3pool,
-    req.owner, 
-    req.tokenType, 
+    req.owner,
+    req.tokenType,
     req.tickLower,
-    req.tickUpper, 
-    req.atTick, 
+    req.tickUpper,
+    req.atTick,
     req.isLong
   );
   return liquidity;
@@ -510,8 +494,8 @@ export async function getAccountFeesBase(
   const response = await panopticish.getAccountFeesBase(
     wallet,
     req.univ3pool,
-    req.owner, 
-    req.tokenType, 
+    req.owner,
+    req.tokenType,
     req.tickLower,
     req.tickUpper
   );

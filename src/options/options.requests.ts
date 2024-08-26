@@ -4,10 +4,10 @@ import {
 import { BigNumber, Wallet } from 'ethers';
 
 export interface PanopticRequest{
-  network?: string; 
-  chain?: string; 
-  connector?: string; 
-  address?: string; 
+  network?: string;
+  chain?: string;
+  connector?: string;
+  address?: string;
 }
 
 export interface CalculateDeltaRequest extends PanopticRequest{
@@ -24,7 +24,7 @@ export interface CalculateGammaRequest extends PanopticRequest{
 
 export interface ExecuteBurnRequest extends PanopticRequest {
   address: string;
-  chain: string; 
+  chain: string;
   network: string;
   burnTokenId: BigNumber;
   newPositionIdList: BigNumber[];
@@ -33,24 +33,24 @@ export interface ExecuteBurnRequest extends PanopticRequest {
 }
 
 export interface GreekQueryRequest extends PanopticRequest{
-  address: string; 
+  address: string;
   STRIKE: number;
   RANGE: number;
   PRICE: number;
   string: string;
   tick: number;
   positionIdList: BigNumber[];
-  greek: string; 
+  greek: string;
 }
 
 export interface QueryOpenPositionsRequest extends PanopticRequest{
-  wallet: Wallet; 
+  wallet: Wallet;
   address: string;
-} 
+}
 
 export interface QuerySubgraphRequest extends PanopticRequest{
   query: string;
-  variables: any; 
+  variables: any;
 }
 
 export interface CalculateAccumulatedFeesBatchRequest extends PanopticRequest{
@@ -69,14 +69,6 @@ export interface CollateralToken1Request extends PanopticRequest{
   wallet: Wallet;
   address: string;
 }
-
-// export interface ExecuteBurnRequest extends PanopticRequest{
-//   wallet: Wallet;
-//   burnTokenId: BigNumber;
-//   newPositionIdList: BigNumber[];
-//   tickLimitLow: number;
-//   tickLimitHigh: number;
-// }
 
 export interface ForceExerciseRequest extends PanopticRequest{
   wallet: Wallet;
@@ -103,10 +95,10 @@ export interface ExecuteMintRequest extends NetworkSelectionRequest {
   panopticPool: string;
 }
 
-export interface NumberOfPositionsRequest extends PanopticRequest{  
-  wallet: Wallet; 
+export interface NumberOfPositionsRequest extends PanopticRequest{
+  wallet: Wallet;
   address: string;
-} 
+}
 
 export interface OptionPositionBalanceRequest extends PanopticRequest{
   wallet: Wallet;
@@ -130,7 +122,7 @@ export interface SettleLongPremiumRequest extends PanopticRequest{
 export interface DepositRequest extends PanopticRequest{
   wallet: Wallet;
   collateralTracker: any;
-  assets: BigNumber; 
+  assets: BigNumber;
   address: string;
 }
 
@@ -160,7 +152,7 @@ export interface WithdrawRequest extends PanopticRequest{
 }
 
 export interface GetAccountLiquidityRequest extends PanopticRequest{
-  wallet: Wallet; 
+  wallet: Wallet;
   univ3pool: BigNumber;
   owner: BigNumber;
   tokenType: BigNumber;
@@ -198,17 +190,17 @@ export interface BurnResponse {
   base: string;
   quote: string;
   amount: string; // traderequest.amount
-  finalAmountReceived?: string; // 
+  finalAmountReceived?: string; //
   rawAmount: string;
-  finalAmountReceived_basetoken?: string; // 
+  finalAmountReceived_basetoken?: string; //
   expectedIn?: string;
   expectedOut?: string;  // : expectedAmountReceived
-  expectedPrice?: string;  // 
+  expectedPrice?: string;  //
   price: string; // : finalPrice
   gasPrice: number;
   gasPriceToken: string;
   gasLimit: number;
-  gasWanted?: string; // 
+  gasWanted?: string; //
   gasCost: string; // : gasUsed
   nonce?: number;
   txHash: string | any | undefined;
@@ -221,17 +213,17 @@ export interface MintResponse {
   base: string;
   quote: string;
   amount: string; // traderequest.amount
-  finalAmountReceived?: string; // 
+  finalAmountReceived?: string; //
   rawAmount: string;
-  finalAmountReceived_basetoken?: string; // 
+  finalAmountReceived_basetoken?: string; //
   expectedIn?: string;
   expectedOut?: string;  // : expectedAmountReceived
-  expectedPrice?: string;  // 
+  expectedPrice?: string;  //
   price: string; // : finalPrice
   gasPrice: number;
   gasPriceToken: string;
   gasLimit: number;
-  gasWanted?: string; // 
+  gasWanted?: string; //
   gasCost: string; // : gasUsed
   nonce?: number;
   txHash: string | any | undefined;
