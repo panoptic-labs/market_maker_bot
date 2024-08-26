@@ -29,9 +29,9 @@ import {
   calculateGamma, 
 } from './options.controllers';
 import {
-  MintRequest,
+  ExecuteMintRequest,
   MintResponse,
-  BurnRequest,
+  ExecuteBurnRequest,
   BurnResponse,
 } from './options.requests';
 import {
@@ -46,7 +46,7 @@ export namespace OptionsRoutes {
     '/mint',
     asyncHandler(
       async (
-        req: Request<{}, {}, MintRequest>,
+        req: Request<{}, {}, ExecuteMintRequest>,
         res: Response<MintResponse | string, {}>
       ) => {
         validateMintRequest(req.body);
@@ -59,7 +59,7 @@ export namespace OptionsRoutes {
     '/burn',
     asyncHandler(
       async (
-        req: Request<{}, {}, BurnRequest>,
+        req: Request<{}, {}, ExecuteBurnRequest>,
         res: Response<BurnResponse | string, {}>
       ) => {
         validateBurnRequest(req.body);

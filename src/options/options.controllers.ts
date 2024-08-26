@@ -1,7 +1,7 @@
 import {
-  BurnRequest,
+  ExecuteBurnRequest,
   BurnResponse,
-  MintRequest,
+  ExecuteMintRequest,
   MintResponse,
 } from './options.requests';
 import {
@@ -40,7 +40,7 @@ import {
 import { Panoptic } from '../connectors/panoptic/panoptic';
 
 
-export async function mint(req: MintRequest): Promise<MintResponse | undefined> {
+export async function mint(req: ExecuteMintRequest): Promise<MintResponse | undefined> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -57,7 +57,7 @@ export async function mint(req: MintRequest): Promise<MintResponse | undefined> 
   }
 }
 
-export async function burn(req: BurnRequest): Promise<BurnResponse | undefined> {
+export async function burn(req: ExecuteBurnRequest): Promise<BurnResponse | undefined> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -354,7 +354,7 @@ export async function getAccountFeesBase(req: any): Promise<any> {
 }
 
 export async function calculateDelta(req: any): Promise<any> {
-  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  // const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
       req.chain,
@@ -367,7 +367,7 @@ export async function calculateDelta(req: any): Promise<any> {
 }
 
 export async function calculateGamma(req: any): Promise<any> {
-  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  // const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
       req.chain,

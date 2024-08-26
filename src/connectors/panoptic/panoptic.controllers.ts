@@ -12,8 +12,30 @@ import {
 } from '../../services/common-interfaces';
 import { logger } from '../../services/logger';
 import {
-  MintRequest,
-  BurnRequest, 
+  ExecuteBurnRequest, 
+  CalculateDeltaRequest,
+  CalculateGammaRequest,
+  GreekQueryRequest,
+  QueryOpenPositionsRequest,
+  QuerySubgraphRequest,
+  CalculateAccumulatedFeesBatchRequest,
+  CollateralToken0Request,
+  CollateralToken1Request,
+  ForceExerciseRequest,
+  LiquidateRequest,
+  ExecuteMintRequest,
+  NumberOfPositionsRequest,
+  OptionPositionBalanceRequest,
+  PokeMedianRequest,
+  SettleLongPremiumRequest,
+  DepositRequest,
+  GetAssetRequest,
+  GetPoolDataRequest,
+  MaxWithdrawRequest,
+  WithdrawRequest,
+  GetAccountLiquidityRequest,
+  GetAccountPremiumRequest,
+  GetAccountFeesBaseRequest,
   EstimateGasResponse
 } from '../../options/options.requests';
 import { Panoptic } from '../panoptic/panoptic';
@@ -78,7 +100,7 @@ export async function estimateGas(
 
 export async function calculateDelta(
   panopticish: Panoptic,
-  req: any
+  req: CalculateDeltaRequest
 ): Promise<any> {
   const result = await panopticish.calculateDelta(req.PRICE, req.RANGE, req.STRIKE);
   return result;
@@ -86,7 +108,7 @@ export async function calculateDelta(
 
 export async function calculateGamma(
   panopticish: Panoptic,
-  req: any
+  req: CalculateGammaRequest
 ): Promise<any> {
   const result = await panopticish.calculateGamma(req.PRICE, req.RANGE, req.STRIKE);
   return result;
@@ -102,7 +124,7 @@ export async function calculateGamma(
 export async function queryOpenPositions(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: QueryOpenPositionsRequest
 ): Promise<any> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.queryOpenPositions(wallet);
@@ -111,7 +133,7 @@ export async function queryOpenPositions(
 
 export async function querySubgraph(
   panopticish: Panoptic,
-  req: any
+  req: QuerySubgraphRequest
 ): Promise<any> {
   const result = await panopticish.querySubgraph(req.query, req.variables);
   return result;
@@ -126,7 +148,7 @@ export async function querySubgraph(
 export async function queryGreeks(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: GreekQueryRequest
 ): Promise<any> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.queryGreeks(wallet, req.tick, req.positionIdList, req.greek);
@@ -142,7 +164,7 @@ export async function queryGreeks(
 export async function calculateAccumulatedFeesBatch(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: CalculateAccumulatedFeesBatchRequest
 ): Promise<any> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.calculateAccumulatedFeesBatch(
@@ -156,7 +178,7 @@ export async function calculateAccumulatedFeesBatch(
 export async function getCollateralToken0(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: CollateralToken0Request
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const token0 = await panopticish.collateralToken0(wallet);
@@ -166,7 +188,7 @@ export async function getCollateralToken0(
 export async function getCollateralToken1(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: CollateralToken1Request
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const token1 = await panopticish.collateralToken1(wallet);
@@ -176,7 +198,7 @@ export async function getCollateralToken1(
 export async function burn(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: BurnRequest
+  req: ExecuteBurnRequest
 ): Promise<any> {
   const startTimestamp: number = Date.now();
   const { wallet } = await txWriteData(ethereumish, req.address);
@@ -211,7 +233,7 @@ export async function burn(
 export async function forceExercise(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: ForceExerciseRequest
 ): Promise<any> {
   const startTimestamp: number = Date.now();
   const { wallet } = await txWriteData(ethereumish, req.address);
@@ -245,7 +267,7 @@ export async function forceExercise(
 export async function liquidate(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: LiquidateRequest
 ): Promise<any> {
   const startTimestamp: number = Date.now();
   const { wallet } = await txWriteData(ethereumish, req.address);
@@ -280,7 +302,7 @@ export async function liquidate(
 export async function mint(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: MintRequest
+  req: ExecuteMintRequest
 ): Promise<any> {
   const startTimestamp: number = Date.now();
   const { wallet } = await txWriteData(ethereumish, req.address);
@@ -314,7 +336,7 @@ export async function mint(
 export async function numberOfPositions(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: NumberOfPositionsRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const positions = await panopticish.numberOfPositions(
@@ -326,7 +348,7 @@ export async function numberOfPositions(
 export async function optionPositionBalance(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: OptionPositionBalanceRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.optionPositionBalance(
@@ -339,7 +361,7 @@ export async function optionPositionBalance(
 export async function pokeMedian(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: PokeMedianRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const positions = await panopticish.pokeMedian(
@@ -351,7 +373,7 @@ export async function pokeMedian(
 export async function settleLongPremium(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: SettleLongPremiumRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const positions = await panopticish.settleLongPremium(
@@ -373,7 +395,7 @@ export async function settleLongPremium(
 export async function deposit(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: DepositRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const asset = await panopticish.deposit(
@@ -387,7 +409,7 @@ export async function deposit(
 export async function getAsset(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: GetAssetRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const asset = await panopticish.getAsset(
@@ -400,7 +422,7 @@ export async function getAsset(
 export async function getPoolData(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: GetPoolDataRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const shares = await panopticish.getPoolData(
@@ -413,7 +435,7 @@ export async function getPoolData(
 export async function maxWithdraw(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: MaxWithdrawRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const limit = await panopticish.maxWithdraw(
@@ -426,7 +448,7 @@ export async function maxWithdraw(
 export async function withdraw(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: WithdrawRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const shares = await panopticish.withdraw(
@@ -446,7 +468,7 @@ export async function withdraw(
 export async function getAccountLiquidity(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: GetAccountLiquidityRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const liquidity = await panopticish.getAccountLiquidity(
@@ -463,7 +485,7 @@ export async function getAccountLiquidity(
 export async function getAccountPremium(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: GetAccountPremiumRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const liquidity = await panopticish.getAccountPremium(
@@ -482,7 +504,7 @@ export async function getAccountPremium(
 export async function getAccountFeesBase(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
+  req: GetAccountFeesBaseRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const response = await panopticish.getAccountFeesBase(

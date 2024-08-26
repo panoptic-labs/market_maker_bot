@@ -189,7 +189,16 @@ class TradePanoptions(ScriptStrategyBase):
         )
         self.logger().info(f"calculateAccumulatedFeesBatch response: {response}")
 
-
+        # self.logger().info(f"Querying greeks...")
+        # self.logger().info(f"POST /options/calculateDelta [ connector: {connector} ]")
+        # request_payload["tick"] = 1
+        # request_payload["greek"] = "delta"
+        # delta = await GatewayHttpClient.get_instance().api_request(
+        #     method="post",
+        #     path_url="options/queryGreeks",
+        #     params=request_payload,
+        #     fail_silently=False
+        # )
 
         # self.logger().info(f"Querying greeks...")
         # self.logger().info(f"POST /options/queryGreeks [ connector: {connector} ]")
@@ -202,7 +211,7 @@ class TradePanoptions(ScriptStrategyBase):
         #     fail_silently=False
         # )
         # request_payload["greek"] = "gamma"
-        # delta = await GatewayHttpClient.get_instance().api_request(
+        # gamma = await GatewayHttpClient.get_instance().api_request(
         #     method="post",
         #     path_url="options/queryGreeks",
         #     params=request_payload,

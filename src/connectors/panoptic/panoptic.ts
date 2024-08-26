@@ -196,6 +196,7 @@ export class Panoptic {
     // Calculate gradient
     const gradient = (arr: number[]): number[] => {
       return arr.map((val, index, array) => {
+        logger.info(`val: ${val}, index: ${index}, array: ${array}`);
         if (index === 0) {
           return array[1] - array[0];
         } else if (index === array.length - 1) {
@@ -243,11 +244,12 @@ export class Panoptic {
     };
   
     // Calculate payoff
-    const payoff = p.map(x => V(x, STRIKE, RANGE) - V(PRICE, STRIKE, RANGE));
+    const payoff = p.map(x => V(x, STRIKE, RANGE) - V(PRICE, STRIKE, RANGE)); 
   
     // Calculate gradient
     const gradient = (arr: number[]): number[] => {
       return arr.map((val, index, array) => {
+        logger.info(`val: ${val}, index: ${index}, array: ${array}`);
         if (index === 0) {
           return array[1] - array[0];
         } else if (index === array.length - 1) {
@@ -393,7 +395,9 @@ export class Panoptic {
     }
   }
 
-  async collateralToken0(wallet: Wallet): Promise<any> {
+  async collateralToken0(
+    wallet: Wallet
+  ): Promise<any> {
     try {
       const panopticpool = this.PanopticPool;
       logger.info(`Fetching CollateralTracker for token 0 from contract ${panopticpool}...`);
@@ -645,7 +649,10 @@ export class Panoptic {
     }
   }
 
-  async getAsset(wallet: Wallet, collateralTrackerContract: any): Promise<any> {
+  async getAsset(
+    wallet: Wallet, 
+    collateralTrackerContract: any
+  ): Promise<any> {
     try {
       const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
       const asset = await tokenContract.asset();
