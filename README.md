@@ -8,45 +8,50 @@ We have added an `/options` namespace to the Hummingbot Gateway, and have includ
 
 It also comes with Sepolia support out of the box, which is not found in upstream Hummingbot implementations.
 
-## Setup:
+## Setup
 
 You can find instructions below about the general Hummingbot setup. To specifically use the Panoptic functionality, you can:
 
-1. Get hummingbot set up:
-   a. `git clone https://github.com/hummingbot/hummingbot.git`
-   b. `cd hummingbot`
-   c. `./install`
-      i. You may need to first install anaconda: https://www.anaconda.com/download
-   d. `conda activate hummingbot`
-   e. `./compile`
-   f. `./start`
-   g. The Hummingbot UI should now present itself! You can now set a password.
-   i. The Hummingbot Shell will now present itself. You can then `gateway generate-certs` to generate certificates and secure your Hummingbot instance.
-      i. You’ll be prompted to set a password and it’ll list the directory those certificates are stored in.
-      ii. Copy the directory path it generates these certificates though.
-      iii. For many users, this was `~/hummingbot/certs`. This is just a certs folder in the same folder as your hummingbot repo.
-2. Then, set up this fork of the Hummingbot Gateway:
-   a. `git clone git@github.com:panoptic-labs/market_maker_bot.git`
-   b. `cd market_maker_bot`
-   c. `yarn`
-      i. Ensure you’re using node 18.0.0 or higher - you can use [nvm](https://github.com/nvm-sh/nvm) to manage different node versions if needed.
-   d. `yarn build`
-   e. Give permissions to the gateway setup script: `chmod a+x gateway-setup.sh`
-   f. Then run it: `./gateway-setup.sh`
-   g. It will prompt you to copy over the certs, enter the path (and possibly password) for those certs you just generated in (1)(g)(i). Enter the path.
-3. Then, you should be able to launch the Gateway: `yarn start --passphrase=<passphrase>`
-4. Then, back in the Hummingbot UI tab, you should see Gateway: ONLINE in the navbar, on the right side to the left of > log pane.
-   a. You can connect to Panoptic's functionality by running `gateway connect panoptic` in the Hummingbot shell. You will be prompted about your RPC URL and private key to get started.
-   b. To confirm functionality, you can run `gateway balance` to see your Sepolia ETH balance.
-   c. You can then add more tokens to track balances of if you like via: `gateway connector-tokens panoptic_ethereum_sepolia ETH,WETH,T0,T1`. Your next call to `gateway balance` will show your balances of all those tokens.
-      i. Be careful NOT to add spaces between the token tickers.
-   d. Be sure to approve your tokens to appropriate spenders, such as Uniswap or Panoptic contracts, to see valid gas estimates.
+Step 1: Get hummingbot set up:
+
+1. `git clone https://github.com/hummingbot/hummingbot.git`
+2. `cd hummingbot`
+3. `./install` (You may need to first [install anaconda](https://www.anaconda.com/download))
+4. `conda activate hummingbot`
+5. `./compile`
+6. `./start`
+7. The Hummingbot UI should now present itself! You can now set a password.
+8. The Hummingbot Shell will now present itself. You can then `gateway generate-certs` to generate certificates and secure your Hummingbot instance.
+   a. You’ll be prompted to set a password and it’ll list the directory those certificates are stored in.
+   b. Copy the directory path it generates these certificates though.
+   c. For many users, this was `~/hummingbot/certs`. This is just a certs folder in the same folder as your hummingbot repo.
+
+Step 2: Set up this fork of the Hummingbot Gateway:
+
+1. `git clone git@github.com:panoptic-labs/market_maker_bot.git`
+2. `cd market_maker_bot`
+3. `yarn` (Ensure you’re using node 18.0.0 or higher - you can use [nvm](https://github.com/nvm-sh/nvm) to manage different node versions if needed.)
+4. `yarn build`
+5. Give permissions to the gateway setup script: `chmod a+x gateway-setup.sh`
+6. Then run it: `./gateway-setup.sh`
+7. It will prompt you to copy over the certs, enter the path (and possibly password) for those certs you just generated in (1)(g)(i). Enter the path.
+
+Step 3: Launch the Gateway:
+
+`yarn start --passphrase=<passphrase>`
+
+Finally, back in the Hummingbot UI tab, you should see Gateway: ONLINE in the navbar, on the right side to the left of > log pane.
+
+1. You can connect to Panoptic's functionality by running `gateway connect panoptic` in the Hummingbot shell. You will be prompted about your RPC URL and private key to get started.
+2. To confirm functionality, you can run `gateway balance` to see your Sepolia ETH balance.
+3. You can then add more tokens to track balances of if you like via: `gateway connector-tokens panoptic_ethereum_sepolia ETH,WETH,T0,T1`. Your next call to `gateway balance` will show your balances of all those tokens. Be careful NOT to add spaces between the token tickers.
+4. Be sure to approve your tokens to appropriate spenders, such as Uniswap or Panoptic contracts, to see valid gas estimates.
 
 From here, you should be able to implement strategies in the `hummingbot` repo that call to your local instance of the Gateway, with our Panoptic methods!
 
 Note: If you run into issues about failures to connect, note that Hummingbot, by default, can make calls to Binance, which georestricts some requests.
 
-## Use:
+## Use
 
 You can try out one of the 3 stub strategies currently present in this repo's `./strategies/panoptic_*.py` files. Copy and paste them over in your `hummingbot` repo, into `./scripts`. Then, from the Hummingbot terminal UI, run one of the scripts via `start --script {strategy's_file_name}.py`. The `panoptic_trading_strategy_stub.py` will report some statistics, while the mint and burn strategies will attempt transactions. You can modify these scripts to use your own user data for test usage. Do note you'll need to approve any tokens involved in the strategy to see actual transactions go through.
 
