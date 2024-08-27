@@ -15,7 +15,7 @@
     "dev": "nodemon src/index.ts",
     "dev:debug": "NODE_ENV=dev DEBUG=* nodemon src/index.ts",
     "start": "/bin/bash ./startup.sh",
-    "copy-files": "copyfiles -a 'src/**/schema/*.json' 'src/templates/*.yml' 'src/templates/lists/*.json' 'test/services/data/**/*.*' dist",
+    "copy-files": "copyfiles -a 'src/connectors/**/*.json' 'src/**/schema/*.json' 'src/templates/*.yml' 'src/templates/lists/*.json' 'test/services/data/**/*.*' dist",
     "test": "jest --verbose",
     "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand",
     "test:unit": "NODE_OPTIONS=--max_old_space_size=10240 jest --runInBand --verbose ./test/",
@@ -23,9 +23,9 @@
     "test:scripts": "jest -i --verbose ./test-scripts/*.test.ts"
   },
   "dependencies": {
-    "@cosmjs/amino": "^0.32.2",
     "@balancer-labs/sdk": "^1.1.5",
     "@bancor/carbon-sdk": "^0.0.93-DEV",
+    "@cosmjs/amino": "^0.32.2",
     "@cosmjs/proto-signing": "^0.31.1",
     "@cosmjs/stargate": "^0.31.1",
     "@cosmjs/tendermint-rpc": "^0.32.2",
@@ -34,7 +34,7 @@
     "@ethersproject/address": "5.7.0",
     "@ethersproject/contracts": "5.7.0",
     "@ethersproject/networks": "5.7.0",
-    "@ethersproject/providers": "5.7.0",
+    "@ethersproject/providers": "^5.7.2",
     "@ethersproject/solidity": "5.7.0",
     "@harmony-js/core": "^0.1.57",
     "@harmony-js/utils": "^0.1.56",

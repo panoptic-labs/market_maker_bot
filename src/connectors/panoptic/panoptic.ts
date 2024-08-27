@@ -1,67 +1,37 @@
-import { percentRegexp } from '../../services/config-manager-v2';
-import { BigNumber, ContractInterface, Transaction, Wallet } from 'ethers';
+import {
+  BigNumber,
+  Contract,
+  Wallet
+} from 'ethers';
 import { PanopticConfig } from './panoptic.config';
 import {
-  Token,
-  TokenAmount,
-  Trade,
-  Pair,
-  TradeType,
-  Route,
-  Price,
+  Token
 } from '@uniswap/sdk';
-import Decimal from 'decimal.js-light';
-import axios from 'axios';
 import { logger } from '../../services/logger';
 import { Ethereum } from '../../chains/ethereum/ethereum';
-import { ExpectedTrade, Uniswapish } from '../../services/common-interfaces';
-import {
-  HttpException,
-  TRADE_FAILED_ERROR_CODE,
-  TRADE_FAILED_ERROR_MESSAGE,
-  UniswapishPriceError,
-  UNKNOWN_ERROR_ERROR_CODE,
-  UNKNOWN_ERROR_MESSAGE,
-} from '../../services/error-handler';
 import { getAddress } from 'ethers/lib/utils';
+import panopticPoolAbi from './PanopticPool.ABI.json';
+import panopticHelperAbi from './PanopticHelper.ABI.json';
+import collateralTrackerAbi from './CollateralTracker.ABI.json';
+import semiFungiblePositionManagerAbi from './SFPM.ABI.json';
+import axios from 'axios';
 
-export function newFakeTrade(
-  tokenIn: Token,
-  tokenOut: Token,
-  tokenInAmount: BigNumber,
-  tokenOutAmount: BigNumber
-): Trade {
-  const baseAmount = new TokenAmount(tokenIn, tokenInAmount.toString());
-  const quoteAmount = new TokenAmount(tokenOut, tokenOutAmount.toString());
-  // Pair needs the reserves but this is not possible to pull in sushiswap contract
-  const pair = new Pair(baseAmount, quoteAmount);
-  const route = new Route([pair], tokenIn, tokenOut);
-  const trade = new Trade(route, baseAmount, TradeType.EXACT_INPUT);
-  // hack to set readonly component given we can't easily get pool token amounts
-  (trade.executionPrice as Price) = new Price(
-    tokenIn,
-    tokenOut,
-    tokenInAmount.toBigInt(),
-    tokenOutAmount.toBigInt()
-  );
-  return trade;
-}
-
-export class Panoptic implements Uniswapish {
+export class Panoptic {
   private static _instances: { [name: string]: Panoptic };
   private chainInstance;
   private _chain: string;
   private _network: string;
-  private _router: string;
-  private _multiCallAddress: string;
+  private _MulticallAddress: string;
   private _UniswapV3Factory: string;
   private _NonFungiblePositionManager: string;
   private _SemiFungiblePositionManager: string;
   private _PanopticFactory: string;
   private _PanopticHelper: string;
   private _UniswapMigrator: string;
+  private _PanopticPool: string;
   private _gasLimitEstimate: number;
   private _ttl: number;
+  private _subgraph_api_url: string;
   private chainId;
   private tokenList: Record<string, Token> = {};
   private _ready: boolean = false;
@@ -72,15 +42,17 @@ export class Panoptic implements Uniswapish {
     const config = PanopticConfig.config;
     this.chainInstance = this.getChainInstance(network);
     this.chainId = this.chainInstance.chainId;
-    this._router = config.routerAddress(chain, network);
-    this._multiCallAddress = config.multiCallAddress(chain, network); 
-    this._UniswapV3Factory = config.UniswapV3Factory(chain, network); 
-    this._NonFungiblePositionManager = config.NonFungiblePositionManager(chain, network); 
-    this._SemiFungiblePositionManager = config.SemiFungiblePositionManager(chain, network); 
-    this._PanopticFactory = config.PanopticFactory(chain, network); 
-    this._PanopticHelper = config.PanopticHelper(chain, network); 
-    this._UniswapMigrator = config.UniswapMigrator(chain, network); 
+    this._MulticallAddress = config.multiCallAddress(chain, network);
+    this._UniswapV3Factory = config.UniswapV3Factory(chain, network);
+    this._NonFungiblePositionManager = config.NonFungiblePositionManager(chain, network);
+    this._SemiFungiblePositionManager = config.SemiFungiblePositionManager(chain, network);
+    this._PanopticFactory = config.PanopticFactory(chain, network);
+    this._PanopticHelper = config.PanopticHelper(chain, network);
+    this._UniswapMigrator = config.UniswapMigrator(chain, network);
+    this._PanopticPool = config.PanopticPool(chain, network);
     this._ttl = config.ttl;
+    // TODO: Move this to config
+    this._subgraph_api_url = 'https://api.goldsky.com/api/public/project_cl9gc21q105380hxuh8ks53k3/subgraphs/panoptic-subgraph-sepolia/beta7/gn';
     this._gasLimitEstimate = config.gasLimitEstimate;
   }
 
@@ -136,11 +108,8 @@ export class Panoptic implements Uniswapish {
   /**
    * Router address.
    */
-  public get router(): string {
-    return this._router;
-  }
   public get multiCallAddress(): string {
-    return this._multiCallAddress;
+    return this._MulticallAddress;
   }
   public get UniswapV3Factory(): string {
     return this._UniswapV3Factory;
@@ -160,12 +129,14 @@ export class Panoptic implements Uniswapish {
   public get UniswapMigrator(): string {
     return this._UniswapMigrator;
   }
-
-  /**
-   * Router smart contract ABI.
-   */
-  public get routerAbi(): ContractInterface {
-    return '';
+  public get PanopticPool(): string {
+    return this._PanopticPool;
+  }
+  public get LOWEST_POSSIBLE_TICK(): number {
+    return -887272;
+  }
+  public get HIGHEST_POSSIBLE_TICK(): number {
+    return 887272;
   }
 
   /**
@@ -182,310 +153,624 @@ export class Panoptic implements Uniswapish {
     return this._ttl;
   }
 
+  public get subgraph_api_url(): string {
+    return this._subgraph_api_url;
+  }
+
   public get chainName(): string {
     if (this._chain === 'ethereum' && this._network === 'sepolia') {
       return 'eth';
     }
-    // if (this._chain === 'ethereum' && this._network === 'mainnet') {
-    //   return 'eth';
-    // } else if (this._chain === 'ethereum' && this._network === 'arbitrum') {
-    //   return 'arbitrum';
-    // } else if (this._chain === 'ethereum' && this._network === 'optimism') {
-    //   return 'optimism';
-    // } else if (this._chain === 'avalanche') {
-    //   return 'avax';
-    // } else if (this._chain === 'binance-smart-chain') {
-    //   return 'bsc';
-    // }
-    // else if (this._chain === 'polygon') {
-    //   return 'polygon';
-    // } else if (this._chain === 'harmony') {
-    //   return 'harmony';
-    // } else if (this._chain === 'cronos') {
-    //   return 'cronos';
-    // }
     return this._chain;
   }
 
-  getSlippageNumberage(): number {
-    const allowedSlippage = PanopticConfig.config.allowedSlippage;
-    const nd = allowedSlippage.match(percentRegexp);
-    if (nd) return Number(nd[1]);
-    throw new Error(
-      'Encountered a malformed percent string in the config for ALLOWED_SLIPPAGE.'
-    );
+  async _gradient(arr: number[]): Promise<number[]> {
+    return arr.map((_, index, array) => {
+      if (index === 0) {
+        return array[1] - array[0];
+      } else if (index === array.length - 1) {
+        return array[array.length - 1] - array[array.length - 2];
+      } else {
+        return (array[index + 1] - array[index - 1]) / 2;
+      }
+    });
   }
 
-  /**
-   * Given the amount of `baseToken` to put into a transaction, calculate the
-   * amount of `quoteToken` that can be expected from the transaction.
-   *
-   * This is typically used for calculating token sell prices.
-   *
-   * @param baseToken Token input for the transaction
-   * @param quoteToken Output from the transaction
-   * @param amount Amount of `baseToken` to put into the transaction
-   */
-  async estimateSellTrade(
-    baseToken: Token,
-    quoteToken: Token,
-    amount: BigNumber
-  ): Promise<ExpectedTrade> {
-    logger.info(
-      `estimateSellTrade getting amounts out baseToken(${baseToken.symbol}): ${baseToken.address} - quoteToken(${quoteToken.symbol}): ${quoteToken.address}.`
-    );
+  // TODO: Should check that this works
+  async _getPayoffGradients(
+      STRIKE: number,
+      RANGE: number,
+      PRICE: number
+  ): Promise<{ payoffGradient: number[], pGradient: number[], index: number }> {
+      const N = 1000;
 
-    const reqAmount = new Decimal(amount.toString())
-      .div(new Decimal((10 ** baseToken.decimals).toString()))
-      .toNumber();
-    logger.info(`reqAmount(${baseToken.symbol}):${reqAmount}`);
-    const gasPrice = this.chainInstance.gasPrice;
-    let quoteRes;
-    try {
-      quoteRes = await axios.get(
-        //`https://XXXapi.XXX.XXX/${this.chainName}/quote`,
-        `https://api.goldsky.com/api/public/project_cl9gc21q105380hxuh8ks53k3/subgraphs/panoptic-subgraph-sepolia/beta7-prod/gn`,
-        {
-          params: {
-            inTokenAddress: baseToken.address,
-            outTokenAddress: quoteToken.address,
-            amount: reqAmount,
-            gasPrice: gasPrice,
-          },
+      // Generate linspace array
+      const linspace = (start: number, end: number, num: number): number[] => {
+        const step = (end - start) / (num - 1);
+        return Array.from({ length: num }, (_, i) => start + (i * step));
+      };
+
+      const p = linspace(STRIKE / 3, 1.75 * STRIKE, N);
+
+      // Define the V function
+      const V = (x: number, K: number, r: number): number => {
+        if (x <= K / r) {
+          return x;
+        } else if (x > K / r && x <= K * r) {
+          return (2 * Math.sqrt(x * K * r) - x - K) / (r - 1);
+        } else {
+          return K;
         }
-      );
-    } catch (e) {
-      if (e instanceof Error) {
-        logger.error(`Could not get trade info. ${e.message}`);
-        throw new HttpException(
-          500,
-          TRADE_FAILED_ERROR_MESSAGE + e.message,
-          TRADE_FAILED_ERROR_CODE
-        );
-      } else {
-        logger.error('Unknown error trying to get trade info.');
-        throw new HttpException(
-          500,
-          UNKNOWN_ERROR_MESSAGE,
-          UNKNOWN_ERROR_ERROR_CODE
-        );
-      }
-    }
+      };
 
-    if (quoteRes.status == 200) {
-      if (
-        quoteRes.data.code == 200 &&
-        Number(quoteRes.data.data.outAmount) > 0
-      ) {
-        const quoteData = quoteRes.data.data;
-        logger.info(
-          `estimateSellTrade quoteData inAmount(${baseToken.symbol}): ${quoteData.inAmount}, outAmount(${quoteToken.symbol}): ${quoteData.outAmount}`
-        );
-        const amounts = [quoteData.inAmount, quoteData.outAmount];
-        const maximumOutput = new TokenAmount(
-          quoteToken,
-          amounts[1].toString()
-        );
-        const trade = newFakeTrade(
-          baseToken,
-          quoteToken,
-          BigNumber.from(amounts[0]),
-          BigNumber.from(amounts[1])
-        );
-        return { trade: trade, expectedAmount: maximumOutput };
-      } else {
-        throw new UniswapishPriceError(
-          `priceSwapIn: no trade pair found for ${baseToken.address} to ${quoteToken.address}.`
-        );
-      }
-    }
-    throw new HttpException(
-      quoteRes.status,
-      `Could not get trade info. ${quoteRes.statusText}`,
-      TRADE_FAILED_ERROR_CODE
-    );
+      // Calculate payoff
+      const payoff = p.map(x => V(x, STRIKE, RANGE) - V(PRICE, STRIKE, RANGE));
+
+      const payoffGradient = await this._gradient(payoff);
+      const pGradient = await this._gradient(p);
+      return { payoffGradient, pGradient, index: p.findIndex(x => x >= PRICE)};
   }
 
-  /**
-   * Given the amount of `baseToken` desired to acquire from a transaction,
-   * calculate the amount of `quoteToken` needed for the transaction.
-   *
-   * This is typically used for calculating token buy prices.
-   *
-   * @param quoteToken Token input for the transaction
-   * @param baseToken Token output from the transaction
-   * @param amount Amount of `baseToken` desired from the transaction
-   */
-  async estimateBuyTrade(
-    quoteToken: Token,
-    baseToken: Token,
-    amount: BigNumber
-  ): Promise<ExpectedTrade> {
-    logger.info(
-      `estimateBuyTrade getting amounts in quoteToken(${quoteToken.symbol}): ${quoteToken.address} - baseToken(${baseToken.symbol}): ${baseToken.address}.`
-    );
+  // TODO: In the future, we could deliver a calculateObservedDelta and denote this as merely the
+  //       Black-Scholles delta. Same for gamma.
+  // TODO: Write a opinionated gateway method that wraps this one but passes in the Uniswap.currentTick for PRICE
+  async calculateDelta(
+    STRIKE: number,
+    RANGE: number,
+    PRICE: number
+  ): Promise<number> {
+    const { payoffGradient, pGradient, index } = await this._getPayoffGradients(STRIKE, RANGE, PRICE);
 
-    const reqAmount = new Decimal(amount.toString())
-      .div(new Decimal((10 ** baseToken.decimals).toString()))
-      .toNumber();
-    logger.info(`reqAmount:${reqAmount}`);
-    const gasPrice = this.chainInstance.gasPrice;
-    let quoteRes;
+    const delta = Math.floor(100 * (payoffGradient[index] / pGradient[index]));
+
+    return delta;
+  }
+
+  // TODO: Write a opinionated gateway method that wraps this one but passes in the Uniswap.currentTick for PRICE
+  async calculateGamma(
+    STRIKE: number,
+    RANGE: number,
+    PRICE: number
+  ): Promise<number>  {
+    const { payoffGradient, pGradient, index } = await this._getPayoffGradients(STRIKE, RANGE, PRICE);
+
+    const payoffGradient2 = await this._gradient(payoffGradient);
+    const pGradient2 = await this._gradient(pGradient);
+
+    const gamma = Math.floor(100 * (payoffGradient2[index] / pGradient2[index]));
+
+    return gamma;
+  }
+
+  // Subgraph interactions
+
+  async queryOpenPositions(
+    wallet: Wallet
+  ): Promise<any> {
     try {
-      quoteRes = await axios.get(
-        //`https://XXXapi.XXX.XXX/${this.chainName}/reverseQuote`,
-        `https://api.goldsky.com/api/public/project_cl9gc21q105380hxuh8ks53k3/subgraphs/panoptic-subgraph-sepolia/beta7-prod/gn`,
-        {
-          params: {
-            inTokenAddress: baseToken.address,
-            outTokenAddress: quoteToken.address,
-            amount: reqAmount,
-            gasPrice: gasPrice,
-          },
-        }
-      );
-    } catch (e) {
-      if (e instanceof Error) {
-        logger.error(`Could not get trade info. ${e.message}`);
-        throw new HttpException(
-          500,
-          TRADE_FAILED_ERROR_MESSAGE + e.message,
-          TRADE_FAILED_ERROR_CODE
-        );
-      } else {
-        logger.error('Unknown error trying to get trade info.');
-        throw new HttpException(
-          500,
-          UNKNOWN_ERROR_MESSAGE,
-          UNKNOWN_ERROR_ERROR_CODE
-        );
-      }
-    }
-    if (quoteRes.status == 200) {
-      if (
-        quoteRes.data.code == 200 &&
-        Number(quoteRes.data.data.reverseAmount) > 0
+      const query = `
+      query GetAccountsPositions(
+        $account: String!
       ) {
-        const quoteData = quoteRes.data.data;
-        logger.info(
-          `estimateBuyTrade reverseData inAmount(${quoteToken.symbol}): ${quoteData.reverseAmount}, outAmount(${baseToken.symbol}): ${quoteData.inAmount}`
-        );
-        const amounts = [quoteData.reverseAmount, quoteData.inAmount];
-        const minimumInput = new TokenAmount(quoteToken, amounts[0].toString());
-        const trade = newFakeTrade(
-          quoteToken,
-          baseToken,
-          BigNumber.from(amounts[0]),
-          BigNumber.from(amounts[1])
-        );
-        return { trade: trade, expectedAmount: minimumInput };
-      } else {
-        throw new UniswapishPriceError(
-          `priceSwapIn: no trade pair found for ${baseToken} to ${quoteToken}.`
-        );
+       panopticPoolAccounts(
+          where: { account: $account }
+        ) {
+          accountBalances(
+            first: 32
+            orderBy: createdBlockNumber
+            orderDirection: desc
+          ) {
+            tokenId { id }
+          }
+          closedAccountBalances: accountBalances(
+            first: 1000
+            orderBy: closedTimestamp
+            orderDirection: desc
+            where: {
+              isOpen: 0
+              txnClosed_not: null
+              txnClosed_: { eventType_in: [OptionBurn, AccountLiquidated, ForcedExercised] }
+            }
+          ) {
+            tokenId { id }
+          }
+        }
       }
+    `;
+      const variables = {
+        account: wallet.address.toLowerCase(),
+      };
+      const response = await this.querySubgraph(query, variables);
+      return response;
+    } catch (error) {
+      logger.error("Error querying open positions:", error);
+      return error;
     }
-    throw new HttpException(
-      quoteRes.status,
-      `Could not get trade info. ${quoteRes.statusText}`,
-      TRADE_FAILED_ERROR_CODE
-    );
   }
 
-  /**
-   * Given a wallet and a Uniswap-ish trade, try to execute it on blockchain.
-   *
-   * @param wallet Wallet
-   * @param trade Expected trade
-   * @param gasPrice Base gas price, for pre-EIP1559 transactions
-   * @param panopticRouter smart contract address
-   * @param ttl How long the swap is valid before expiry, in seconds
-   * @param abi Router contract ABI
-   * @param gasLimit Gas limit
-   * @param nonce (Optional) EVM transaction nonce
-   * @param maxFeePerGas (Optional) Maximum total fee per gas you want to pay
-   * @param maxPriorityFeePerGas (Optional) Maximum tip per gas you want to pay
-   */
-  async executeTrade(
+  async querySubgraph(
+    query: string,
+    variables: any
+  ): Promise<any> {
+    try {
+      logger.info(`Querying subgraph...`)
+      const response = await axios.post(this.subgraph_api_url, { query, variables });
+      logger.info(`Panoptic Subgraph response: ${response.data}`);
+      return response.data;
+    } catch (error) {
+      logger.error("Error querying Panoptic Subgraph:", error);
+      return error;
+    }
+  }
+
+  // PanopticHelper interactions
+
+  // TODO: These methods on the helper aren't live yet; eventually, this will be the easier way
+  //       to get multiple greeks in one call.
+  async queryGreeks(
     wallet: Wallet,
-    trade: Trade,
-    gasPrice: number,
-    panopticRouter: string,
-    ttl: number,
-    abi: ContractInterface,
-    gasLimit: number,
-    nonce?: number,
-    maxFeePerGas?: BigNumber,
-    maxPriorityFeePerGas?: BigNumber
-  ): Promise<Transaction> {
-    logger.info(
-      `executeTrade ${panopticRouter}-${ttl}-${abi}-${gasPrice}-${gasLimit}-${nonce}-${maxFeePerGas}-${maxPriorityFeePerGas}.`
-    );
-    const inToken: any = trade.route.input;
-    const outToken: any = trade.route.output;
-    let swapRes;
+    tick: number,
+    positionIdList: BigNumber[],
+    greek: string
+  ): Promise<any> {
     try {
-      swapRes = await axios.get(
-        `https://open-api.panoptic.finance/v3/${this.chainName}/swap_quote`,
-        {
-          params: {
-            inTokenAddress: inToken.address,
-            outTokenAddress: outToken.address,
-            amount: trade.inputAmount.toExact(),
-            slippage: this.getSlippageNumberage(),
-            account: wallet.address,
-            gasPrice: gasPrice.toString(),
-            // referrer: '0x3fb06064b88a65ba9b9eb840dbb5f3789f002642',
-            referrer: '0x9d9EAc8481C3a824E524775314e39c0c5F5f88A9', //Nick's metamask wallet
-          },
-        }
-      );
-    } catch (e) {
-      if (e instanceof Error) {
-        logger.error(`Could not get trade info. ${e.message}`);
-        throw new HttpException(
-          500,
-          TRADE_FAILED_ERROR_MESSAGE + e.message,
-          TRADE_FAILED_ERROR_CODE
-        );
+      const panopticHelper = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelper, panopticHelperAbi.abi, wallet);
+      let greekValue;
+      if (greek === "delta") {
+        greekValue = await panopticHelperContract.delta(this.PanopticPool, wallet.address, tick, positionIdList);
+      } else if (greek === "gamma") {
+        greekValue = await panopticHelperContract.gamma(this.PanopticPool, wallet.address, tick, positionIdList);
       } else {
-        logger.error('Unknown error trying to get trade info.');
-        throw new HttpException(
-          500,
-          UNKNOWN_ERROR_MESSAGE,
-          UNKNOWN_ERROR_ERROR_CODE
-        );
+        throw new Error("Invalid greek");
       }
+      logger.info(`PanopticHelper reports ${greek} = ${greekValue}`);
+      return greekValue;
+    } catch (error) {
+      logger.error(`Error checking ${greek}...`, error);
+      return error;
     }
-    if (swapRes.status == 200 && swapRes.data.code == 200) {
-      const swapData = swapRes.data.data;
-      return this.chainInstance.nonceManager.provideNonce(
-        nonce,
-        wallet.address,
-        async (nextNonce) => {
-          const gas = Math.ceil(Number(swapData.estimatedGas) * 1.15);
-          const trans = {
-            nonce: nextNonce,
-            from: swapData.from,
-            to: swapData.to,
-            gasLimit: BigNumber.from(gas.toString()),
-            data: swapData.data,
-            value: BigNumber.from(swapData.value),
-            chainId: this.chainId,
-          };
-          const tx = await wallet.sendTransaction(trans);
-          logger.info(JSON.stringify(tx));
-
-          return tx;
-        }
-      );
-    }
-    throw new HttpException(
-      swapRes.status,
-      `Could not get trade info. ${swapRes.statusText}`,
-      TRADE_FAILED_ERROR_CODE
-    );
   }
-}
 
-  
+  // PanopticPool interactions
+
+  async calculateAccumulatedFeesBatch(
+    wallet: Wallet,
+    includePendingPremium: boolean = false,
+    positionIdList: BigNumber[]
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Checking calculateAccumulatedFeesBatch...`)
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const data = await panopticPoolContract.calculateAccumulatedFeesBatch(
+        wallet.address,
+        includePendingPremium,
+        positionIdList
+      );
+      return data;
+    } catch (error) {
+      logger.error("Error on calculateAccumulatedFeesBatch:", error);
+      return error;
+    }
+  }
+
+  async collateralToken0(
+    wallet: Wallet
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Fetching CollateralTracker for token 0 from contract ${panopticpool}...`);
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.collateralToken0();
+      logger.info(`CollateralTracker contract for token 0: ${tx}`);
+      const tokenContract = new Contract(tx, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token 0: ${asset}`);
+      const symbol = await tokenContract.symbol();
+      logger.info(`Symbol token 0: ${symbol}`);
+      return tx;
+    } catch (error) {
+      logger.error("Error fetching collateral token 0:", error);
+      return error;
+    }
+  }
+
+  async collateralToken1(wallet: Wallet): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Fetching CollateralTracker for token 1 from contract ${panopticpool}...`);
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.collateralToken1();
+      return tx;
+    } catch (error) {
+      logger.error("Error fetching collateral token 1:", error);
+      return error;
+    }
+  }
+
+  async executeBurn(
+    wallet: Wallet,
+    burnTokenId: BigNumber,
+    newPositionIdList: BigNumber[],
+    tickLimitLow: number = this.LOWEST_POSSIBLE_TICK,
+    tickLimitHigh: number = this.HIGHEST_POSSIBLE_TICK
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Attempting option burn on contract ${panopticpool}...`);
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract["burnOptions(uint256,uint256[],int24,int24)"](
+        burnTokenId,
+        newPositionIdList,
+        tickLimitLow,
+        tickLimitHigh,
+        { gasLimit: this.gasLimitEstimate }
+      );
+      logger.info("Transaction submitted:", tx.hash);
+      const receipt = await tx.wait();
+      logger.info("Transaction mined:", receipt.transactionHash);
+      return { txHash: tx.hash };
+    } catch (error) {
+      logger.error("Error burning option:", error);
+      return error;
+    }
+  }
+
+  async forceExercise(
+    wallet: Wallet,
+    touchedId: BigNumber[],
+    positionIdListExercisee: BigNumber[],
+    positionIdListExercisor: BigNumber[]
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Attempting force exercise on contract ${panopticpool}...`);
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.forceExercise(
+        wallet.address,
+        touchedId,
+        positionIdListExercisee,
+        positionIdListExercisor,
+        { gasLimit: this.gasLimitEstimate }
+      );
+      logger.info("Transaction submitted:", tx.hash);
+      const receipt = await tx.wait();
+      logger.info("Transaction mined:", receipt.transactionHash);
+      return { txHash: tx.hash };
+    } catch (error) {
+      logger.error("Error on force exercise:", error);
+      return error;
+    }
+  }
+
+  async liquidate(
+    wallet: Wallet,
+    positionIdListLiquidator: BigNumber[],
+    liquidatee: BigNumber,
+    delegations: number,
+    positionIdList: BigNumber[],
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Attempting liquidation on contract ${panopticpool}...`);
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.liquidate(
+        positionIdListLiquidator,
+        liquidatee,
+        delegations,
+        positionIdList,
+        { gasLimit: this.gasLimitEstimate }
+      );
+      logger.info("Transaction submitted:", tx.hash);
+      const receipt = await tx.wait();
+      logger.info("Transaction mined:", receipt.transactionHash);
+      return { txHash: tx.hash };
+    } catch (error) {
+      logger.error("Error on liquidation:", error);
+      return error;
+    }
+  }
+
+  async executeMint(
+    wallet: Wallet,
+    positionIdList: BigNumber[],
+    positionSize: BigNumber,
+    effectiveLiquidityLimit: BigNumber,
+    tickLimitLow: number = this.LOWEST_POSSIBLE_TICK,
+    tickLimitHigh: number = this.HIGHEST_POSSIBLE_TICK
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Attempting option mint on contract ${panopticpool}...`);
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.mintOptions(
+        positionIdList,
+        positionSize,
+        effectiveLiquidityLimit,
+        tickLimitLow,
+        tickLimitHigh,
+        { gasLimit: this.gasLimitEstimate }
+      );
+      logger.info("Transaction submitted:", tx.hash);
+      const receipt = await tx.wait();
+      logger.info("Transaction mined:", receipt.transactionHash);
+      return { hash: tx.hash, nonce: tx.nonce };
+    } catch (error) {
+      logger.error("Error on mintOptions:", error);
+      return error;
+    }
+  }
+
+  async numberOfPositions(
+    wallet: Wallet
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Checking numberOfPositions...`)
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const positions = await panopticPoolContract.numberOfPositions(wallet.address);
+      logger.info(`numberOfPositions: ${positions}`);
+      return positions;
+    } catch (error) {
+      logger.error("Error on numberOfPositions:", error);
+      return error;
+    }
+  }
+
+  async optionPositionBalance(
+    wallet: Wallet,
+    tokenId: BigNumber
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Checking optionPositionBalance...`)
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const balance = await panopticPoolContract.optionPositionBalance(
+        wallet.address,
+        tokenId
+      );
+      logger.info(`optionPositionBalance: ${balance}`);
+      return balance;
+    } catch (error) {
+      logger.error("Error on optionPositionBalance:", error);
+      return error;
+    }
+  }
+
+  async pokeMedian(
+    wallet: Wallet
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Checking pokeMedian...`)
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const positions = await panopticPoolContract.pokeMedian();
+      logger.info(`pokeMedian: ${positions}`);
+      return positions;
+    } catch (error) {
+      logger.error("Error on pokeMedian:", error);
+      return error;
+    }
+  }
+
+  async settleLongPremium(
+    wallet: Wallet,
+    positionIdList: BigNumber[],
+    owner: BigNumber,
+    legIndex: BigNumber
+  ): Promise<any> {
+    try {
+      const panopticpool = this.PanopticPool;
+      logger.info(`Attempting settleLongPremium on contract ${panopticpool}...`)
+      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const tx = await panopticPoolContract.settleLongPremium(
+        positionIdList,
+        owner,
+        legIndex,
+        { gasLimit: this.gasLimitEstimate }
+      );
+      logger.info("Transaction submitted:", tx.hash);
+      const receipt = await tx.wait();
+      logger.info("Transaction mined:", receipt.transactionHash);
+      return { txHash: tx.hash };
+    } catch (error) {
+      logger.error("Error on settleLongPremium:", error);
+      return error;
+    }
+  }
+
+
+  // CollateralTracker interactions
+
+  async deposit(
+    wallet: Wallet,
+    collateralTrackerContract: any,
+    assets: BigNumber
+  ): Promise<any> {
+    try {
+      logger.info(`Attempting token deposit...`)
+      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token asset: ${asset}`);
+      logger.info(`Wallet: ${wallet.address}, Assets: ${assets}`);
+      const depositEvent = await tokenContract.deposit(assets, wallet.address);
+      const shares = depositEvent.shares; // Accessing the "shares" property
+      logger.info(`Shares: ${shares}`);
+      return shares;
+    } catch (error) {
+      logger.error("Error depositing collateral:", error);
+      return error;
+    }
+  }
+
+  async getAsset(
+    wallet: Wallet,
+    collateralTrackerContract: any
+  ): Promise<any> {
+    try {
+      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token 0: ${asset}`);
+      return asset;
+    } catch (error) {
+      logger.error("Error fetching collateral token 1:", error);
+      return error;
+    }
+  }
+
+  async getPoolData(
+    wallet: Wallet,
+    collateralTrackerContract: any
+  ): Promise<any> {
+    try {
+      logger.info(`Attempting getPoolData on CollateralTracker...`)
+      const CollateralTracker = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const data = await CollateralTracker.getPoolData();
+      logger.info(`CollateralTracker getPoolData: ${data}`);
+      const [poolAssets_val, insideAMM_val, currentPoolUtilization_val] = data;
+      const output = {
+        poolAssets: poolAssets_val,
+        insideAMM: insideAMM_val,
+        currentPoolUtilization: currentPoolUtilization_val
+      };
+      return output;
+    } catch (error) {
+      logger.error("Error on getPoolData on CollateralTracker:", error);
+      return error;
+    }
+  }
+
+  async maxWithdraw(
+    wallet: Wallet,
+    collateralTrackerContract: any
+  ): Promise<any> {
+    try {
+      logger.info(`Attempting token withdrawal...`)
+      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token asset: ${asset}`);
+      logger.info(`Wallet: ${wallet.address}`);
+      const withdrawLimit = await tokenContract.maxWithdraw(wallet.address);
+      logger.info(`Withdrawal limit: ${withdrawLimit}`);
+      return withdrawLimit;
+    } catch (error) {
+      logger.error("Error finding max withdrawal limit:", error);
+      return error;
+    }
+  }
+
+  async withdraw(
+    wallet: Wallet,
+    collateralTrackerContract: any,
+    assets: BigNumber
+  ): Promise<any> {
+    try {
+      logger.info(`Attempting token withdrawal...`)
+      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const asset = await tokenContract.asset();
+      logger.info(`Collateral token asset: ${asset}`);
+      logger.info(`Wallet: ${wallet.address}, Assets: ${assets}`);
+      const withdrawEvent = await tokenContract.withdraw(
+        assets,
+        wallet.address,
+        wallet.address,
+        { gasLimit: this.gasLimitEstimate }
+      );
+      const shares = withdrawEvent.shares; // Accessing the "assets" property
+      logger.info(`Assets: ${shares}`);
+      return shares;
+    } catch (error) {
+      logger.error("Error withdrawing collateral:", error);
+      return error;
+    }
+  }
+
+  // SemiFungiblePositionManager interactions
+
+  async getAccountLiquidity(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    owner: BigNumber,
+    tokenType: BigNumber,
+    tickLower: number,
+    tickUpper: number
+  ): Promise<any> {
+    try {
+      const semiFungiblePositionManager = this.SemiFungiblePositionManager;
+      logger.info(`Checking getAccountLiquidity...`)
+      const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
+      const liquidity = await semiFungiblePositionManagerContract.getAccountLiquidity(
+        univ3pool,
+        owner,
+        tokenType,
+        tickLower,
+        tickUpper
+      );
+      logger.info(`getAccountLiquidity: ${liquidity}`);
+      return liquidity;
+    } catch (error) {
+      logger.error("Error on getAccountLiquidity:", error);
+      return error;
+    }
+  }
+
+  async getAccountPremium(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    owner: BigNumber,
+    tokenType: BigNumber,
+    tickLower: number,
+    tickUpper: number,
+    atTick: number,
+    isLong: BigNumber
+  ): Promise<any> {
+    try {
+      const semiFungiblePositionManager = this.SemiFungiblePositionManager;
+      logger.info(`Checking getAccountPremium...`)
+      const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
+      const response = await semiFungiblePositionManagerContract.getAccountPremium(
+        univ3pool,
+        owner,
+        tokenType,
+        tickLower,
+        tickUpper,
+        atTick,
+        isLong
+      );
+      logger.info(`getAccountPremium response: ${response}`);
+      return response;
+    } catch (error) {
+      logger.error("Error on getAccountPremium:", error);
+      return error;
+    }
+  }
+
+  async getAccountFeesBase(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    owner: BigNumber,
+    tokenType: BigNumber,
+    tickLower: number,
+    tickUpper: number
+  ): Promise<any> {
+    try {
+      const semiFungiblePositionManager = this.SemiFungiblePositionManager;
+      logger.info(`Checking getAccountFeesBase...`)
+      const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
+      const response = await semiFungiblePositionManagerContract.getAccountFeesBase(
+        univ3pool,
+        owner,
+        tokenType,
+        tickLower,
+        tickUpper
+      );
+      logger.info(`getAccountFeesBase response: ${response}`);
+      return response;
+    } catch (error) {
+      logger.error("Error on getAccountFeesBase:", error);
+      return error;
+    }
+  }
+
+}

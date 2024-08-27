@@ -603,6 +603,822 @@
       "id": "d975e0eb-65d0-4356-a551-c83c3edfe36a"
     },
     {
+      "name": "options",
+      "item": [
+        {
+          "name": "mint",
+          "id": "3a58576b-3ab6-409d-aac9-7ea7d2dfc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/mint",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "mint"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d975j0eb-65d0-4356-a551-c83c3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "burn",
+          "id": "3a58576b-3ac6-409d-aac9-7ea7d2dfc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/burn",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "burn"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d975j0eb-65e0-4356-a551-c83c3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "getCollateralToken0",
+          "id": "3a58576b-3ac6-409d-aac9-7fa7d2dfc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/getCollateralToken0",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "getCollateralToken0"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d975j0ec-65e0-4356-a551-c83c3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "getCollateralToken1",
+          "id": "3a58576b-3ac6-409d-aac9-7fa7d2efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/getCollateralToken1",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "getCollateralToken1"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d975j0ec-65f0-4356-a551-c83c3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "getAsset",
+          "id": "4a58576b-3ac6-409d-aac9-7fa7d2efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/getAsset",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "getAsset"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d075j0ec-65f0-4356-a551-c83c3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "deposit",
+          "id": "5a58576b-3ac6-409d-aac9-7fa7d2efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/deposit",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "deposit"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e075j0ec-65f0-4356-a551-c83c3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "withdraw",
+          "id": "5a58576b-3ac6-409d-aac9-7fa7e2efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/withdraw",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "withdraw"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e075j0ec-65f0-4356-a451-c83c3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "getPoolData",
+          "id": "5a58576b-3ac6-409d-aac9-7fa7e3efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/getPoolData",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "getPoolData"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e065j0ec-65f0-4356-a451-c83c3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "calculateAccumulatedFeesBatch",
+          "id": "5a58576b-3ac6-409d-acc9-7fa7e3efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/calculateAccumulatedFeesBatch",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "calculateAccumulatedFeesBatch"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e065j0ec-65f0-4356-a451-c83d3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "optionPositionBalance",
+          "id": "5a58575b-3ac6-409d-acc9-7fa7e3efc9f8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/optionPositionBalance",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "optionPositionBalance"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e065j0ec-62f0-4356-b451-c83d3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "forceExercise",
+          "id": "5a58525b-3ac6-409d-acc9-7fa1e3efc9f8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/forceExercise",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "forceExercise"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e065j0ec-62f5-43a6-b451-c83d3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "liquidate",
+          "id": "5a58525b-3ac6-409d-acc9-7fa7e3efc9f8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/liquidate",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "liquidate"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e065j0ec-62f5-4356-b451-c83d3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "pokeMedian",
+          "id": "5a58575b-3ac6-409d-acc9-7fa7e3efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/pokeMedian",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "pokeMedian"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e065j0ec-65f0-4356-b451-c83d3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "settleLongPremium",
+          "id": "5a58575b-3ac6-409d-acc9-7fa7ebefc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/settleLongPremium",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "settleLongPremium"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e065j0ec-d5f0-4356-b451-c83d3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "maxWithdraw",
+          "id": "5a59576b-3ac6-409d-aac9-7fa7e2efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/maxWithdraw",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "maxWithdraw"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e075j0ec-65f0-4356-a452-c83c3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "numberOfPositions",
+          "id": "5a59576b-3ad6-409d-aac9-7fa7e2efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/numberOfPositions",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "numberOfPositions"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e085j0ec-65f0-4356-a452-c83c3edfe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "querySubgraph",
+          "id": "5a59576b-3ad7-409d-aac9-7fa7e2efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/querySubgraph",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "querySubgraph"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e085j0ec-65f0-4356-a452-c83c3effe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "queryOpenPositions",
+          "id": "5a59476b-3ad7-409d-aac9-7fa7e2efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/queryOpenPositions",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "queryOpenPositions"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e085j0ec-65f0-4356-a462-c83c3effe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "queryGreeks",
+          "id": "5a59476b-3ad7-409d-aac9-7fa7e1efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/queryGreeks",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "queryGreeks"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e085j0ec-65f0-4356-b462-c83c3effe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "getAccountLiquidity",
+          "id": "5a59476b-3ad7-403d-aac9-7fa7e1efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/getAccountLiquidity",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "getAccountLiquidity"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e085j0ec-65f0-4356-b412-c83c3effe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "getAccountPremium",
+          "id": "5a59476b-3ad7-408d-aac9-7fa7e1efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/getAccountPremium",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "getAccountPremium"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e025j0ec-65f0-4356-b412-c83c3effe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "getAccountFeesBase",
+          "id": "5a59426b-3ad7-408d-aac9-7fa7e1efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/getAccountFeesBase",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "getAccountFeesBase"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e025j0ec-65f0-4356-b412-c83c3eafe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "calculateDelta",
+          "id": "5a59426b-3ad7-438d-aac9-7fa7e1efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/calculateDelta",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "calculateDelta"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e025j0ec-65f0-43b6-b412-c83c3eafe36a"
+    },
+    {
+      "name": "options",
+      "item": [
+        {
+          "name": "calculateGamma",
+          "id": "5a59421b-3ad7-438d-aac9-7fa7e1efc9e8",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"chain\": \"{{chain}}\",\n    \"network\": \"{{network}}\",\n    \"connector\": \"uniswap\",\n    \"address\": \"{{eth_address}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{port}}/options/calculateGamma",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{port}}",
+              "path": ["options", "calculateGamma"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "e025j0ec-65f0-43b6-b4a2-c83c3eafe36a"
+    },
+    {
       "name": "amm / liquidity",
       "item": [
         {

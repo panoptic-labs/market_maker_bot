@@ -14,6 +14,7 @@ export namespace PanopticConfig {
     PanopticFactory: (chain: string, network: string) => string;
     PanopticHelper: (chain: string, network: string) => string;
     UniswapMigrator: (chain: string, network: string) => string;
+    PanopticPool: (chain: string, network: string) => string;
     tradingTypes: Array<string>;
     chainType: string;
     availableNetworks: Array<AvailableNetworks>;
@@ -23,6 +24,7 @@ export namespace PanopticConfig {
     allowedSlippage: ConfigManagerV2.getInstance().get(
       'panoptic.allowedSlippage'
     ),
+    // TODO: Add a getTransactionGasLimitEstimate(unsignedTransactionPayload) here
     gasLimitEstimate: ConfigManagerV2.getInstance().get(
       `panoptic.gasLimitEstimate`
     ),
@@ -30,10 +32,10 @@ export namespace PanopticConfig {
     routerAddress: (chain: string, network: string) =>
       ConfigManagerV2.getInstance().get(
         'panoptic.contractAddresses.' +
-          chain +
-          '.' +
-          network +
-          '.routerAddress'
+        chain +
+        '.' +
+        network +
+        '.routerAddress'
       ),
     multiCallAddress: (chain: string, network: string) =>
       ConfigManagerV2.getInstance().get(
@@ -91,7 +93,14 @@ export namespace PanopticConfig {
         network +
         '.UniswapMigrator'
       ),
-
+    PanopticPool: (chain: string, network: string) =>
+      ConfigManagerV2.getInstance().get(
+        'panoptic.contractAddresses.' +
+        chain +
+        '.' +
+        network +
+        '.PanopticPool'
+      ),
     tradingTypes: ['AMM'],
     chainType: 'EVM',
     availableNetworks: [
@@ -99,5 +108,3 @@ export namespace PanopticConfig {
     ],
   };
 }
-
-

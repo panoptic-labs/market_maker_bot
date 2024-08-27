@@ -1,42 +1,44 @@
-import Decimal from 'decimal.js-light';
 import { BigNumber, Wallet } from 'ethers';
-import { Token } from '@uniswap/sdk-core';
 import {
   HttpException,
   LOAD_WALLET_ERROR_CODE,
   LOAD_WALLET_ERROR_MESSAGE,
-  TOKEN_NOT_SUPPORTED_ERROR_CODE,
-  TOKEN_NOT_SUPPORTED_ERROR_MESSAGE,
-  PRICE_FAILED_ERROR_CODE,
-  PRICE_FAILED_ERROR_MESSAGE,
-  TRADE_FAILED_ERROR_CODE,
-  TRADE_FAILED_ERROR_MESSAGE,
-  SWAP_PRICE_EXCEEDS_LIMIT_PRICE_ERROR_CODE,
-  SWAP_PRICE_EXCEEDS_LIMIT_PRICE_ERROR_MESSAGE,
-  SWAP_PRICE_LOWER_THAN_LIMIT_PRICE_ERROR_CODE,
-  SWAP_PRICE_LOWER_THAN_LIMIT_PRICE_ERROR_MESSAGE,
-  UNKNOWN_ERROR_ERROR_CODE,
-  UNKNOWN_ERROR_MESSAGE,
 } from '../../services/error-handler';
-import { TokenInfo } from '../../chains/ethereum/ethereum-base';
-import { latency, gasCostInEthString } from '../../services/base';
 import {
   Ethereumish,
   ExpectedTrade,
-  Uniswapish,
-  UniswapLPish,
   Tokenish,
-  Fractionish,
 } from '../../services/common-interfaces';
 import { logger } from '../../services/logger';
 import {
-  EstimateGasResponse,
-  PriceRequest,
-  PriceResponse,
-  TradeRequest,
-  TradeResponse,
-} from '../../amm/amm.requests';
+  ExecuteBurnRequest,
+  CalculateDeltaRequest,
+  CalculateGammaRequest,
+  GreekQueryRequest,
+  QueryOpenPositionsRequest,
+  QuerySubgraphRequest,
+  CalculateAccumulatedFeesBatchRequest,
+  CollateralToken0Request,
+  CollateralToken1Request,
+  ForceExerciseRequest,
+  LiquidateRequest,
+  ExecuteMintRequest,
+  NumberOfPositionsRequest,
+  OptionPositionBalanceRequest,
+  PokeMedianRequest,
+  SettleLongPremiumRequest,
+  DepositRequest,
+  GetAssetRequest,
+  GetPoolDataRequest,
+  MaxWithdrawRequest,
+  WithdrawRequest,
+  GetAccountLiquidityRequest,
+  GetAccountPremiumRequest,
+  GetAccountFeesBaseRequest,
+  EstimateGasResponse
+} from '../../options/options.requests';
 import { Panoptic } from '../panoptic/panoptic';
+import { gasCostInEthString } from '../../services/base';
 
 export interface TradeInfo {
   baseToken: Tokenish;
@@ -78,319 +80,424 @@ export async function txWriteData(
   return { wallet, maxFeePerGasBigNumber, maxPriorityFeePerGasBigNumber };
 }
 
-export async function getTradeInfo(
-  ethereumish: Ethereumish,
-  uniswapish: Uniswapish,
-  baseAsset: string,
-  quoteAsset: string,
-  baseAmount: Decimal,
-  tradeSide: string,
-  allowedSlippage?: string
-): Promise<TradeInfo> {
-  const baseToken: Tokenish = getFullTokenFromSymbol(
-    ethereumish,
-    uniswapish,
-    baseAsset
-  );
-  const quoteToken: Tokenish = getFullTokenFromSymbol(
-    ethereumish,
-    uniswapish,
-    quoteAsset
-  );
-  const requestAmount: BigNumber = BigNumber.from(
-    baseAmount.toFixed(baseToken.decimals).replace('.', '')
-  );
-
-  let expectedTrade: ExpectedTrade;
-  if (tradeSide === 'BUY') {
-    expectedTrade = await uniswapish.estimateBuyTrade(
-      quoteToken,
-      baseToken,
-      requestAmount,
-      allowedSlippage
-    );
-  } else {
-    expectedTrade = await uniswapish.estimateSellTrade(
-      baseToken,
-      quoteToken,
-      requestAmount,
-      allowedSlippage
-    );
-  }
-
-  return {
-    baseToken,
-    quoteToken,
-    requestAmount,
-    expectedTrade,
-  };
-}
-
-export async function price(
-  ethereumish: Ethereumish,
-  uniswapish: Uniswapish,
-  req: PriceRequest
-): Promise<PriceResponse> {
-  const startTimestamp: number = Date.now();
-  let tradeInfo: TradeInfo;
-  try {
-    tradeInfo = await getTradeInfo(
-      ethereumish,
-      uniswapish,
-      req.base,
-      req.quote,
-      new Decimal(req.amount),
-      req.side,
-      req.allowedSlippage
-    );
-  } catch (e) {
-    if (e instanceof Error) {
-      throw new HttpException(
-        500,
-        PRICE_FAILED_ERROR_MESSAGE + e.message,
-        PRICE_FAILED_ERROR_CODE
-      );
-    } else {
-      throw new HttpException(
-        500,
-        UNKNOWN_ERROR_MESSAGE,
-        UNKNOWN_ERROR_ERROR_CODE
-      );
-    }
-  }
-
-  const trade = tradeInfo.expectedTrade.trade;
-  const expectedAmount = tradeInfo.expectedTrade.expectedAmount;
-
-  const tradePrice =
-    req.side === 'BUY' ? trade.executionPrice.invert() : trade.executionPrice;
-
-  const gasLimitTransaction = ethereumish.gasLimitTransaction;
-  const gasPrice = ethereumish.gasPrice;
-  const gasLimitEstimate = uniswapish.gasLimitEstimate;
-  return {
-    network: ethereumish.chain,
-    timestamp: startTimestamp,
-    latency: latency(startTimestamp, Date.now()),
-    base: tradeInfo.baseToken.address,
-    quote: tradeInfo.quoteToken.address,
-    amount: new Decimal(req.amount).toFixed(tradeInfo.baseToken.decimals),
-    rawAmount: tradeInfo.requestAmount.toString(),
-    expectedAmount: expectedAmount.toSignificant(8),
-    price: tradePrice.toSignificant(8),
-    gasPrice: gasPrice,
-    gasPriceToken: ethereumish.nativeTokenSymbol,
-    gasLimit: gasLimitTransaction,
-    gasCost: gasCostInEthString(gasPrice, gasLimitEstimate),
-  };
-}
-
-export async function trade(
-  ethereumish: Ethereumish,
-  uniswapish: Uniswapish,
-  req: TradeRequest
-): Promise<TradeResponse> {
-  const startTimestamp: number = Date.now();
-
-  const limitPrice = req.limitPrice;
-  const { wallet, maxFeePerGasBigNumber, maxPriorityFeePerGasBigNumber } =
-    await txWriteData(
-      ethereumish,
-      req.address,
-      req.maxFeePerGas,
-      req.maxPriorityFeePerGas
-    );
-
-  let tradeInfo: TradeInfo;
-  try {
-    tradeInfo = await getTradeInfo(
-      ethereumish,
-      uniswapish,
-      req.base,
-      req.quote,
-      new Decimal(req.amount),
-      req.side
-    );
-  } catch (e) {
-    if (e instanceof Error) {
-      logger.error(`Could not get trade info. ${e.message}`);
-      throw new HttpException(
-        500,
-        TRADE_FAILED_ERROR_MESSAGE + e.message,
-        TRADE_FAILED_ERROR_CODE
-      );
-    } else {
-      logger.error('Unknown error trying to get trade info.');
-      throw new HttpException(
-        500,
-        UNKNOWN_ERROR_MESSAGE,
-        UNKNOWN_ERROR_ERROR_CODE
-      );
-    }
-  }
-
-  const gasPrice: number = ethereumish.gasPrice;
-  const gasLimitTransaction: number = ethereumish.gasLimitTransaction;
-  const gasLimitEstimate: number = uniswapish.gasLimitEstimate;
-
-  if (req.side === 'BUY') {
-    const price: Fractionish =
-      tradeInfo.expectedTrade.trade.executionPrice.invert();
-    if (
-      limitPrice &&
-      new Decimal(price.toFixed(8)).gt(new Decimal(limitPrice))
-    ) {
-      logger.error('Swap price exceeded limit price.');
-      throw new HttpException(
-        500,
-        SWAP_PRICE_EXCEEDS_LIMIT_PRICE_ERROR_MESSAGE(
-          price.toFixed(8),
-          limitPrice
-        ),
-        SWAP_PRICE_EXCEEDS_LIMIT_PRICE_ERROR_CODE
-      );
-    }
-
-    const tx = await uniswapish.executeTrade(
-      wallet,
-      tradeInfo.expectedTrade.trade,
-      gasPrice,
-      uniswapish.router,
-      uniswapish.ttl,
-      uniswapish.routerAbi,
-      gasLimitTransaction,
-      req.nonce,
-      maxFeePerGasBigNumber,
-      maxPriorityFeePerGasBigNumber,
-      req.allowedSlippage
-    );
-
-    if (tx.hash) {
-      await ethereumish.txStorage.saveTx(
-        ethereumish.chain,
-        ethereumish.chainId,
-        tx.hash,
-        new Date(),
-        ethereumish.gasPrice
-      );
-    }
-
-    logger.info(
-      `Trade has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
-    );
-
-    return {
-      network: ethereumish.chain,
-      timestamp: startTimestamp,
-      latency: latency(startTimestamp, Date.now()),
-      base: tradeInfo.baseToken.address,
-      quote: tradeInfo.quoteToken.address,
-      amount: new Decimal(req.amount).toFixed(tradeInfo.baseToken.decimals),
-      rawAmount: tradeInfo.requestAmount.toString(),
-      expectedIn: tradeInfo.expectedTrade.expectedAmount.toSignificant(8),
-      price: price.toSignificant(8),
-      gasPrice: gasPrice,
-      gasPriceToken: ethereumish.nativeTokenSymbol,
-      gasLimit: gasLimitTransaction,
-      gasCost: gasCostInEthString(gasPrice, gasLimitEstimate),
-      nonce: tx.nonce,
-      txHash: tx.hash,
-    };
-  } else {
-    const price: Fractionish = tradeInfo.expectedTrade.trade.executionPrice;
-    logger.info(
-      `Expected execution price is ${price.toFixed(6)}, ` +
-        `limit price is ${limitPrice}.`
-    );
-    if (
-      limitPrice &&
-      new Decimal(price.toFixed(8)).lt(new Decimal(limitPrice))
-    ) {
-      logger.error('Swap price lower than limit price.');
-      throw new HttpException(
-        500,
-        SWAP_PRICE_LOWER_THAN_LIMIT_PRICE_ERROR_MESSAGE(
-          price.toFixed(8),
-          limitPrice
-        ),
-        SWAP_PRICE_LOWER_THAN_LIMIT_PRICE_ERROR_CODE
-      );
-    }
-
-    const tx = await uniswapish.executeTrade(
-      wallet,
-      tradeInfo.expectedTrade.trade,
-      gasPrice,
-      uniswapish.router,
-      uniswapish.ttl,
-      uniswapish.routerAbi,
-      gasLimitTransaction,
-      req.nonce,
-      maxFeePerGasBigNumber,
-      maxPriorityFeePerGasBigNumber
-    );
-
-    logger.info(
-      `Trade has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
-    );
-
-    return {
-      network: ethereumish.chain,
-      timestamp: startTimestamp,
-      latency: latency(startTimestamp, Date.now()),
-      base: tradeInfo.baseToken.address,
-      quote: tradeInfo.quoteToken.address,
-      amount: new Decimal(req.amount).toFixed(tradeInfo.baseToken.decimals),
-      rawAmount: tradeInfo.requestAmount.toString(),
-      expectedOut: tradeInfo.expectedTrade.expectedAmount.toSignificant(8),
-      price: price.toSignificant(8),
-      gasPrice: gasPrice,
-      gasPriceToken: ethereumish.nativeTokenSymbol,
-      gasLimit: gasLimitTransaction,
-      gasCost: gasCostInEthString(gasPrice, gasLimitEstimate),
-      nonce: tx.nonce,
-      txHash: tx.hash,
-    };
-  }
-}
-
-export function getFullTokenFromSymbol(
-  ethereumish: Ethereumish,
-  uniswapish: Uniswapish | UniswapLPish,
-  tokenSymbol: string
-): Tokenish | Token {
-  const tokenInfo: TokenInfo | undefined =
-    ethereumish.getTokenBySymbol(tokenSymbol);
-  let fullToken: Tokenish | Token | undefined;
-  if (tokenInfo) {
-    fullToken = uniswapish.getTokenByAddress(tokenInfo.address);
-  } else if (tokenSymbol === 'ETH' && uniswapish instanceof Panoptic) {
-    fullToken = uniswapish.getTokenByAddress(
-      '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-    );
-  }
-  if (!fullToken)
-    throw new HttpException(
-      500,
-      TOKEN_NOT_SUPPORTED_ERROR_MESSAGE + tokenSymbol,
-      TOKEN_NOT_SUPPORTED_ERROR_CODE
-    );
-  return fullToken;
-}
-
+// NOTE: Relies on a hard-coded 10M gas limit for every transaction.
+// TODO: Replace with actual tx simulation logic.
 export async function estimateGas(
   ethereumish: Ethereumish,
-  uniswapish: Uniswapish
+  panopticish: Panoptic,
 ): Promise<EstimateGasResponse> {
   const gasPrice: number = ethereumish.gasPrice;
-  const gasLimitTransaction: number = ethereumish.gasLimitTransaction;
-  const gasLimitEstimate: number = uniswapish.gasLimitEstimate;
+  const gasLimit: number = panopticish.gasLimitEstimate;
   return {
     network: ethereumish.chain,
     timestamp: Date.now(),
     gasPrice,
     gasPriceToken: ethereumish.nativeTokenSymbol,
-    gasLimit: gasLimitTransaction,
-    gasCost: gasCostInEthString(gasPrice, gasLimitEstimate),
+    gasLimit,
+    gasCost: gasCostInEthString(gasPrice, gasLimit),
   };
+}
+
+// TODO: Strongly type the return promises for each of the rest of the gateway methods.
+
+export async function calculateDelta(
+  panopticish: Panoptic,
+  req: CalculateDeltaRequest
+): Promise<any> {
+  const result = await panopticish.calculateDelta(req.PRICE, req.RANGE, req.STRIKE);
+  return result;
+}
+
+export async function calculateGamma(
+  panopticish: Panoptic,
+  req: CalculateGammaRequest
+): Promise<any> {
+  const result = await panopticish.calculateGamma(req.PRICE, req.RANGE, req.STRIKE);
+  return result;
+}
+
+
+// Subgraph interactions
+
+export async function queryOpenPositions(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: QueryOpenPositionsRequest
+): Promise<any> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const result = await panopticish.queryOpenPositions(wallet);
+  return result;
+}
+
+export async function querySubgraph(
+  panopticish: Panoptic,
+  req: QuerySubgraphRequest
+): Promise<any> {
+  const result = await panopticish.querySubgraph(req.query, req.variables);
+  return result;
+}
+
+// PanopticHelper interactions
+
+// TODO: Eventually, we'll allow users to make 1 gateway call to get all 5 greeks, rather than
+//       calling calculateDelta, then calculateGamma, etc...
+//       NOT YET FUNCTIONAL
+export async function queryGreeks(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: GreekQueryRequest
+): Promise<any> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const result = await panopticish.queryGreeks(wallet, req.tick, req.positionIdList, req.greek);
+  return result;
+}
+
+// PanopticPool interactions
+
+export async function calculateAccumulatedFeesBatch(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: CalculateAccumulatedFeesBatchRequest
+): Promise<any> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const result = await panopticish.calculateAccumulatedFeesBatch(
+    wallet,
+    req.includePendingPremium,
+    req.positionIdList
+  );
+  return result;
+}
+
+export async function getCollateralToken0(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: CollateralToken0Request
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const token0 = await panopticish.collateralToken0(wallet);
+  return token0;
+}
+
+export async function getCollateralToken1(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: CollateralToken1Request
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const token1 = await panopticish.collateralToken1(wallet);
+  return token1;
+}
+
+export async function burn(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: ExecuteBurnRequest
+): Promise<any> {
+  const startTimestamp: number = Date.now();
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const gasPrice: number = ethereumish.gasPrice;
+  const tx = await panopticish.executeBurn(
+    wallet,
+    req.burnTokenId,
+    req.newPositionIdList,
+    req.tickLimitLow,
+    req.tickLimitHigh,
+  );
+  if (tx.hash) {
+    await ethereumish.txStorage.saveTx(
+      ethereumish.chain,
+      ethereumish.chainId,
+      tx.hash,
+      new Date(),
+      ethereumish.gasPrice
+    );
+  }
+  logger.info(
+    `Burn has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+  );
+  return {
+    network: ethereumish.chain,
+    timestamp: startTimestamp,
+    nonce: tx.nonce,
+    txHash: tx.hash,
+  };
+}
+
+export async function forceExercise(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: ForceExerciseRequest
+): Promise<any> {
+  const startTimestamp: number = Date.now();
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const gasPrice: number = ethereumish.gasPrice;
+  const tx = await panopticish.forceExercise(
+    wallet,
+    req.touchedId,
+    req.positionIdListExercisee,
+    req.positionIdListExercisor,
+  );
+  if (tx.hash) {
+    await ethereumish.txStorage.saveTx(
+      ethereumish.chain,
+      ethereumish.chainId,
+      tx.hash,
+      new Date(),
+      ethereumish.gasPrice
+    );
+  }
+  logger.info(
+    `Force exercise has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+  );
+  return {
+    network: ethereumish.chain,
+    timestamp: startTimestamp,
+    nonce: tx.nonce,
+    txHash: tx.hash,
+  };
+}
+
+export async function liquidate(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: LiquidateRequest
+): Promise<any> {
+  const startTimestamp: number = Date.now();
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const gasPrice: number = ethereumish.gasPrice;
+  const tx = await panopticish.liquidate(
+    wallet,
+    req.positionIdListLiquidator,
+    req.liquidatee,
+    req.delegations,
+    req.positionIdList
+  );
+  if (tx.hash) {
+    await ethereumish.txStorage.saveTx(
+      ethereumish.chain,
+      ethereumish.chainId,
+      tx.hash,
+      new Date(),
+      ethereumish.gasPrice
+    );
+  }
+  logger.info(
+    `Liquidation has been executed, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+  );
+  return {
+    network: ethereumish.chain,
+    timestamp: startTimestamp,
+    nonce: tx.nonce,
+    txHash: tx.hash,
+  };
+}
+
+export async function mint(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: ExecuteMintRequest
+): Promise<any> {
+  const startTimestamp: number = Date.now();
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const gasPrice: number = ethereumish.gasPrice;
+  const tx = await panopticish.executeMint(
+    wallet,
+    req.positionIdList,
+    BigNumber.from(req.positionSize),
+    req.effectiveLiquidityLimit,
+  );
+  if (tx.hash) {
+    await ethereumish.txStorage.saveTx(
+      ethereumish.chain,
+      ethereumish.chainId,
+      tx.hash,
+      new Date(),
+      ethereumish.gasPrice
+    );
+  }
+  logger.info(
+    `Mint has been executed, tx: ${tx}, txHash is ${tx.hash}, nonce is ${tx.nonce}, gasPrice is ${gasPrice}.`
+  );
+  return {
+    network: ethereumish.chain,
+    timestamp: startTimestamp,
+    nonce: tx.nonce,
+    txHash: tx.hash,
+  };
+}
+
+export async function numberOfPositions(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: NumberOfPositionsRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const numOfPositions = await panopticish.numberOfPositions(
+    wallet
+  );
+  // TODO: cast this to number/int
+  return numOfPositions;
+}
+
+export async function optionPositionBalance(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: OptionPositionBalanceRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const result = await panopticish.optionPositionBalance(
+    wallet,
+    req.tokenId
+  );
+  // TODO: cast this to number/int
+  return result;
+}
+
+export async function pokeMedian(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: PokeMedianRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const txData = await panopticish.pokeMedian(wallet);
+  return txData['hash'];
+}
+
+export async function settleLongPremium(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: SettleLongPremiumRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const positions = await panopticish.settleLongPremium(
+    wallet,
+    req.positionIdList,
+    req.owner,
+    req.legIndex
+  );
+  return positions;
+}
+
+// CollateralTracker interactions
+
+export async function deposit(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: DepositRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const asset = await panopticish.deposit(
+    wallet,
+    req.collateralTracker,
+    BigNumber.from(req.assets)
+  );
+  return asset;
+}
+
+export async function getAsset(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: GetAssetRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const asset = await panopticish.getAsset(
+    wallet,
+    req.collateralTracker
+  );
+  return asset;
+}
+
+export async function getPoolData(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: GetPoolDataRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const shares = await panopticish.getPoolData(
+    wallet,
+    req.collateralTracker
+  );
+  return shares;
+}
+
+export async function maxWithdraw(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: MaxWithdrawRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const limit = await panopticish.maxWithdraw(
+    wallet,
+    req.collateralTracker
+  );
+  return limit;
+}
+
+export async function withdraw(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: WithdrawRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const shares = await panopticish.withdraw(
+    wallet,
+    req.collateralTracker,
+    BigNumber.from(req.assets)
+  );
+  return shares;
+}
+
+// SemiFungiblePositionManager interactions
+
+export async function getAccountLiquidity(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: GetAccountLiquidityRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const liquidity = await panopticish.getAccountLiquidity(
+    wallet,
+    req.univ3pool,
+    req.owner,
+    req.tokenType,
+    req.tickLower,
+    req.tickUpper
+  );
+  return liquidity;
+}
+
+export async function getAccountPremium(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: GetAccountPremiumRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const liquidity = await panopticish.getAccountPremium(
+    wallet,
+    req.univ3pool,
+    req.owner,
+    req.tokenType,
+    req.tickLower,
+    req.tickUpper,
+    req.atTick,
+    req.isLong
+  );
+  return liquidity;
+}
+
+export async function getAccountFeesBase(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: GetAccountFeesBaseRequest
+): Promise<string> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const response = await panopticish.getAccountFeesBase(
+    wallet,
+    req.univ3pool,
+    req.owner,
+    req.tokenType,
+    req.tickLower,
+    req.tickUpper
+  );
+  return response;
 }
