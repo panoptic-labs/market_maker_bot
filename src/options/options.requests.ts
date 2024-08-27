@@ -107,7 +107,6 @@ export interface OptionPositionBalanceRequest extends PanopticRequest{
 }
 
 export interface PokeMedianRequest extends PanopticRequest{
-  wallet: Wallet;
   address: string;
 }
 

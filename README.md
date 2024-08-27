@@ -50,6 +50,8 @@ Note: If you run into issues about failures to connect, note that Hummingbot, by
 
 You can try out one of the 3 stub strategies currently present in this repo's `./strategies/panoptic_*.py` files. Copy and paste them over in your `hummingbot` repo, into `./scripts`. Then, from the Hummingbot terminal UI, run one of the scripts via `start --script {strategy's_file_name}.py`. The `panoptic_trading_strategy_stub.py` will report some statistics, while the mint and burn strategies will attempt transactions. You can modify these scripts to use your own user data for test usage. Do note you'll need to approve any tokens involved in the strategy to see actual transactions go through.
 
+Here's what you might roughly see if you run it successfully: ![Example](https://i.imgur.com/XBOUEyH.png)
+
 Be sure to stop the example script with the `stop` command before starting others.
 
 --------

@@ -47,27 +47,27 @@ class TradePanoptions(ScriptStrategyBase):
 
         self.logger().info(f"Checking getCollateralToken0...")
         self.logger().info(f"POST /options/getCollateralToken0 [ connector: {connector} ]")
-        colatteralTracker0 = await GatewayHttpClient.get_instance().api_request(
+        collateralTracker0 = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/getCollateralToken0",
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"getCollateralToken0 response: {colatteralTracker0}")
+        self.logger().info(f"getCollateralToken0 response: {collateralTracker0}")
 
         self.logger().info(f"Checking getCollateralToken1...")
         self.logger().info(f"POST /options/getCollateralToken1 [ connector: {connector} ]")
-        colatteralTracker1 = await GatewayHttpClient.get_instance().api_request(
+        collateralTracker1 = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/getCollateralToken1",
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"getCollateralToken1 response: {colatteralTracker1}")
+        self.logger().info(f"getCollateralToken1 response: {collateralTracker1}")
 
         self.logger().info(f"Checking getAsset on token0...")
         self.logger().info(f"POST /options/getAsset [ connector: {connector} ]")
-        request_payload["collateralTracker"] = colatteralTracker0
+        request_payload["collateralTracker"] = collateralTracker0
         assetToken0 = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/getAsset",
@@ -78,7 +78,7 @@ class TradePanoptions(ScriptStrategyBase):
 
         self.logger().info(f"Checking getAsset on token1...")
         self.logger().info(f"POST /options/getAsset [ connector: {connector} ]")
-        request_payload["collateralTracker"] = colatteralTracker1
+        request_payload["collateralTracker"] = collateralTracker1
         assetToken1 = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/getAsset",
@@ -87,7 +87,7 @@ class TradePanoptions(ScriptStrategyBase):
         )
         self.logger().info(f"getAsset response: {assetToken1}")
 
-        request_payload["collateralTracker"] = colatteralTracker0
+        request_payload["collateralTracker"] = collateralTracker0
         self.logger().info(f"Checking maxWithdraw on token0...")
         self.logger().info(f"POST /options/maxWithdraw [ connector: {connector} ]")
         response = await GatewayHttpClient.get_instance().api_request(
@@ -98,7 +98,7 @@ class TradePanoptions(ScriptStrategyBase):
         )
         self.logger().info(f"maxWithdraw response: {response}")
 
-        request_payload["collateralTracker"] = colatteralTracker1
+        request_payload["collateralTracker"] = collateralTracker1
         self.logger().info(f"Checking withdrawal limit for token1...")
         self.logger().info(f"POST /options/maxWithdraw [ connector: {connector} ]")
         maxWithdraw = await GatewayHttpClient.get_instance().api_request(
@@ -129,7 +129,7 @@ class TradePanoptions(ScriptStrategyBase):
         )
         self.logger().info(f"queryOpenPositions response: {openPositions}")
 
-        request_payload["collateralTracker"] = colatteralTracker0
+        request_payload["collateralTracker"] = collateralTracker0
         self.logger().info(f"Checking getPoolData...")
         self.logger().info(f"POST /options/getPoolData [ connector: {connector} ]")
         data = await GatewayHttpClient.get_instance().api_request(
@@ -138,6 +138,7 @@ class TradePanoptions(ScriptStrategyBase):
             params=request_payload,
             fail_silently=False
         )
+        # TODO: Convert to ints
         poolAssets = data['poolAssets']['hex']
         insideAMM = data['insideAMM']['hex']
         currentPoolUtilization = data['currentPoolUtilization']['hex']
@@ -154,7 +155,7 @@ class TradePanoptions(ScriptStrategyBase):
             params=request_payload,
             fail_silently=False
         )
-        self.logger().info(f"pokeMedian response: {response}")
+        self.logger().info(f"pokeMedian hash: {response}")
 
         # Example tokenID from real testnet user:
         request_payload["tokenId"]="77322919313040615369538147907420"

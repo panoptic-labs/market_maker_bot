@@ -359,8 +359,8 @@ export async function pokeMedian(
   req: PokeMedianRequest
 ): Promise<string> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const txData = await panopticish.pokeMedian();
-  return txData;
+  const txData = await panopticish.pokeMedian(wallet);
+  return txData['hash'];
 }
 
 export async function settleLongPremium(

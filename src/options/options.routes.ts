@@ -34,10 +34,10 @@ import {
   ExecuteBurnRequest,
   BurnResponse,
 } from './options.requests';
-import {
-  validateMintRequest,
-  validateBurnRequest,
-} from './options.validators';
+// import {
+//   validateMintRequest,
+//   validateBurnRequest,
+// } from './options.validators';
 
 export namespace OptionsRoutes {
   export const router = Router();
