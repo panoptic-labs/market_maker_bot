@@ -13,34 +13,34 @@ It also comes with Sepolia support out of the box, which is not found in upstrea
 You can find instructions below about the general Hummingbot setup. To specifically use the Panoptic functionality, you can:
 
 1. Get hummingbot set up:
-  a. `git clone https://github.com/hummingbot/hummingbot.git`
-  b. `cd hummingbot`
-  c. `./install`
-    i. You may need to first install anaconda: https://www.anaconda.com/download
-  d. `conda activate hummingbot`
-  e. `./compile`
-  f. `./start`
-  g. The Hummingbot UI should now present itself! You can now set a password.
-  i. The Hummingbot Shell will now present itself. You can then `gateway generate-certs` to generate certificates and secure your Hummingbot instance.
-    i. You’ll be prompted to set a password and it’ll list the directory those certificates are stored in.
-    ii. Copy the directory path it generates these certificates though.
-    iii. For many users, this was `~/hummingbot/certs`. This is just a certs folder in the same folder as your hummingbot repo
+   a. `git clone https://github.com/hummingbot/hummingbot.git`
+   b. `cd hummingbot`
+   c. `./install`
+     i. You may need to first install anaconda: https://www.anaconda.com/download
+   d. `conda activate hummingbot`
+   e. `./compile`
+   f. `./start`
+   g. The Hummingbot UI should now present itself! You can now set a password.
+   i. The Hummingbot Shell will now present itself. You can then `gateway generate-certs` to generate certificates and secure your Hummingbot instance.
+      i. You’ll be prompted to set a password and it’ll list the directory those certificates are stored in.
+      ii. Copy the directory path it generates these certificates though.
+      iii. For many users, this was `~/hummingbot/certs`. This is just a certs folder in the same folder as your hummingbot repo
 2. Then, set up this fork of the Hummingbot Gateway:
-  a. `git clone git@github.com:panoptic-labs/market_maker_bot.git`
-  b. `cd market_maker_bot`
-  c. `yarn`
-    i. Ensure you’re using node 18.0.0 or higher - you can use [nvm](https://github.com/nvm-sh/nvm) to manage different node versions if needed
-  d. `yarn build`
-  e. Give permissions to the gateway setup script: `chmod a+x gateway-setup.sh`
-  f. Then run it: `./gateway-setup.sh`
-  g. It will prompt you to copy over the certs, enter the path (and possibly password) for those certs you just generated in (1)(i). Enter the path.
+   a. `git clone git@github.com:panoptic-labs/market_maker_bot.git`
+   b. `cd market_maker_bot`
+   c. `yarn`
+      i. Ensure you’re using node 18.0.0 or higher - you can use [nvm](https://github.com/nvm-sh/nvm) to manage different node versions if needed
+   d. `yarn build`
+   e. Give permissions to the gateway setup script: `chmod a+x gateway-setup.sh`
+   f. Then run it: `./gateway-setup.sh`
+   g. It will prompt you to copy over the certs, enter the path (and possibly password) for those certs you just generated in (1)(i). Enter the path.
 3. Then, you should be able to launch the Gateway: `yarn start --passphrase=<passphrase>``
 4. Then, back in the Hummingbot UI tab, you should see Gateway: ONLINE in the navbar, on the right side to the left of > log pane
-  a. You can connect to Panoptic's functionality by running `gateway connect panoptic` in the Hummingbot shell. You will be prompted about your RPC URL and private key to get started.
-  b. To confirm functionality, you can run `gateway balance` to see your sepolia ETH balance.
-  c. You can then add more tokens to track balances of if you like via: `gateway connector-tokens panoptic_ethereum_sepolia ETH,WETH,T0,T1`. Your next call to gateway balance will show your balances of all those tokens.
-    i. Be careful NOT to add spaces between the token tickers.
-  d. Be sure to approve your tokens to appropriate spenders, such as Uniswap or Panoptic contracts, to see valid gas estimates.
+   a. You can connect to Panoptic's functionality by running `gateway connect panoptic` in the Hummingbot shell. You will be prompted about your RPC URL and private key to get started.
+   b. To confirm functionality, you can run `gateway balance` to see your sepolia ETH balance.
+   c. You can then add more tokens to track balances of if you like via: `gateway connector-tokens panoptic_ethereum_sepolia ETH,WETH,T0,T1`. Your next call to gateway balance will show your balances of all those tokens.
+      i. Be careful NOT to add spaces between the token tickers.
+   d. Be sure to approve your tokens to appropriate spenders, such as Uniswap or Panoptic contracts, to see valid gas estimates.
 
 From here, you should be able to implement strategies in the `hummingbot` repo that call to your local instance of the Gateway, with our Panoptic methods!
 
