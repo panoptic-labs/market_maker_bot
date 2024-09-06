@@ -1305,20 +1305,18 @@ export class Panoptic {
     wallet: Wallet,
     self: BigNumber,
     legIndex: BigNumber,
-    optionRatio?: BigNumber, 
-    asset?: BigNumber,
-    isLong?: BigNumber,
-    tokenType?: BigNumber,
-    riskPartner?: BigNumber,
-    strike?: number,
-    width?: number
+    optionRatio: BigNumber, 
+    asset: BigNumber,
+    isLong: BigNumber,
+    tokenType: BigNumber,
+    riskPartner: BigNumber,
+    strike: number,
+    width: number
   ): Promise<BigNumber | unknown> {
     try {
       const tokenIdLibrary = this.TokenIdLibrary;
-      logger.info(`Variables okay?... ${tokenIdLibrary}`)
       logger.info(`Checking addLeg...`)
       const tokenIdLibraryContract = new Contract(tokenIdLibrary, tokenIdLibraryAbi.abi, wallet);
-      // const tokenIdLibraryContract = new Contract("0x406ec4530ab35a13a2b95e3345f3291895e658bf", tokenIdLibraryAbi.abi, wallet);
       const response = await tokenIdLibraryContract.addLeg(
         self,
         legIndex,
