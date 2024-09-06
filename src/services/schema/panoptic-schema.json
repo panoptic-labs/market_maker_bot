@@ -46,6 +46,9 @@
                 },
                 "PanopticPool": {
                   "type": "string"
+                },
+                "TokenIdLibrary": {
+                  "type": "string"
                 }
               },
               "required": [
