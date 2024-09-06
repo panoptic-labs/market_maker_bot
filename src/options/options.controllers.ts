@@ -6,6 +6,7 @@ import {
   MintResponse,
 } from './options.requests';
 import {
+  addLeg as panopticAddLeg,
   mint as panopticMint,
   burn as panopticBurn,
   forceExercise as panopticForceExercise,
@@ -59,6 +60,20 @@ import {
 } from '../services/common-interfaces';
 import { Panoptic } from '../connectors/panoptic/panoptic';
 
+export async function addLeg(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticAddLeg(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
 
 export async function mint(req: ExecuteMintRequest): Promise<MintResponse | undefined> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);

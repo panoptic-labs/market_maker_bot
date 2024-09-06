@@ -11,6 +11,7 @@ import { logger } from '../../services/logger';
 import { Ethereum } from '../../chains/ethereum/ethereum';
 import { getAddress } from 'ethers/lib/utils';
 import panopticPoolAbi from './PanopticPool.ABI.json';
+import tokenIdLibraryAbi from './TokenIdLibrary.ABI.json';
 import panopticHelperAbi from './PanopticHelper.ABI.json';
 import collateralTrackerAbi from './CollateralTracker.ABI.json';
 import semiFungiblePositionManagerAbi from './SFPM.ABI.json';
@@ -29,6 +30,7 @@ export class Panoptic {
   private _PanopticHelper: string;
   private _UniswapMigrator: string;
   private _PanopticPool: string;
+  private _TokenIdLibrary: string;
   private _gasLimitEstimate: number;
   private _ttl: number;
   private _subgraph_api_url: string;
@@ -50,6 +52,7 @@ export class Panoptic {
     this._PanopticHelper = config.PanopticHelper(chain, network);
     this._UniswapMigrator = config.UniswapMigrator(chain, network);
     this._PanopticPool = config.PanopticPool(chain, network);
+    this._TokenIdLibrary = config.TokenIdLibrary(chain, network);
     this._ttl = config.ttl;
     // TODO: Move this to config
     this._subgraph_api_url = 'https://api.goldsky.com/api/public/project_cl9gc21q105380hxuh8ks53k3/subgraphs/panoptic-subgraph-sepolia/beta7/gn';
@@ -131,6 +134,9 @@ export class Panoptic {
   }
   public get PanopticPool(): string {
     return this._PanopticPool;
+  }
+  public get TokenIdLibrary(): string {
+    return this._TokenIdLibrary;
   }
   public get LOWEST_POSSIBLE_TICK(): number {
     return -887272;
@@ -1289,6 +1295,43 @@ export class Panoptic {
       return response;
     } catch (error) {
       logger.error("Error on getAccountFeesBase:", error);
+      return error;
+    }
+  }
+
+  // TokenIdLibrary interactions
+
+  async addLeg(
+    wallet: Wallet,
+    self: BigNumber,
+    legIndex: BigNumber,
+    optionRatio?: BigNumber, 
+    asset?: BigNumber,
+    isLong?: BigNumber,
+    tokenType?: BigNumber,
+    riskPartner?: BigNumber,
+    strike?: number,
+    width?: number
+  ): Promise<BigNumber | unknown> {
+    try {
+      const tokenIdLibrary = this.TokenIdLibrary;
+      logger.info(`Checking getTokenId...`)
+      const tokenIdLibraryContract = new Contract(tokenIdLibrary, tokenIdLibraryAbi.abi, wallet);
+      const response = await tokenIdLibraryContract.addLeg(
+        self,
+        legIndex,
+        optionRatio,
+        asset,
+        isLong,
+        tokenType,
+        riskPartner,
+        strike,
+        width
+      );
+      logger.info(`addLeg response: ${response}`);
+      return response;
+    } catch (error) {
+      logger.error("Error on addLeg:", error);
       return error;
     }
   }

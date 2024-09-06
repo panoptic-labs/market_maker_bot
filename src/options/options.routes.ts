@@ -4,6 +4,7 @@ import { BigNumber } from 'ethers';
 import { Router, Request, Response } from 'express';
 import { asyncHandler } from '../services/error-handler';
 import {
+  addLeg,
   mint,
   burn,
   liquidate,
@@ -61,6 +62,18 @@ import {
 
 export namespace OptionsRoutes {
   export const router = Router();
+
+  router.post(
+    '/addLeg',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await addLeg(req.body));
+      }
+    )
+  )
 
   router.post(
     '/mint',

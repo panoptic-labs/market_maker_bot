@@ -856,3 +856,26 @@ export async function getAccountFeesBase(
   );
   return response;
 }
+
+// TokenIdLibrary interactions
+
+export async function addLeg(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: any
+): Promise<BigNumber | unknown> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const response = await panopticish.addLeg(
+    wallet,
+    req.self,
+    req.legIndex,
+    req.optionRatio, 
+    req.asset,
+    req.isLong,
+    req.tokenType,
+    req.riskPartner,
+    req.strike,
+    req.width
+  );
+  return response;
+}
