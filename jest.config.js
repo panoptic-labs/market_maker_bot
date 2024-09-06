@@ -19,6 +19,8 @@ module.exports = {
     'src/chains/near/near.base.ts',
     'src/connectors/uniswap/uniswap.config.ts',
     'src/connectors/uniswap/uniswap.ts',
+    'src/connectors/panoptic/panoptic.config.ts',
+    'src/connectors/panoptic/panoptic.ts',
     'src/connectors/uniswap/uniswap.lp.helper.ts',
     'src/connectors/openocean/openocean.ts',
     'src/connectors/pangolin/pangolin.ts',
