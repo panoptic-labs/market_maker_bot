@@ -11,6 +11,9 @@
     "ttl": {
       "type": "integer"
     },
+    "subgraphUrl": {
+      "type": "string"
+    },
     "contractAddresses": {
       "type": "object",
       "patternProperties": {

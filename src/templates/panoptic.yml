@@ -10,6 +10,10 @@ ttl: 300
 # dynamic.
 gasLimitEstimate: 10000000
 
+subgraph:
+  # The subgraph endpoint to query for Panoptic data.
+  endpoint: 'https://api.thegraph.com/subgraphs/name/panoptic/panoptic'
+
 contractAddresses:
   ethereum:
     sepolia:
