@@ -6,7 +6,6 @@ export namespace PanopticConfig {
     allowedSlippage: string;
     gasLimitEstimate: number;
     ttl: number;
-    routerAddress: (chain: string, network: string) => string;
     multiCallAddress: (chain: string, network: string) => string;
     UniswapV3Factory: (chain: string, network: string) => string;
     NonFungiblePositionManager: (chain: string, network: string) => string;
@@ -30,14 +29,6 @@ export namespace PanopticConfig {
       `panoptic.gasLimitEstimate`
     ),
     ttl: ConfigManagerV2.getInstance().get('panoptic.ttl'),
-    routerAddress: (chain: string, network: string) =>
-      ConfigManagerV2.getInstance().get(
-        'panoptic.contractAddresses.' +
-        chain +
-        '.' +
-        network +
-        '.routerAddress'
-      ),
     multiCallAddress: (chain: string, network: string) =>
       ConfigManagerV2.getInstance().get(
         'panoptic.contractAddresses.' +

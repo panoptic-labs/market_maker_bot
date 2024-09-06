@@ -108,9 +108,6 @@ export class Panoptic {
     return this._ready;
   }
 
-  /**
-   * Router address.
-   */
   public get multiCallAddress(): string {
     return this._MulticallAddress;
   }
