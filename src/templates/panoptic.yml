@@ -14,6 +14,9 @@ subgraph:
   # The subgraph endpoint to query for Panoptic data.
   endpoint: 'https://api.thegraph.com/subgraphs/name/panoptic/panoptic'
 
+lowestTick: -887272
+highestTick: 887272
+
 contractAddresses:
   ethereum:
     sepolia:

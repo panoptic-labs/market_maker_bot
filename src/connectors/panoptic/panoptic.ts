@@ -34,6 +34,8 @@ export class Panoptic {
   private _gasLimitEstimate: number;
   private _ttl: number;
   private _subgraphUrl: string;
+  private _lowestTick: number;
+  private _highestTick: number;
   private chainId;
   private tokenList: Record<string, Token> = {};
   private _ready: boolean = false;
@@ -55,6 +57,8 @@ export class Panoptic {
     this._TokenIdLibrary = config.TokenIdLibrary(chain, network);
     this._ttl = config.ttl;
     this._subgraphUrl = config.subgraphUrl;
+    this._lowestTick = config.lowestTick;
+    this._highestTick = config.highestTick;
     this._gasLimitEstimate = config.gasLimitEstimate;
   }
 
@@ -135,10 +139,10 @@ export class Panoptic {
     return this._TokenIdLibrary;
   }
   public get LOWEST_POSSIBLE_TICK(): number {
-    return -887272;
+    return this._lowestTick;
   }
   public get HIGHEST_POSSIBLE_TICK(): number {
-    return 887272;
+    return this._highestTick; 
   }
 
   /**

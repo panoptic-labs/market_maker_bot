@@ -7,6 +7,8 @@ export namespace PanopticConfig {
     gasLimitEstimate: number;
     ttl: number;
     subgraphUrl: string;
+    lowestTick: number;
+    highestTick: number;
     multiCallAddress: (chain: string, network: string) => string;
     UniswapV3Factory: (chain: string, network: string) => string;
     NonFungiblePositionManager: (chain: string, network: string) => string;
@@ -31,6 +33,8 @@ export namespace PanopticConfig {
     ),
     ttl: ConfigManagerV2.getInstance().get('panoptic.ttl'),
     subgraphUrl: ConfigManagerV2.getInstance().get('panoptic.subgraph.endpoint'),
+    lowestTick: ConfigManagerV2.getInstance().get('panoptic.lowestTick'),
+    highestTick: ConfigManagerV2.getInstance().get('panoptic.highestTick'),
     multiCallAddress: (chain: string, network: string) =>
       ConfigManagerV2.getInstance().get(
         'panoptic.contractAddresses.' +
