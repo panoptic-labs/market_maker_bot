@@ -35,9 +35,6 @@
             "^\\w+$": {
               "type": "object",
               "properties": {
-                "routerAddress": {
-                  "type": "string"
-                },
                 "multiCallAddress": {
                   "type": "string"
                 },
@@ -66,9 +63,6 @@
                   "type": "string"
                 }
               },
-              "required": [
-                "routerAddress"
-              ],
               "additionalProperties": false
             }
           },
