@@ -11,14 +11,20 @@
     "ttl": {
       "type": "integer"
     },
-    "subgraphUrl": {
-      "type": "string"
-    },
     "lowestTick": {
       "type": "integer"
     },
     "highestTick": {
       "type": "integer"
+    },
+    "subgraph": {
+      "type": "string",
+      "properties": {
+        "endpoint": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
     },
     "contractAddresses": {
       "type": "object",
