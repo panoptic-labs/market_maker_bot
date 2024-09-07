@@ -1,0 +1,7 @@
+paths:
+  /options/addLeg:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a position leg on tokenId'
+
