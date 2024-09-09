@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import {
   ExecuteBurnRequest,
   BurnResponse,
@@ -60,7 +59,7 @@ import {
 } from '../services/common-interfaces';
 import { Panoptic } from '../connectors/panoptic/panoptic';
 
-export async function addLeg(req: any): Promise<BigNumber | unknown> {
+export async function addLeg(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -271,7 +270,7 @@ export async function querySubgraph(req: any): Promise<any> {
   }
 }
 
-export async function createBigLizard(req: any): Promise<BigNumber | unknown> {
+export async function createBigLizard(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -286,7 +285,7 @@ export async function createBigLizard(req: any): Promise<BigNumber | unknown> {
   }
 }
 
-export async function createCallCalendarSpread(req: any): Promise<BigNumber | unknown> {
+export async function createCallCalendarSpread(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -301,7 +300,7 @@ export async function createCallCalendarSpread(req: any): Promise<BigNumber | un
   }
 }
 
-export async function createCallDiagonalSpread(req: any): Promise<BigNumber | unknown> {
+export async function createCallDiagonalSpread(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -314,7 +313,7 @@ export async function createCallDiagonalSpread(req: any): Promise<BigNumber | un
   }
 }
 
-export async function createCallRatioSpread(req: any): Promise<BigNumber | unknown> {
+export async function createCallRatioSpread(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -324,7 +323,7 @@ export async function createCallRatioSpread(req: any): Promise<BigNumber | unkno
   }
 }
 
-export async function createCallSpread(req: any): Promise<BigNumber | unknown> {
+export async function createCallSpread(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -334,7 +333,7 @@ export async function createCallSpread(req: any): Promise<BigNumber | unknown> {
   }
 }
 
-export async function createCallZEBRASpread(req: any): Promise<BigNumber | unknown> {
+export async function createCallZEBRASpread(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -344,7 +343,7 @@ export async function createCallZEBRASpread(req: any): Promise<BigNumber | unkno
   }
 }
 
-export async function createIronButterfly(req: any): Promise<BigNumber | unknown> {
+export async function createIronButterfly(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -354,7 +353,7 @@ export async function createIronButterfly(req: any): Promise<BigNumber | unknown
   }
 }
 
-export async function createIronCondor(req: any): Promise<BigNumber | unknown> {
+export async function createIronCondor(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -364,7 +363,7 @@ export async function createIronCondor(req: any): Promise<BigNumber | unknown> {
   }
 }
 
-export async function createJadeLizard(req: any): Promise<BigNumber | unknown> {
+export async function createJadeLizard(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -374,7 +373,7 @@ export async function createJadeLizard(req: any): Promise<BigNumber | unknown> {
   }
 }
 
-export async function createPutCalendarSpread(req: any): Promise<BigNumber | unknown> {
+export async function createPutCalendarSpread(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -384,7 +383,7 @@ export async function createPutCalendarSpread(req: any): Promise<BigNumber | unk
   }
 }
 
-export async function createPutDiagonalSpread(req: any): Promise<BigNumber | unknown> {
+export async function createPutDiagonalSpread(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -394,7 +393,7 @@ export async function createPutDiagonalSpread(req: any): Promise<BigNumber | unk
   }
 }
 
-export async function createPutRatioSpread(req: any): Promise<BigNumber | unknown> {
+export async function createPutRatioSpread(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -404,7 +403,7 @@ export async function createPutRatioSpread(req: any): Promise<BigNumber | unknow
   }
 }
 
-export async function createPutSpread(req: any): Promise<BigNumber | unknown> {
+export async function createPutSpread(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -414,7 +413,7 @@ export async function createPutSpread(req: any): Promise<BigNumber | unknown> {
   }
 }
 
-export async function createPutZEBRASpread(req: any): Promise<BigNumber | unknown> {
+export async function createPutZEBRASpread(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -424,7 +423,7 @@ export async function createPutZEBRASpread(req: any): Promise<BigNumber | unknow
   }
 }
 
-export async function createStraddle(req: any): Promise<BigNumber | unknown> {
+export async function createStraddle(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -434,7 +433,7 @@ export async function createStraddle(req: any): Promise<BigNumber | unknown> {
   }
 }
 
-export async function createStrangle(req: any): Promise<BigNumber | unknown> {
+export async function createStrangle(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -444,7 +443,7 @@ export async function createStrangle(req: any): Promise<BigNumber | unknown> {
   }
 }
 
-export async function createSuperBear(req: any): Promise<BigNumber | unknown> {
+export async function createSuperBear(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -454,7 +453,7 @@ export async function createSuperBear(req: any): Promise<BigNumber | unknown> {
   }
 }
 
-export async function createSuperBull(req: any): Promise<BigNumber | unknown> {
+export async function createSuperBull(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -464,7 +463,7 @@ export async function createSuperBull(req: any): Promise<BigNumber | unknown> {
   }
 }
 
-export async function createZEEHBS(req: any): Promise<BigNumber | unknown> {
+export async function createZEEHBS(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {

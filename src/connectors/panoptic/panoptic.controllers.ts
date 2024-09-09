@@ -12,30 +12,73 @@ import {
 import { logger } from '../../services/logger';
 import {
   ExecuteBurnRequest,
+  BurnResponse,
   CalculateDeltaRequest,
+  CalculateDeltaResponse,
   CalculateGammaRequest,
+  CalculateGammaResponse,
   GreekQueryRequest,
+  GreekQueryResponse,
   QueryOpenPositionsRequest,
+  QueryOpenPositionsResponse,
   QuerySubgraphRequest,
+  QuerySubgraphResponse,
+  CreateBigLizardRequest,
+  CreateCallCalendarSpreadRequest,
+  CreateCallDiagonalSpreadRequest,
+  CreateCallRatioSpreadRequest,
+  CreateCallSpreadRequest,
+  CreateCallZEBRASpreadRequest,
+  CreateIronButterflyRequest,
+  CreateIronCondorRequest,
+  CreateJadeLizardRequest,
+  CreatePutCalendarSpreadRequest,
+  CreatePutDiagonalSpreadRequest, 
+  CreatePutRatioSpreadRequest,
+  CreatePutSpreadRequest,
+  CreatePutZEBRASpreadRequest,
+  CreateStraddleRequest,
+  CreateStrangleRequest,
+  CreateSuperBearRequest,
+  CreateSuperBullRequest,
+  CreateZEEHBSRequest,
+  CreateAddLegsRequest,
+  CreatePositionResponse,
   CalculateAccumulatedFeesBatchRequest,
-  CollateralToken0Request,
-  CollateralToken1Request,
+  CalculateAccumulatedFeesBatchResponse,
+  CollateralTokenRequest,
+  CollateralTokenResponse,
   ForceExerciseRequest,
+  ForceExerciseResponse,
   LiquidateRequest,
+  LiquidateResponse,
   ExecuteMintRequest,
+  MintResponse,
   NumberOfPositionsRequest,
+  NumberOfPositionsResponse,
   OptionPositionBalanceRequest,
   PokeMedianRequest,
   SettleLongPremiumRequest,
   DepositRequest,
+  DepositResponse,
   GetAssetRequest,
+  GetAssetResponse,
   GetPoolDataRequest,
   MaxWithdrawRequest,
   WithdrawRequest,
   GetAccountLiquidityRequest,
   GetAccountPremiumRequest,
   GetAccountFeesBaseRequest,
-  EstimateGasResponse
+  EstimateGasResponse,
+  OptionsPositionBalanceResponse,
+  PokeMedianResponse,
+  SettleLongPremiumResponse,
+  GetPoolDataResponse,
+  MaxWithdrawResponse,
+  WithdrawResponse,
+  GetAccountLiquidityResponse,
+  GetAccountPremiumResponse,
+  GetAccountFeesBaseResponse
 } from '../../options/options.requests';
 import { Panoptic } from '../panoptic/panoptic';
 import { gasCostInEthString } from '../../services/base';
@@ -91,9 +134,9 @@ export async function estimateGas(
   return {
     network: ethereumish.chain,
     timestamp: Date.now(),
-    gasPrice,
+    gasPrice: gasPrice,
     gasPriceToken: ethereumish.nativeTokenSymbol,
-    gasLimit,
+    gasLimit: gasLimit,
     gasCost: gasCostInEthString(gasPrice, gasLimit),
   };
 }
@@ -103,19 +146,22 @@ export async function estimateGas(
 export async function calculateDelta(
   panopticish: Panoptic,
   req: CalculateDeltaRequest
-): Promise<any> {
+): Promise<CalculateDeltaResponse> {
   const result = await panopticish.calculateDelta(req.PRICE, req.RANGE, req.STRIKE);
-  return result;
+  return {
+    delta: result
+  };
 }
 
 export async function calculateGamma(
   panopticish: Panoptic,
   req: CalculateGammaRequest
-): Promise<any> {
+): Promise<CalculateGammaResponse> {
   const result = await panopticish.calculateGamma(req.PRICE, req.RANGE, req.STRIKE);
-  return result;
+  return {
+    gamma: result
+  };
 }
-
 
 // Subgraph interactions
 
@@ -123,18 +169,22 @@ export async function queryOpenPositions(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: QueryOpenPositionsRequest
-): Promise<any> {
+): Promise<QueryOpenPositionsResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.queryOpenPositions(wallet);
-  return result;
+  return {
+    queryResponse: result
+  };
 }
 
 export async function querySubgraph(
   panopticish: Panoptic,
   req: QuerySubgraphRequest
-): Promise<any> {
+): Promise<QuerySubgraphResponse> {
   const result = await panopticish.querySubgraph(req.query, req.variables);
-  return result;
+  return {
+    queryResponse: result.data
+  };
 }
 
 // PanopticHelper interactions
@@ -142,8 +192,8 @@ export async function querySubgraph(
 export async function createBigLizard(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateBigLizardRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createBigLizard(
     wallet,
@@ -153,14 +203,16 @@ export async function createBigLizard(
     req.straddleStrike,
     req.asset
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createCallCalendarSpread(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateCallCalendarSpreadRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createCallCalendarSpread(
     wallet,
@@ -172,14 +224,16 @@ export async function createCallCalendarSpread(
     req.optionRatio, 
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createCallDiagonalSpread(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateCallDiagonalSpreadRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createCallDiagonalSpread(
     wallet,
@@ -192,14 +246,16 @@ export async function createCallDiagonalSpread(
     req.optionRatio, 
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createCallRatioSpread(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateCallRatioSpreadRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createCallRatioSpread(
     wallet,
@@ -211,14 +267,16 @@ export async function createCallRatioSpread(
     req.ratio, 
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createCallSpread(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateCallSpreadRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createCallSpread(
     wallet,
@@ -230,14 +288,16 @@ export async function createCallSpread(
     req.optionRatio,
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createCallZEBRASpread(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateCallZEBRASpreadRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createCallZEBRASpread(
     wallet,
@@ -249,14 +309,16 @@ export async function createCallZEBRASpread(
     req.ratio, 
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createIronButterfly(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateIronButterflyRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createIronButterfly(
     wallet,
@@ -266,14 +328,16 @@ export async function createIronButterfly(
     req.wingWidth, 
     req.asset
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createIronCondor(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateIronCondorRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createIronCondor(
     wallet,
@@ -284,14 +348,16 @@ export async function createIronCondor(
     req.wingWidth,
     req.asset
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createJadeLizard(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateJadeLizardRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createJadeLizard(
     wallet,
@@ -302,14 +368,16 @@ export async function createJadeLizard(
     req.shortPutStrike,
     req.asset
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createPutCalendarSpread(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreatePutCalendarSpreadRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createPutCalendarSpread(
     wallet,
@@ -321,14 +389,16 @@ export async function createPutCalendarSpread(
     req.optionRatio,
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createPutDiagonalSpread(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreatePutDiagonalSpreadRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createPutDiagonalSpread(
     wallet,
@@ -341,14 +411,16 @@ export async function createPutDiagonalSpread(
     req.optionRatio,
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createPutRatioSpread(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreatePutRatioSpreadRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createPutRatioSpread(
     wallet,
@@ -360,14 +432,16 @@ export async function createPutRatioSpread(
     req.ratio,
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createPutSpread(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreatePutSpreadRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createPutSpread(
     wallet,
@@ -379,14 +453,16 @@ export async function createPutSpread(
     req.optionRatio,
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createPutZEBRASpread(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreatePutZEBRASpreadRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createPutZEBRASpread(
     wallet,
@@ -398,14 +474,16 @@ export async function createPutZEBRASpread(
     req.ratio,
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createStraddle(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateStraddleRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createStraddle(
     wallet,
@@ -417,14 +495,16 @@ export async function createStraddle(
     req.optionRatio,
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createStrangle(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateStrangleRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createStrangle(
     wallet,
@@ -437,14 +517,16 @@ export async function createStrangle(
     req.optionRatio,
     req.start
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createSuperBear(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateSuperBearRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createSuperBear(
     wallet,
@@ -455,14 +537,16 @@ export async function createSuperBear(
     req.shortCallStrike,
     req.asset
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createSuperBull(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateSuperBullRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createSuperBull(
     wallet,
@@ -473,14 +557,16 @@ export async function createSuperBull(
     req.shortPutStrike,
     req.asset
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 export async function createZEEHBS(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateZEEHBSRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.createZEEHBS(
     wallet,
@@ -491,7 +577,9 @@ export async function createZEEHBS(
     req.asset,
     req.ratio
   );
-  return result;
+  return {
+    tokenId: result.tokenId
+  };
 }
 
 // TODO: Eventually, we'll allow users to make 1 gateway call to get all 5 greeks, rather than
@@ -501,10 +589,12 @@ export async function queryGreeks(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: GreekQueryRequest
-): Promise<any> {
+): Promise<GreekQueryResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.queryGreeks(wallet, req.tick, req.positionIdList, req.greek);
-  return result;
+  return {
+    greek: result
+  };
 }
 
 // PanopticPool interactions
@@ -513,41 +603,49 @@ export async function calculateAccumulatedFeesBatch(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: CalculateAccumulatedFeesBatchRequest
-): Promise<any> {
+): Promise<CalculateAccumulatedFeesBatchResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.calculateAccumulatedFeesBatch(
     wallet,
     req.includePendingPremium,
     req.positionIdList
   );
-  return result;
+  return {
+    premium0: result[0],
+    premium1: result[1],
+    other: result[2]
+  };
 }
 
 export async function getCollateralToken0(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: CollateralToken0Request
-): Promise<string> {
+  req: CollateralTokenRequest
+): Promise<CollateralTokenResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const token0 = await panopticish.collateralToken0(wallet);
-  return token0;
+  const result = await panopticish.collateralToken0(wallet);
+  return {
+    collateralToken: result.collateralToken 
+  };
 }
 
 export async function getCollateralToken1(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: CollateralToken1Request
-): Promise<string> {
+  req: CollateralTokenRequest
+): Promise<CollateralTokenResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const token1 = await panopticish.collateralToken1(wallet);
-  return token1;
+  const result = await panopticish.collateralToken1(wallet);
+  return {
+    collateralToken: result.collateralToken 
+  };
 }
 
 export async function burn(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: ExecuteBurnRequest
-): Promise<any> {
+): Promise<BurnResponse> {
   const startTimestamp: number = Date.now();
   const { wallet } = await txWriteData(ethereumish, req.address);
   const gasPrice: number = ethereumish.gasPrice;
@@ -582,7 +680,7 @@ export async function forceExercise(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: ForceExerciseRequest
-): Promise<any> {
+): Promise<ForceExerciseResponse> {
   const startTimestamp: number = Date.now();
   const { wallet } = await txWriteData(ethereumish, req.address);
   const gasPrice: number = ethereumish.gasPrice;
@@ -609,6 +707,7 @@ export async function forceExercise(
     timestamp: startTimestamp,
     nonce: tx.nonce,
     txHash: tx.hash,
+    other: tx
   };
 }
 
@@ -616,7 +715,7 @@ export async function liquidate(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: LiquidateRequest
-): Promise<any> {
+): Promise<LiquidateResponse> {
   const startTimestamp: number = Date.now();
   const { wallet } = await txWriteData(ethereumish, req.address);
   const gasPrice: number = ethereumish.gasPrice;
@@ -644,6 +743,7 @@ export async function liquidate(
     timestamp: startTimestamp,
     nonce: tx.nonce,
     txHash: tx.hash,
+    other: tx
   };
 }
 
@@ -651,7 +751,7 @@ export async function mint(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: ExecuteMintRequest
-): Promise<any> {
+): Promise<MintResponse> {
   const startTimestamp: number = Date.now();
   const { wallet } = await txWriteData(ethereumish, req.address);
   const gasPrice: number = ethereumish.gasPrice;
@@ -685,44 +785,51 @@ export async function numberOfPositions(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: NumberOfPositionsRequest
-): Promise<string> {
+): Promise<NumberOfPositionsResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const numOfPositions = await panopticish.numberOfPositions(
     wallet
   );
   // TODO: cast this to number/int
-  return numOfPositions;
+  return {
+    numberOfPositions: numOfPositions
+  }
 }
 
 export async function optionPositionBalance(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: OptionPositionBalanceRequest
-): Promise<string> {
+): Promise<OptionsPositionBalanceResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.optionPositionBalance(
     wallet,
     req.tokenId
   );
-  // TODO: cast this to number/int
-  return result;
+  return {
+    balance: result.balance,
+    poolUtilization0: result.poolUtilization0, 
+    poolUtilization1: result.poolUtilization1
+  };
 }
 
 export async function pokeMedian(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: PokeMedianRequest
-): Promise<string> {
+): Promise<PokeMedianResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const txData = await panopticish.pokeMedian(wallet);
-  return txData['hash'];
+  const txData = await panopticish.pokeMedian(wallet); 
+  return {
+    other: txData
+  }
 }
 
 export async function settleLongPremium(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: SettleLongPremiumRequest
-): Promise<string> {
+): Promise<SettleLongPremiumResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const positions = await panopticish.settleLongPremium(
     wallet,
@@ -730,7 +837,9 @@ export async function settleLongPremium(
     req.owner,
     req.legIndex
   );
-  return positions;
+  return {
+    other: positions
+  };
 }
 
 // CollateralTracker interactions
@@ -739,67 +848,79 @@ export async function deposit(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: DepositRequest
-): Promise<string> {
+): Promise<DepositResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const asset = await panopticish.deposit(
     wallet,
     req.collateralTracker,
     BigNumber.from(req.assets)
   );
-  return asset;
+  return {
+    shares: asset.shares
+  }; 
 }
 
 export async function getAsset(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: GetAssetRequest
-): Promise<string> {
+): Promise<GetAssetResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const asset = await panopticish.getAsset(
     wallet,
     req.collateralTracker
   );
-  return asset;
+  return {
+    assetTokenAddress: asset
+  }; 
 }
 
 export async function getPoolData(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: GetPoolDataRequest
-): Promise<string> {
+): Promise<GetPoolDataResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const shares = await panopticish.getPoolData(
+  const result = await panopticish.getPoolData(
     wallet,
     req.collateralTracker
   );
-  return shares;
+  return {
+    poolAssets: result.poolAssets,
+    insideAMM: result.insideAMM, 
+    currentPoolUtilization: result.currentPoolUtilization
+  };
 }
 
 export async function maxWithdraw(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: MaxWithdrawRequest
-): Promise<string> {
+): Promise<MaxWithdrawResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const limit = await panopticish.maxWithdraw(
+  const result = await panopticish.maxWithdraw(
     wallet,
     req.collateralTracker
   );
-  return limit;
+  return {
+    maxAssets: result.maxAssets
+  };
 }
 
 export async function withdraw(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: WithdrawRequest
-): Promise<string> {
+): Promise<WithdrawResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const shares = await panopticish.withdraw(
+  const response = await panopticish.withdraw(
     wallet,
     req.collateralTracker,
     BigNumber.from(req.assets)
   );
-  return shares;
+  return {
+    shares: response.shares
+  };
 }
 
 // SemiFungiblePositionManager interactions
@@ -808,9 +929,9 @@ export async function getAccountLiquidity(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: GetAccountLiquidityRequest
-): Promise<string> {
+): Promise<GetAccountLiquidityResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const liquidity = await panopticish.getAccountLiquidity(
+  const result = await panopticish.getAccountLiquidity(
     wallet,
     req.univ3pool,
     req.owner,
@@ -818,14 +939,16 @@ export async function getAccountLiquidity(
     req.tickLower,
     req.tickUpper
   );
-  return liquidity;
+  return {
+    accountLiquidities: result.accountLiquidities
+  };
 }
 
 export async function getAccountPremium(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: GetAccountPremiumRequest
-): Promise<string> {
+): Promise<GetAccountPremiumResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const liquidity = await panopticish.getAccountPremium(
     wallet,
@@ -837,14 +960,17 @@ export async function getAccountPremium(
     req.atTick,
     req.isLong
   );
-  return liquidity;
+  return {
+    other1: liquidity[0], 
+    other2: liquidity[1]
+  };
 }
 
 export async function getAccountFeesBase(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
   req: GetAccountFeesBaseRequest
-): Promise<string> {
+): Promise<GetAccountFeesBaseResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const response = await panopticish.getAccountFeesBase(
     wallet,
@@ -854,7 +980,10 @@ export async function getAccountFeesBase(
     req.tickLower,
     req.tickUpper
   );
-  return response;
+  return {
+    feesBase0: response.feesBase0, 
+    feesBase1: response.feesBase1
+  };
 }
 
 // TokenIdLibrary interactions
@@ -862,8 +991,8 @@ export async function getAccountFeesBase(
 export async function addLeg(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: any
-): Promise<BigNumber | unknown> {
+  req: CreateAddLegsRequest
+): Promise<CreatePositionResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const response = await panopticish.addLeg(
     wallet,
@@ -877,5 +1006,7 @@ export async function addLeg(
     req.strike,
     req.width
   );
-  return response;
+  return {
+    tokenId: response.tokenId
+  };
 }

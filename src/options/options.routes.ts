@@ -1,6 +1,5 @@
 /* eslint-disable no-inner-declarations */
 /* eslint-disable @typescript-eslint/ban-types */
-import { BigNumber } from 'ethers';
 import { Router, Request, Response } from 'express';
 import { asyncHandler } from '../services/error-handler';
 import {
@@ -54,6 +53,69 @@ import {
   MintResponse,
   ExecuteBurnRequest,
   BurnResponse,
+  CalculateDeltaRequest,
+  CalculateDeltaResponse,
+  CalculateGammaRequest,
+  CalculateGammaResponse,
+  GreekQueryRequest,
+  GreekQueryResponse,
+  QueryOpenPositionsRequest,
+  QueryOpenPositionsResponse,
+  QuerySubgraphRequest,
+  QuerySubgraphResponse,
+  CreatePositionResponse,
+  CalculateAccumulatedFeesBatchRequest,
+  CollateralTokenRequest,
+  ForceExerciseRequest,
+  LiquidateRequest,
+  NumberOfPositionsRequest,
+  OptionPositionBalanceRequest,
+  PokeMedianRequest,
+  SettleLongPremiumRequest,
+  DepositRequest,
+  GetAssetRequest,
+  GetPoolDataRequest,
+  MaxWithdrawRequest,
+  WithdrawRequest,
+  GetAccountLiquidityRequest,
+  GetAccountPremiumRequest,
+  GetAccountFeesBaseRequest,
+  CreateAddLegsRequest,
+  ForceExerciseResponse,
+  LiquidateResponse,
+  CollateralTokenResponse,
+  GetAssetResponse,
+  DepositResponse,
+  WithdrawResponse,
+  GetPoolDataResponse,
+  MaxWithdrawResponse,
+  NumberOfPositionsResponse,
+  CreateBigLizardRequest,
+  CreateCallCalendarSpreadRequest,
+  CreateCallDiagonalSpreadRequest,
+  CreateCallRatioSpreadRequest,
+  CreateCallSpreadRequest,
+  CreateCallZEBRASpreadRequest,
+  CreateIronButterflyRequest,
+  CreateIronCondorRequest,
+  CreateJadeLizardRequest,
+  CreatePutCalendarSpreadRequest,
+  CreatePutDiagonalSpreadRequest,
+  CreatePutRatioSpreadRequest,
+  CreatePutSpreadRequest,
+  CreatePutZEBRASpreadRequest,
+  CreateStraddleRequest,
+  CreateStrangleRequest,
+  CreateSuperBearRequest,
+  CreateSuperBullRequest,
+  CreateZEEHBSRequest,
+  CalculateAccumulatedFeesBatchResponse,
+  OptionsPositionBalanceResponse,
+  PokeMedianResponse,
+  SettleLongPremiumResponse,
+  GetAccountLiquidityResponse,
+  GetAccountPremiumResponse,
+  GetAccountFeesBaseResponse
 } from './options.requests';
 // import {
 //   validateMintRequest,
@@ -67,8 +129,8 @@ export namespace OptionsRoutes {
     '/addLeg',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateAddLegsRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await addLeg(req.body));
       }
@@ -107,8 +169,8 @@ export namespace OptionsRoutes {
     '/forceExercise',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, ForceExerciseRequest>,
+        res: Response<ForceExerciseResponse | string, {}>
       ) => {
         res.status(200).json(await forceExercise(req.body));
       }
@@ -119,8 +181,8 @@ export namespace OptionsRoutes {
     '/liquidate',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, LiquidateRequest>,
+        res: Response<LiquidateResponse | string, {}>
       ) => {
         res.status(200).json(await liquidate(req.body));
       }
@@ -131,8 +193,8 @@ export namespace OptionsRoutes {
     '/getCollateralToken0',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, CollateralTokenRequest>,
+        res: Response<CollateralTokenResponse | string, {}>
       ) => {
         res.status(200).json(await getCollateralToken0(req.body));
       }
@@ -143,8 +205,8 @@ export namespace OptionsRoutes {
     '/getCollateralToken1',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, CollateralTokenRequest>,
+        res: Response<CollateralTokenResponse | string, {}>
       ) => {
         res.status(200).json(await getCollateralToken1(req.body));
       }
@@ -155,8 +217,8 @@ export namespace OptionsRoutes {
     '/getAsset',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, GetAssetRequest>,
+        res: Response<GetAssetResponse | string, {}>
       ) => {
         res.status(200).json(await getAsset(req.body));
       }
@@ -167,8 +229,8 @@ export namespace OptionsRoutes {
     '/deposit',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, DepositRequest>,
+        res: Response<DepositResponse | string, {}>
       ) => {
         res.status(200).json(await deposit(req.body));
       }
@@ -179,8 +241,8 @@ export namespace OptionsRoutes {
     '/withdraw',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, WithdrawRequest>,
+        res: Response<WithdrawResponse | string, {}>
       ) => {
         res.status(200).json(await withdraw(req.body));
       }
@@ -191,8 +253,8 @@ export namespace OptionsRoutes {
     '/getPoolData',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, GetPoolDataRequest>,
+        res: Response<GetPoolDataResponse | string, {}>
       ) => {
         res.status(200).json(await getPoolData(req.body));
       }
@@ -203,8 +265,8 @@ export namespace OptionsRoutes {
     '/maxWithdraw',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, MaxWithdrawRequest>,
+        res: Response<MaxWithdrawResponse | string, {}>
       ) => {
         res.status(200).json(await maxWithdraw(req.body));
       }
@@ -215,8 +277,8 @@ export namespace OptionsRoutes {
     '/numberOfPositions',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, NumberOfPositionsRequest>,
+        res: Response<NumberOfPositionsResponse | string, {}>
       ) => {
         res.status(200).json(await numberOfPositions(req.body));
       }
@@ -227,8 +289,8 @@ export namespace OptionsRoutes {
     '/querySubgraph',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, QuerySubgraphRequest>,
+        res: Response<QuerySubgraphResponse | string, {}>
       ) => {
         res.status(200).json(await querySubgraph(req.body));
       }
@@ -239,8 +301,8 @@ export namespace OptionsRoutes {
     '/createBigLizard',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateBigLizardRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createBigLizard(req.body));
       }
@@ -251,8 +313,8 @@ export namespace OptionsRoutes {
     '/createCallCalendarSpread',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateCallCalendarSpreadRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createCallCalendarSpread(req.body));
       }
@@ -263,8 +325,8 @@ export namespace OptionsRoutes {
     '/createCallDiagonalSpread',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateCallDiagonalSpreadRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createCallDiagonalSpread(req.body));
       }
@@ -275,8 +337,8 @@ export namespace OptionsRoutes {
     '/createCallRatioSpread',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateCallRatioSpreadRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createCallRatioSpread(req.body));
       }
@@ -287,8 +349,8 @@ export namespace OptionsRoutes {
     '/createCallSpread',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateCallSpreadRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createCallSpread(req.body));
       }
@@ -299,8 +361,8 @@ export namespace OptionsRoutes {
     '/createCallZEBRASpread',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateCallZEBRASpreadRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createCallZEBRASpread(req.body));
       }
@@ -311,8 +373,8 @@ export namespace OptionsRoutes {
     '/createIronButterfly',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateIronButterflyRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createIronButterfly(req.body));
       }
@@ -323,8 +385,8 @@ export namespace OptionsRoutes {
     '/createIronCondor',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateIronCondorRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createIronCondor(req.body));
       }
@@ -335,8 +397,8 @@ export namespace OptionsRoutes {
     '/createJadeLizard',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateJadeLizardRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createJadeLizard(req.body));
       }
@@ -347,8 +409,8 @@ export namespace OptionsRoutes {
     '/createPutCalendarSpread',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreatePutCalendarSpreadRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createPutCalendarSpread(req.body));
       }
@@ -359,8 +421,8 @@ export namespace OptionsRoutes {
     '/createPutDiagonalSpread',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreatePutDiagonalSpreadRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createPutDiagonalSpread(req.body));
       }
@@ -371,8 +433,8 @@ export namespace OptionsRoutes {
     '/createPutRatioSpread',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreatePutRatioSpreadRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createPutRatioSpread(req.body));
       }
@@ -383,8 +445,8 @@ export namespace OptionsRoutes {
     '/createPutSpread',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreatePutSpreadRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createPutSpread(req.body));
       }
@@ -395,8 +457,8 @@ export namespace OptionsRoutes {
     '/createPutZEBRASpread',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreatePutZEBRASpreadRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createPutZEBRASpread(req.body));
       }
@@ -407,8 +469,8 @@ export namespace OptionsRoutes {
     '/createStraddle',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateStraddleRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createStraddle(req.body));
       }
@@ -419,8 +481,8 @@ export namespace OptionsRoutes {
     '/createStrangle',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateStrangleRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createStrangle(req.body));
       }
@@ -431,8 +493,8 @@ export namespace OptionsRoutes {
     '/createSuperBear',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateSuperBearRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createSuperBear(req.body));
       }
@@ -443,8 +505,8 @@ export namespace OptionsRoutes {
     '/createSuperBull',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateSuperBullRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createSuperBull(req.body));
       }
@@ -455,8 +517,8 @@ export namespace OptionsRoutes {
     '/createZEEHBS',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<BigNumber | unknown>
+        req: Request<{}, {}, CreateZEEHBSRequest>,
+        res: Response<CreatePositionResponse | string, {}>
       ) => {
         res.status(200).json(await createZEEHBS(req.body));
       }
@@ -467,8 +529,8 @@ export namespace OptionsRoutes {
     '/queryOpenPositions',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, QueryOpenPositionsRequest>,
+        res: Response<QueryOpenPositionsResponse | string, {}>
       ) => {
         res.status(200).json(await queryOpenPositions(req.body));
       }
@@ -479,8 +541,8 @@ export namespace OptionsRoutes {
     '/queryGreeks',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, GreekQueryRequest>,
+        res: Response<GreekQueryResponse | string, {}>
       ) => {
         res.status(200).json(await queryGreeks(req.body));
       }
@@ -491,8 +553,8 @@ export namespace OptionsRoutes {
     '/calculateAccumulatedFeesBatch',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, CalculateAccumulatedFeesBatchRequest>,
+        res: Response<CalculateAccumulatedFeesBatchResponse | string, {}>
       ) => {
         res.status(200).json(await calculateAccumulatedFeesBatch(req.body));
       }
@@ -503,8 +565,8 @@ export namespace OptionsRoutes {
     '/optionPositionBalance',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, OptionPositionBalanceRequest>,
+        res: Response<OptionsPositionBalanceResponse | string, {}>
       ) => {
         res.status(200).json(await optionPositionBalance(req.body));
       }
@@ -515,8 +577,8 @@ export namespace OptionsRoutes {
     '/pokeMedian',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, PokeMedianRequest>,
+        res: Response<PokeMedianResponse | string, {}>
       ) => {
         res.status(200).json(await pokeMedian(req.body));
       }
@@ -527,8 +589,8 @@ export namespace OptionsRoutes {
     '/settleLongPremium',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, SettleLongPremiumRequest>,
+        res: Response<SettleLongPremiumResponse | string, {}>
       ) => {
         res.status(200).json(await settleLongPremium(req.body));
       }
@@ -539,8 +601,8 @@ export namespace OptionsRoutes {
     '/getAccountLiquidity',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, GetAccountLiquidityRequest>,
+        res: Response<GetAccountLiquidityResponse | string, {}>
       ) => {
         res.status(200).json(await getAccountLiquidity(req.body));
       }
@@ -551,8 +613,8 @@ export namespace OptionsRoutes {
     '/getAccountPremium',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, GetAccountPremiumRequest>,
+        res: Response<GetAccountPremiumResponse | string, {}>
       ) => {
         res.status(200).json(await getAccountPremium(req.body));
       }
@@ -563,8 +625,8 @@ export namespace OptionsRoutes {
     '/getAccountFeesBase',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, GetAccountFeesBaseRequest>,
+        res: Response<GetAccountFeesBaseResponse | string, {}>
       ) => {
         res.status(200).json(await getAccountFeesBase(req.body));
       }
@@ -575,8 +637,8 @@ export namespace OptionsRoutes {
     '/calculateDelta',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, CalculateDeltaRequest>,
+        res: Response<CalculateDeltaResponse | string, {}>
       ) => {
         res.status(200).json(await calculateDelta(req.body));
       }
@@ -587,8 +649,8 @@ export namespace OptionsRoutes {
     '/calculateGamma',
     asyncHandler(
       async (
-        req: Request<{}, {}, any>,
-        res: Response<any | string, {}>
+        req: Request<{}, {}, CalculateGammaRequest>,
+        res: Response<CalculateGammaResponse | string, {}>
       ) => {
         res.status(200).json(await calculateGamma(req.body));
       }
