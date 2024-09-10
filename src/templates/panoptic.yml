@@ -10,15 +10,16 @@ ttl: 300
 # dynamic.
 gasLimitEstimate: 10000000
 
-# Type of matching using the Panoptic SDK matching engine
-# Available options: 'FAST', 'BEST'
-# matchType: 'FAST'
+subgraph:
+  # The subgraph endpoint to query for Panoptic data.
+  endpoint: 'https://api.thegraph.com/subgraphs/name/panoptic/panoptic'
+
+lowestTick: -887272
+highestTick: 887272
 
 contractAddresses:
   ethereum:
     sepolia:
-        # Router Address
-        routerAddress: '0x77dcbA7729358D9F43AE4C3EA4206AA01c3d0056' # SFPM address
         ###################
         ###################
         # Uniswap addresses

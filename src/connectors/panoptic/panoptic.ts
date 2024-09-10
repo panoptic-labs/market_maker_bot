@@ -33,7 +33,9 @@ export class Panoptic {
   private _TokenIdLibrary: string;
   private _gasLimitEstimate: number;
   private _ttl: number;
-  private _subgraph_api_url: string;
+  private _subgraphUrl: string;
+  private _lowestTick: number;
+  private _highestTick: number;
   private chainId;
   private tokenList: Record<string, Token> = {};
   private _ready: boolean = false;
@@ -54,8 +56,9 @@ export class Panoptic {
     this._PanopticPool = config.PanopticPool(chain, network);
     this._TokenIdLibrary = config.TokenIdLibrary(chain, network);
     this._ttl = config.ttl;
-    // TODO: Move this to config
-    this._subgraph_api_url = 'https://api.goldsky.com/api/public/project_cl9gc21q105380hxuh8ks53k3/subgraphs/panoptic-subgraph-sepolia/beta7/gn';
+    this._subgraphUrl = config.subgraphUrl;
+    this._lowestTick = config.lowestTick;
+    this._highestTick = config.highestTick;
     this._gasLimitEstimate = config.gasLimitEstimate;
   }
 
@@ -108,9 +111,6 @@ export class Panoptic {
     return this._ready;
   }
 
-  /**
-   * Router address.
-   */
   public get multiCallAddress(): string {
     return this._MulticallAddress;
   }
@@ -139,10 +139,10 @@ export class Panoptic {
     return this._TokenIdLibrary;
   }
   public get LOWEST_POSSIBLE_TICK(): number {
-    return -887272;
+    return this._lowestTick;
   }
   public get HIGHEST_POSSIBLE_TICK(): number {
-    return 887272;
+    return this._highestTick; 
   }
 
   /**
@@ -159,8 +159,8 @@ export class Panoptic {
     return this._ttl;
   }
 
-  public get subgraph_api_url(): string {
-    return this._subgraph_api_url;
+  public get subgraphUrl(): string {
+    return this._subgraphUrl;
   }
 
   public get chainName(): string {
@@ -300,7 +300,7 @@ export class Panoptic {
   ): Promise<any> {
     try {
       logger.info(`Querying subgraph...`)
-      const response = await axios.post(this.subgraph_api_url, { query, variables });
+      const response = await axios.post(this.subgraphUrl, { query, variables });
       logger.info(`Panoptic Subgraph response: ${response.data}`);
       return response.data;
     } catch (error) {

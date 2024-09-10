@@ -1,0 +1,221 @@
+paths:
+  /options/addLeg:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a position leg on tokenId'
+  /options/burn:
+    post:
+      tags:
+        - 'options'
+      summary: 'Burn options tokens'
+  /options/calculateAccumulatedFeesBatch:
+    post:
+      tags:
+        - 'options'
+      summary: 'Calculate accumulated fees for a batch of options'
+  /options/calculateDelta:
+    post:
+      tags:
+        - 'options'
+      summary: 'Calculate delta for an options position'
+  /options/calculateGamma:
+    post:
+      tags:
+        - 'options'
+      summary: 'Calculate gamma for an options position'
+  /options/createBigLizard:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a big lizard spread'
+  /options/createCallCalendarSpread:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a call calendar spread'
+  /options/createCallDiagonalSpread:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a call diagonal spread'
+  /options/createCallRatioSpread:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a call ratio spread'
+  /options/createCallSpread:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a call spread'
+  /options/createCallZEBRASpread:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a call ZEBRA spread'
+  /options/createIronButterfly:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create an iron butterfly spread'
+  /options/createIronCondor:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create an iron condor spread'
+  /options/createJadeLizard:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a jade lizard spread'
+  /options/createPutCalendarSpread:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a put calendar spread'
+  /options/createPutDiagonalSpread:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a put diagonal spread'
+  /options/createPutRatioSpread:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a put ratio spread'
+  /options/createPutSpread:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a put spread'
+  /options/createPutZEBRASpread:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a put ZEBRA spread'
+  /options/createStraddle:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a straddle spread'
+  /options/createStrangle:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a strangle spread'
+  /options/createSuperBear:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a super bear spread'
+  /options/createSuperBull:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a super bull spread'
+  /options/createZEEHBS:
+    post:
+      tags:
+        - 'options'
+      summary: 'Create a ZEEHBS spread'
+  /options/deposit:
+    post:
+      tags:
+        - 'options'
+      summary: 'Deposit collateral into options pool'
+  /options/forceExercise:
+    post:
+      tags:
+        - 'options'
+      summary: 'Force exercise an options position'
+  /options/getAccountFeesBase:
+    post:
+      tags:
+        - 'options'
+      summary: 'Get account fees base'
+  /options/getAccountLiquidity:
+    post:
+      tags:
+        - 'options'
+      summary: 'Get account liquidity'
+  /options/getAccountPremium:
+    post:
+      tags:
+        - 'options'
+      summary: 'Get account premium'
+  /options/getAsset:
+    post:
+      tags:
+        - 'options'
+      summary: 'Get asset'
+  /options/getCollateralToken0:
+    post:
+      tags:
+        - 'options'
+      summary: 'Get collateral token 0'
+  /options/getCollateralToken1:
+    post:
+      tags:
+        - 'options'
+      summary: 'Get collateral token 1'
+  /options/getPoolData:
+    post:
+      tags:
+        - 'options'
+      summary: 'Get pool data'
+  /options/liquidate:
+    post:
+      tags:
+        - 'options'
+      summary: 'Liquidate an options position'
+  /options/maxWithdraw:
+    post:
+      tags:
+        - 'options'
+      summary: 'Max withdraw from options pool'
+  /options/mint:
+    post:
+      tags:
+        - 'options'
+      summary: 'Mint options tokens'
+  /options/numberOfPositions:
+    post:
+      tags:
+        - 'options'
+      summary: 'Get number of positions'
+  /options/optionPositionBalance:
+    post:
+      tags:
+        - 'options'
+      summary: 'Get option position balance'
+  /options/pokeMedian:
+    post:
+      tags:
+        - 'options'
+      summary: 'Poke median'
+  /options/queryGreeks:
+    post:
+      tags:
+        - 'options'
+      summary: 'Query greeks'
+  /options/queryOpenPositions:
+    post:
+      tags:
+        - 'options'
+      summary: 'Query open positions'
+  /options/querySubgraph:
+    post:
+      tags:
+        - 'options'
+      summary: 'Query subgraph'
+  /options/settleLongPremium:
+    post:
+      tags:
+        - 'options'
+      summary: 'Settle long premium'
+  /options/withdraw:
+    post:
+      tags:
+        - 'options'
+      summary: 'Withdraw collateral from options pool'
