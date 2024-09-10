@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers';
 import {
   ExecuteBurnRequest,
   BurnResponse,
@@ -5,6 +6,7 @@ import {
   MintResponse,
 } from './options.requests';
 import {
+  addLeg as panopticAddLeg,
   mint as panopticMint,
   burn as panopticBurn,
   forceExercise as panopticForceExercise,
@@ -18,6 +20,25 @@ import {
   maxWithdraw as panopticMaxWithdraw,
   numberOfPositions as panopticNumberOfPositions,
   querySubgraph as panopticQuerySubgraph,
+  createBigLizard as panopticCreateBigLizard,
+  createCallCalendarSpread as panopticCreateCallCalendarSpread,
+  createCallDiagonalSpread as panopticCreateCallDiagonalSpread,
+  createCallRatioSpread as panopticCreateCallRatioSpread,
+  createCallSpread as panopticCreateCallSpread,
+  createCallZEBRASpread as panopticCreateCallZEBRASpread,
+  createIronButterfly as panopticCreateIronButterfly,
+  createIronCondor as panopticCreateIronCondor,
+  createJadeLizard as panopticCreateJadeLizard,
+  createPutCalendarSpread as panopticCreatePutCalendarSpread,
+  createPutDiagonalSpread as panopticCreatePutDiagonalSpread,
+  createPutRatioSpread as panopticCreatePutRatioSpread,
+  createPutSpread as panopticCreatePutSpread,
+  createPutZEBRASpread as panopticCreatePutZEBRASpread,
+  createStraddle as panopticCreateStraddle,
+  createStrangle as panopticCreateStrangle,
+  createSuperBear as panopticCreateSuperBear,
+  createSuperBull as panopticCreateSuperBull,
+  createZEEHBS as panopticCreateZEEHBS,
   queryOpenPositions as panopticQueryOpenPositions,
   queryGreeks as panopticQueryGreeks,
   calculateAccumulatedFeesBatch as panopticCalculateAccumulatedFeesBatch,
@@ -39,6 +60,20 @@ import {
 } from '../services/common-interfaces';
 import { Panoptic } from '../connectors/panoptic/panoptic';
 
+export async function addLeg(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticAddLeg(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
 
 export async function mint(req: ExecuteMintRequest): Promise<MintResponse | undefined> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
@@ -236,6 +271,209 @@ export async function querySubgraph(req: any): Promise<any> {
   }
 }
 
+export async function createBigLizard(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticCreateBigLizard(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createCallCalendarSpread(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticCreateCallCalendarSpread(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createCallDiagonalSpread(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain, req.network, req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticCreateCallDiagonalSpread(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createCallRatioSpread(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreateCallRatioSpread(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createCallSpread(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreateCallSpread(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createCallZEBRASpread(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreateCallZEBRASpread(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createIronButterfly(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreateIronButterfly(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createIronCondor(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreateIronCondor(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createJadeLizard(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreateJadeLizard(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createPutCalendarSpread(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreatePutCalendarSpread(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createPutDiagonalSpread(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreatePutDiagonalSpread(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createPutRatioSpread(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreatePutRatioSpread(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createPutSpread(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreatePutSpread(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createPutZEBRASpread(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreatePutZEBRASpread(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createStraddle(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreateStraddle(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createStrangle(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreateStrangle(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createSuperBear(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreateSuperBear(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createSuperBull(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreateSuperBull(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
+export async function createZEEHBS(req: any): Promise<BigNumber | unknown> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticCreateZEEHBS(<Ethereumish>chain, connector, req);
+  } else { 
+    return;
+  }
+}
+
 export async function queryOpenPositions(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
@@ -376,3 +614,4 @@ export async function calculateGamma(req: any): Promise<any> {
     return panopticCalculateGamma(connector, req);
   }
 }
+

@@ -1,8 +1,10 @@
 /* eslint-disable no-inner-declarations */
 /* eslint-disable @typescript-eslint/ban-types */
+import { BigNumber } from 'ethers';
 import { Router, Request, Response } from 'express';
 import { asyncHandler } from '../services/error-handler';
 import {
+  addLeg,
   mint,
   burn,
   liquidate,
@@ -15,6 +17,25 @@ import {
   maxWithdraw,
   numberOfPositions,
   querySubgraph,
+  createBigLizard,
+  createCallCalendarSpread,
+  createCallDiagonalSpread,
+  createCallRatioSpread,
+  createCallSpread,
+  createCallZEBRASpread,
+  createIronButterfly,
+  createIronCondor,
+  createJadeLizard,
+  createPutCalendarSpread,
+  createPutDiagonalSpread,
+  createPutRatioSpread,
+  createPutSpread,
+  createPutZEBRASpread,
+  createStraddle,
+  createStrangle,
+  createSuperBear,
+  createSuperBull,
+  createZEEHBS,
   queryOpenPositions,
   queryGreeks,
   calculateAccumulatedFeesBatch,
@@ -41,6 +62,18 @@ import {
 
 export namespace OptionsRoutes {
   export const router = Router();
+
+  router.post(
+    '/addLeg',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await addLeg(req.body));
+      }
+    )
+  )
 
   router.post(
     '/mint',
@@ -198,6 +231,234 @@ export namespace OptionsRoutes {
         res: Response<any | string, {}>
       ) => {
         res.status(200).json(await querySubgraph(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createBigLizard',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createBigLizard(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createCallCalendarSpread',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createCallCalendarSpread(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createCallDiagonalSpread',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createCallDiagonalSpread(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createCallRatioSpread',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createCallRatioSpread(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createCallSpread',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createCallSpread(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createCallZEBRASpread',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createCallZEBRASpread(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createIronButterfly',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createIronButterfly(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createIronCondor',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createIronCondor(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createJadeLizard',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createJadeLizard(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createPutCalendarSpread',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createPutCalendarSpread(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createPutDiagonalSpread',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createPutDiagonalSpread(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createPutRatioSpread',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createPutRatioSpread(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createPutSpread',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createPutSpread(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createPutZEBRASpread',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createPutZEBRASpread(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createStraddle',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createStraddle(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createStrangle',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createStrangle(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createSuperBear',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createSuperBear(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createSuperBull',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createSuperBull(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/createZEEHBS',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, any>,
+        res: Response<BigNumber | unknown>
+      ) => {
+        res.status(200).json(await createZEEHBS(req.body));
       }
     )
   );

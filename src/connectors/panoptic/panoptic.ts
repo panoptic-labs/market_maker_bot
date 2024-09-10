@@ -11,6 +11,7 @@ import { logger } from '../../services/logger';
 import { Ethereum } from '../../chains/ethereum/ethereum';
 import { getAddress } from 'ethers/lib/utils';
 import panopticPoolAbi from './PanopticPool.ABI.json';
+import tokenIdLibraryAbi from './TokenIdLibrary.ABI.json';
 import panopticHelperAbi from './PanopticHelper.ABI.json';
 import collateralTrackerAbi from './CollateralTracker.ABI.json';
 import semiFungiblePositionManagerAbi from './SFPM.ABI.json';
@@ -29,6 +30,7 @@ export class Panoptic {
   private _PanopticHelper: string;
   private _UniswapMigrator: string;
   private _PanopticPool: string;
+  private _TokenIdLibrary: string;
   private _gasLimitEstimate: number;
   private _ttl: number;
   private _subgraph_api_url: string;
@@ -50,6 +52,7 @@ export class Panoptic {
     this._PanopticHelper = config.PanopticHelper(chain, network);
     this._UniswapMigrator = config.UniswapMigrator(chain, network);
     this._PanopticPool = config.PanopticPool(chain, network);
+    this._TokenIdLibrary = config.TokenIdLibrary(chain, network);
     this._ttl = config.ttl;
     // TODO: Move this to config
     this._subgraph_api_url = 'https://api.goldsky.com/api/public/project_cl9gc21q105380hxuh8ks53k3/subgraphs/panoptic-subgraph-sepolia/beta7/gn';
@@ -131,6 +134,9 @@ export class Panoptic {
   }
   public get PanopticPool(): string {
     return this._PanopticPool;
+  }
+  public get TokenIdLibrary(): string {
+    return this._TokenIdLibrary;
   }
   public get LOWEST_POSSIBLE_TICK(): number {
     return -887272;
@@ -304,6 +310,526 @@ export class Panoptic {
   }
 
   // PanopticHelper interactions
+
+  async createBigLizard(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    longCallStrike: number, 
+    straddleStrike: number, 
+    asset: BigNumber,
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createBigLizard(
+        univ3pool, 
+        width, 
+        longCallStrike, 
+        straddleStrike, 
+        asset
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createCallCalendarSpread(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    widthLong: number, 
+    widthShort: number, 
+    strike: number, 
+    asset: BigNumber,
+    optionRatio: BigNumber, 
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createCallCalendarSpread(
+        univ3pool, 
+        widthLong, 
+        widthShort, 
+        strike, 
+        asset, 
+        optionRatio, 
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createCallDiagonalSpread(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    widthLong: number, 
+    widthShort: number, 
+    strikeLong: number, 
+    strikeShort: number,
+    asset: BigNumber, 
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createCallDiagonalSpread(
+        univ3pool, 
+        widthLong, 
+        widthShort, 
+        strikeLong, 
+        strikeShort, 
+        asset,
+        optionRatio, 
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createCallRatioSpread(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    longStrike: number, 
+    shortStrike: number,
+    asset: BigNumber, 
+    ratio: BigNumber,
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createCallRatioSpread(
+        univ3pool, 
+        width, 
+        longStrike, 
+        shortStrike, 
+        asset,
+        ratio, 
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createCallSpread(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    strikeLong: number, 
+    strikeShort: number,
+    asset: BigNumber, 
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createCallSpread(
+        univ3pool, 
+        width, 
+        strikeLong, 
+        strikeShort, 
+        asset,
+        optionRatio, 
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createCallZEBRASpread(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    longStrike: number, 
+    shortStrike: number,
+    asset: BigNumber, 
+    ratio: BigNumber,
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createCallZEBRASpread(
+        univ3pool, 
+        width, 
+        longStrike, 
+        shortStrike, 
+        asset,
+        ratio, 
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createIronButterfly(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    strike: number, 
+    wingWidth: number,
+    asset: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createIronButterfly(
+        univ3pool, 
+        width, 
+        strike, 
+        wingWidth, 
+        asset
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createIronCondor(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    callStrike: number, 
+    putStrike: number,
+    wingWidth: number, 
+    asset: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createIronCondor(
+        univ3pool, 
+        width, 
+        callStrike, 
+        putStrike, 
+        wingWidth,
+        asset
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createJadeLizard(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    longCallStrike: number, 
+    shortCallStrike: number,
+    shortPutStrike: number, 
+    asset: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createJadeLizard(
+        univ3pool, 
+        width, 
+        longCallStrike, 
+        shortCallStrike, 
+        shortPutStrike,
+        asset
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createPutCalendarSpread(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    widthLong: number, 
+    widthShort: number, 
+    strike: number,
+    asset: BigNumber, 
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createPutCalendarSpread(
+        univ3pool, 
+        widthLong, 
+        widthShort, 
+        strike, 
+        asset,
+        optionRatio,
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createPutDiagonalSpread(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    widthLong: number, 
+    widthShort: number, 
+    strikeLong: number,
+    strikeShort: number, 
+    asset: BigNumber, 
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createPutDiagonalSpread(
+        univ3pool, 
+        widthLong, 
+        widthShort, 
+        strikeLong, 
+        strikeShort,
+        asset,
+        optionRatio,
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createPutRatioSpread(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    longStrike: number,
+    shortStrike: number, 
+    asset: BigNumber, 
+    ratio: BigNumber,
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createPutRatioSpread(
+        univ3pool, 
+        width, 
+        longStrike, 
+        shortStrike,
+        asset,
+        ratio,
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createPutSpread(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    strikeLong: number, 
+    strikeShort: number,
+    asset: BigNumber, 
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createPutSpread(
+        univ3pool, 
+        width, 
+        strikeLong, 
+        strikeShort, 
+        asset,
+        optionRatio,
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createPutZEBRASpread(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    longStrike: number, 
+    shortStrike: number,
+    asset: BigNumber, 
+    ratio: BigNumber,
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createPutZEBRASpread(
+        univ3pool, 
+        width, 
+        longStrike, 
+        shortStrike, 
+        asset,
+        ratio,
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createStraddle(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    strike: number, 
+    asset: BigNumber,
+    isLong: BigNumber, 
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createStraddle(
+        univ3pool, 
+        width, 
+        strike, 
+        asset, 
+        isLong,
+        optionRatio,
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createStrangle(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    callStrike: number, 
+    putStrike: number,
+    asset: BigNumber, 
+    isLong: BigNumber, 
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createStrangle(
+        univ3pool, 
+        width, 
+        callStrike, 
+        putStrike, 
+        asset,
+        isLong,
+        optionRatio,
+        start
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createSuperBear(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    longPutStrike: number, 
+    shortPutStrike: number,
+    shortCallStrike: number,
+    asset: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createSuperBear(
+        univ3pool, 
+        width, 
+        longPutStrike, 
+        shortPutStrike, 
+        shortCallStrike,
+        asset
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createSuperBull(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    longCallStrike: number, 
+    shortCallStrike: number,
+    shortPutStrike: number, 
+    asset: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createSuperBull(
+        univ3pool, 
+        width, 
+        longCallStrike, 
+        shortCallStrike, 
+        shortPutStrike,
+        asset
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createZEEHBS(
+    wallet: Wallet, 
+    univ3pool: BigNumber, 
+    width: number, 
+    longStrike: number, 
+    shortStrike: number,
+    asset: BigNumber,
+    ratio: BigNumber
+  ): Promise<BigNumber | unknown> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const tokenId = await panopticHelperContract.createZEEHBS(
+        univ3pool, 
+        width, 
+        longStrike, 
+        shortStrike, 
+        asset,
+        ratio
+      )
+      return tokenId
+    } catch (error) {
+      return error;
+    }
+  }
 
   // TODO: These methods on the helper aren't live yet; eventually, this will be the easier way
   //       to get multiple greeks in one call.
@@ -769,6 +1295,43 @@ export class Panoptic {
       return response;
     } catch (error) {
       logger.error("Error on getAccountFeesBase:", error);
+      return error;
+    }
+  }
+
+  // TokenIdLibrary interactions
+
+  async addLeg(
+    wallet: Wallet,
+    self: BigNumber,
+    legIndex: BigNumber,
+    optionRatio: BigNumber, 
+    asset: BigNumber,
+    isLong: BigNumber,
+    tokenType: BigNumber,
+    riskPartner: BigNumber,
+    strike: number,
+    width: number
+  ): Promise<BigNumber | unknown> {
+    try {
+      const tokenIdLibrary = this.TokenIdLibrary;
+      logger.info(`Checking addLeg...`)
+      const tokenIdLibraryContract = new Contract(tokenIdLibrary, tokenIdLibraryAbi.abi, wallet);
+      const response = await tokenIdLibraryContract.addLeg(
+        self,
+        legIndex,
+        optionRatio,
+        asset,
+        isLong,
+        tokenType,
+        riskPartner,
+        strike,
+        width
+      );
+      logger.info(`addLeg response: ${response}`);
+      return response;
+    } catch (error) {
+      logger.error("Error on addLeg:", error);
       return error;
     }
   }

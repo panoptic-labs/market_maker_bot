@@ -1,0 +1,523 @@
+{
+    "address": "0x406ec4530ab35a13a2b95e3345f3291895e658bf",
+    "abi": [
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "parameterType",
+                    "type": "uint256"
+                }
+            ],
+            "name": "InvalidTokenIdParameter",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "NoLegsExercisable",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "TicksNotInitializable",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "BITMASK_INT24",
+            "outputs": [
+                {
+                    "internalType": "int256",
+                    "name": "",
+                    "type": "int256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "CHUNK_MASK",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "CLEAR_POOLID_MASK",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "LONG_MASK",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "OPTION_RATIO_MASK",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_asset",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "legIndex",
+                    "type": "uint256"
+                }
+            ],
+            "name": "addAsset",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_isLong",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "legIndex",
+                    "type": "uint256"
+                }
+            ],
+            "name": "addIsLong",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "legIndex",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_optionRatio",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_asset",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_isLong",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_tokenType",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_riskPartner",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "int24",
+                    "name": "_strike",
+                    "type": "int24"
+                },
+                {
+                    "internalType": "int24",
+                    "name": "_width",
+                    "type": "int24"
+                }
+            ],
+            "name": "addLeg",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_optionRatio",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "legIndex",
+                    "type": "uint256"
+                }
+            ],
+            "name": "addOptionRatio",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint64",
+                    "name": "_poolId",
+                    "type": "uint64"
+                }
+            ],
+            "name": "addPoolId",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_riskPartner",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "legIndex",
+                    "type": "uint256"
+                }
+            ],
+            "name": "addRiskPartner",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "int24",
+                    "name": "_strike",
+                    "type": "int24"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "legIndex",
+                    "type": "uint256"
+                }
+            ],
+            "name": "addStrike",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "int24",
+                    "name": "_tickSpacing",
+                    "type": "int24"
+                }
+            ],
+            "name": "addTickSpacing",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_tokenType",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "legIndex",
+                    "type": "uint256"
+                }
+            ],
+            "name": "addTokenType",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "int24",
+                    "name": "_width",
+                    "type": "int24"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "legIndex",
+                    "type": "uint256"
+                }
+            ],
+            "name": "addWidth",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "legIndex",
+                    "type": "uint256"
+                }
+            ],
+            "name": "asTicks",
+            "outputs": [
+                {
+                    "internalType": "int24",
+                    "name": "legLowerTick",
+                    "type": "int24"
+                },
+                {
+                    "internalType": "int24",
+                    "name": "legUpperTick",
+                    "type": "int24"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "i",
+                    "type": "uint256"
+                }
+            ],
+            "name": "clearLeg",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                }
+            ],
+            "name": "countLongs",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                }
+            ],
+            "name": "flipToBurnToken",
+            "outputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                }
+            ],
+            "name": "validate",
+            "outputs": [],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "TokenId",
+                    "name": "self",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "int24",
+                    "name": "currentTick",
+                    "type": "int24"
+                }
+            ],
+            "name": "validateIsExercisable",
+            "outputs": [],
+            "stateMutability": "pure",
+            "type": "function"
+        }
+    ]
+}

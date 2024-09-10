@@ -48,3 +48,5 @@ contractAddresses:
         UniswapMigrator: '0xb5cf92427ff8b388bb333c074ed4bf961683b282'
         # PanopticPool - Example PanopticPool on Sepolia; TODO: This will be dynamic in the future.
         PanopticPool: '0xc34C41289e6c433723542BB1Eba79c6919504EDD'
+        # PanopticTokenIdLibrary - Library contract to help with token ID management.
+        TokenIdLibrary: '0x406ec4530ab35a13a2b95e3345f3291895e658bf'
