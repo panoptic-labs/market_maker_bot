@@ -12,7 +12,7 @@ gasLimitEstimate: 10000000
 
 subgraph:
   # The subgraph endpoint to query for Panoptic data.
-  endpoint: 'https://api.thegraph.com/subgraphs/name/panoptic/panoptic'
+  endpoint: 'https://api.goldsky.com/api/public/project_cl9gc21q105380hxuh8ks53k3/subgraphs/panoptic-subgraph-sepolia/beta7-prod/gn'
 
 lowestTick: -887272
 highestTick: 887272
