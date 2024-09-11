@@ -82,6 +82,7 @@ export interface QuerySubgraphResponse {
 }
 
 export interface QueryPositionsResponse extends QuerySubgraphResponse {
+  positions?: BigNumber[];
   closedPositionIdList?: BigNumber[];
   openPositionIdList?: BigNumber[];
 }

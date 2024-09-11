@@ -173,7 +173,8 @@ export async function queryPositions(
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.queryPositions(wallet);
   return {
-    queryResponse: result
+    queryResponse: result, 
+    positions: result
   };
 }
 
