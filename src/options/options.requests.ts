@@ -10,7 +10,7 @@ export interface PanopticRequest {
   address?: string;
 }
 
-export interface StandardTxResponse {
+export interface BroadcastedTxResponse {
   network?: string;
   timestamp?: number;
   nonce?: number;
@@ -312,7 +312,7 @@ export interface ForceExerciseRequest extends PanopticRequest {
   address: string;
 }
 
-export interface ForceExerciseResponse extends StandardTxResponse{
+export interface ForceExerciseResponse extends BroadcastedTxResponse{
   other: any;
 }
 
@@ -325,7 +325,7 @@ export interface LiquidateRequest extends PanopticRequest {
   address: string;
 }
 
-export interface LiquidateResponse extends StandardTxResponse{
+export interface LiquidateResponse extends BroadcastedTxResponse{
   other: any; 
 }
 
@@ -502,7 +502,7 @@ export interface BurnResponse {
   other?: any
 }
 
-export interface MintResponse extends StandardTxResponse{
+export interface MintResponse extends BroadcastedTxResponse{
   latency?: number;
   base?: string;
   quote?: string;
