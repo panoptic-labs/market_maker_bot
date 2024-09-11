@@ -72,6 +72,12 @@ export interface QueryPositionsRequest extends PanopticRequest {
   address: string;
 }
 
+export interface QueryPositionsResponse extends QuerySubgraphResponse {
+  positions?: BigNumber[];
+  closedPositionIdList?: BigNumber[];
+  openPositionIdList?: BigNumber[];
+}
+
 export interface QuerySubgraphRequest extends PanopticRequest {
   query: string;
   variables: any;
@@ -79,12 +85,6 @@ export interface QuerySubgraphRequest extends PanopticRequest {
 
 export interface QuerySubgraphResponse {
   queryResponse: string;
-}
-
-export interface QueryPositionsResponse extends QuerySubgraphResponse {
-  positions?: BigNumber[];
-  closedPositionIdList?: BigNumber[];
-  openPositionIdList?: BigNumber[];
 }
 
 export interface CreatePositionRequest {
