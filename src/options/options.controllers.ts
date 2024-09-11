@@ -38,7 +38,7 @@ import {
   createSuperBear as panopticCreateSuperBear,
   createSuperBull as panopticCreateSuperBull,
   createZEEHBS as panopticCreateZEEHBS,
-  queryOpenPositions as panopticQueryOpenPositions,
+  queryPositions as panopticQueryPositions,
   queryGreeks as panopticQueryGreeks,
   calculateAccumulatedFeesBatch as panopticCalculateAccumulatedFeesBatch,
   optionPositionBalance as panopticOptionPositionBalance,
@@ -473,7 +473,7 @@ export async function createZEEHBS(req: any): Promise<any> {
   }
 }
 
-export async function queryOpenPositions(req: any): Promise<any> {
+export async function queryPositions(req: any): Promise<any> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -482,7 +482,7 @@ export async function queryOpenPositions(req: any): Promise<any> {
       req.connector
     );
   if (connector instanceof Panoptic) {
-    return panopticQueryOpenPositions(<Ethereumish>chain, connector, req);
+    return panopticQueryPositions(<Ethereumish>chain, connector, req);
   }
 }
 

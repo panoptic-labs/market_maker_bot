@@ -250,7 +250,7 @@ export class Panoptic {
 
   // Subgraph interactions
 
-  async queryOpenPositions(
+  async queryPositions(
     wallet: Wallet
   ): Promise<any> {
     try {

@@ -35,7 +35,7 @@ import {
   createSuperBear,
   createSuperBull,
   createZEEHBS,
-  queryOpenPositions,
+  queryPositions,
   queryGreeks,
   calculateAccumulatedFeesBatch,
   optionPositionBalance,
@@ -59,8 +59,8 @@ import {
   CalculateGammaResponse,
   GreekQueryRequest,
   GreekQueryResponse,
-  QueryOpenPositionsRequest,
-  QueryOpenPositionsResponse,
+  QueryPositionsRequest,
+  QueryPositionsResponse,
   QuerySubgraphRequest,
   QuerySubgraphResponse,
   CreatePositionResponse,
@@ -526,13 +526,13 @@ export namespace OptionsRoutes {
   );
 
   router.post(
-    '/queryOpenPositions',
+    '/queryPositions',
     asyncHandler(
       async (
-        req: Request<{}, {}, QueryOpenPositionsRequest>,
-        res: Response<QueryOpenPositionsResponse | string, {}>
+        req: Request<{}, {}, QueryPositionsRequest>,
+        res: Response<QueryPositionsResponse | string, {}>
       ) => {
-        res.status(200).json(await queryOpenPositions(req.body));
+        res.status(200).json(await queryPositions(req.body));
       }
     )
   );

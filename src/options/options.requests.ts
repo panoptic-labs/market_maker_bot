@@ -67,7 +67,7 @@ export interface GreekQueryResponse {
   positionIdList?: BigNumber[];
 }
 
-export interface QueryOpenPositionsRequest extends PanopticRequest {
+export interface QueryPositionsRequest extends PanopticRequest {
   wallet: Wallet;
   address: string;
 }
@@ -81,7 +81,7 @@ export interface QuerySubgraphResponse {
   queryResponse: string;
 }
 
-export interface QueryOpenPositionsResponse extends QuerySubgraphResponse {
+export interface QueryPositionsResponse extends QuerySubgraphResponse {
   closedPositionIdList?: BigNumber[];
   openPositionIdList?: BigNumber[];
 }

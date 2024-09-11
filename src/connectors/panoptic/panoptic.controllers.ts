@@ -19,8 +19,8 @@ import {
   CalculateGammaResponse,
   GreekQueryRequest,
   GreekQueryResponse,
-  QueryOpenPositionsRequest,
-  QueryOpenPositionsResponse,
+  QueryPositionsRequest,
+  QueryPositionsResponse,
   QuerySubgraphRequest,
   QuerySubgraphResponse,
   CreateBigLizardRequest,
@@ -165,13 +165,13 @@ export async function calculateGamma(
 
 // Subgraph interactions
 
-export async function queryOpenPositions(
+export async function queryPositions(
   ethereumish: Ethereumish,
   panopticish: Panoptic,
-  req: QueryOpenPositionsRequest
-): Promise<QueryOpenPositionsResponse> {
+  req: QueryPositionsRequest
+): Promise<QueryPositionsResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const result = await panopticish.queryOpenPositions(wallet);
+  const result = await panopticish.queryPositions(wallet);
   return {
     queryResponse: result
   };
