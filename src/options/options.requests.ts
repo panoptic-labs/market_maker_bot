@@ -375,7 +375,7 @@ export interface SettleLongPremiumRequest extends PanopticRequest {
 }
 
 export interface SettleLongPremiumResponse {
-  other?: any; 
+  tx?: any; 
 }
 
 export interface DepositRequest extends PanopticRequest {

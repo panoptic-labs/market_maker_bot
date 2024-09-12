@@ -844,14 +844,14 @@ export async function settleLongPremium(
   req: SettleLongPremiumRequest
 ): Promise<SettleLongPremiumResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const positions = await panopticish.settleLongPremium(
+  const tx = await panopticish.settleLongPremium(
     wallet,
     req.positionIdList,
     req.owner,
     req.legIndex
   );
   return {
-    other: positions
+    tx: tx
   };
 }
 
