@@ -172,18 +172,18 @@ export async function queryPositions(
 ): Promise<QueryPositionsResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.queryPositions(wallet);
-  const accountBalances = result['data']['panopticPoolAccounts'][0]['accountBalances'];
-  const closedAccountBalances = result['data']['panopticPoolAccounts'][0]['closedAccountBalances'];
+  const accountBalances = result.data['data']['panopticPoolAccounts'][0]['accountBalances'];
+  const closedAccountBalances = result.data['data']['panopticPoolAccounts'][0]['closedAccountBalances'];
 
   // Extract token IDs
-  const positions = accountBalances.map((item: any) => item.tokenId.id);
-  const closedPositions = closedAccountBalances.map((item: any) => item.tokenId.id);
-
+  const positions = accountBalances.map((item: any) => item['tokenId']['id']);
+  const closedPositions = closedAccountBalances.map((item: any) => item['tokenId']['id']);
+  
   // Filter open positions
   const openPositions = positions.filter((id: string) => !closedPositions.includes(id));
 
   return {
-    queryResponse: result, 
+    queryResponse: JSON.stringify(result.data), 
     positions: positions,
     closedPositionIdList: closedPositions,
     openPositionIdList: openPositions
