@@ -459,8 +459,8 @@ export interface GetAccountPremiumRequest extends PanopticRequest {
 }
 
 export interface GetAccountPremiumResponse {
-  other1: BigNumber; 
-  other2: BigNumber; 
+  premiumForToken0: BigNumber; 
+  premiumForToken1: BigNumber; 
 }
 
 export interface GetAccountFeesBaseRequest extends PanopticRequest {

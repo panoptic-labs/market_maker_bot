@@ -974,8 +974,8 @@ export async function getAccountPremium(
     req.isLong
   );
   return {
-    other1: liquidity[0], 
-    other2: liquidity[1]
+    premiumForToken0: liquidity[0], 
+    premiumForToken1: liquidity[1]
   };
 }
 
