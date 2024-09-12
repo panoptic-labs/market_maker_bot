@@ -953,7 +953,7 @@ export async function getAccountLiquidity(
     req.tickUpper
   );
   return {
-    accountLiquidities: result.accountLiquidities
+    accountLiquidity: result.accountLiquidities
   };
 }
 

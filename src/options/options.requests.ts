@@ -443,7 +443,7 @@ export interface GetAccountLiquidityRequest extends PanopticRequest {
 }
 
 export interface GetAccountLiquidityResponse {
-  accountLiquidities: BigNumber;
+  accountLiquidity: BigNumber;
 }
 
 export interface GetAccountPremiumRequest extends PanopticRequest {
