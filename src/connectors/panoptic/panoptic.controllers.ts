@@ -626,7 +626,7 @@ export async function calculateAccumulatedFeesBatch(
   return {
     premium0: result[0],
     premium1: result[1],
-    other: result[2]
+    balances: result[2]
   };
 }
 

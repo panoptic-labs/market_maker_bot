@@ -282,7 +282,7 @@ export interface CalculateAccumulatedFeesBatchRequest extends PanopticRequest {
 export interface CalculateAccumulatedFeesBatchResponse {
   premium0: BigNumber;
   premium1: BigNumber;
-  other: BigNumber;
+  balances: BigNumber;
 }
 
 export interface ExecuteBurnRequest extends PanopticRequest {
