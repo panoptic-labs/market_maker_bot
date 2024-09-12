@@ -313,7 +313,7 @@ export interface ForceExerciseRequest extends PanopticRequest {
 }
 
 export interface ForceExerciseResponse extends BroadcastedTxResponse{
-  other: any;
+  tx: any;
 }
 
 export interface LiquidateRequest extends PanopticRequest {
@@ -326,7 +326,7 @@ export interface LiquidateRequest extends PanopticRequest {
 }
 
 export interface LiquidateResponse extends BroadcastedTxResponse{
-  other: any; 
+  tx: any; 
 }
 
 export interface ExecuteMintRequest extends NetworkSelectionRequest {

@@ -178,7 +178,7 @@ export async function queryPositions(
   // Extract token IDs
   const positions = accountBalances.map((item: any) => item['tokenId']['id']);
   const closedPositions = closedAccountBalances.map((item: any) => item['tokenId']['id']);
-  
+
   // Filter open positions
   const openPositions = positions.filter((id: string) => !closedPositions.includes(id));
 
@@ -720,7 +720,7 @@ export async function forceExercise(
     timestamp: startTimestamp,
     nonce: tx.nonce,
     txHash: tx.hash,
-    other: tx
+    tx: tx
   };
 }
 
@@ -756,7 +756,7 @@ export async function liquidate(
     timestamp: startTimestamp,
     nonce: tx.nonce,
     txHash: tx.hash,
-    other: tx
+    tx: tx
   };
 }
 
