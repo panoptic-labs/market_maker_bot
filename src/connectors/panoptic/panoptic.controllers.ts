@@ -863,13 +863,13 @@ export async function deposit(
   req: DepositRequest
 ): Promise<DepositResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const asset = await panopticish.deposit(
+  const tx = await panopticish.deposit(
     wallet,
     req.collateralTracker,
     BigNumber.from(req.assets)
   );
   return {
-    shares: asset.shares
+    sharesReceived: tx.shares
   }; 
 }
 

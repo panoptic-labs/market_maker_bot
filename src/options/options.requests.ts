@@ -386,7 +386,7 @@ export interface DepositRequest extends PanopticRequest {
 }
 
 export interface DepositResponse{
-  shares: BigNumber
+  sharesReceived: BigNumber
 }
 
 export interface GetAssetRequest extends PanopticRequest {
