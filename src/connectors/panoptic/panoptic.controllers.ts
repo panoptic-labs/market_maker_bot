@@ -963,7 +963,7 @@ export async function getAccountPremium(
   req: GetAccountPremiumRequest
 ): Promise<GetAccountPremiumResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const liquidity = await panopticish.getAccountPremium(
+  const accountPremiumData = await panopticish.getAccountPremium(
     wallet,
     req.univ3pool,
     req.owner,
@@ -974,8 +974,8 @@ export async function getAccountPremium(
     req.isLong
   );
   return {
-    premiumForToken0: liquidity[0], 
-    premiumForToken1: liquidity[1]
+    premiumForToken0: accountPremiumData[0], 
+    premiumForToken1: accountPremiumData[1]
   };
 }
 
