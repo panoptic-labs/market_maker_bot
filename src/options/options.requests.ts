@@ -363,7 +363,7 @@ export interface PokeMedianRequest extends PanopticRequest {
 }
 
 export interface PokeMedianResponse {
-  other?: any; 
+  tx?: any; 
 }
 
 export interface SettleLongPremiumRequest extends PanopticRequest {

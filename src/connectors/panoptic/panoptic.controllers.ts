@@ -832,9 +832,9 @@ export async function pokeMedian(
   req: PokeMedianRequest
 ): Promise<PokeMedianResponse> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const txData = await panopticish.pokeMedian(wallet); 
+  const tx = await panopticish.pokeMedian(wallet); 
   return {
-    other: txData
+    tx: tx
   }
 }
 
