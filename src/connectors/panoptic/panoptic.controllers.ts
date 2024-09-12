@@ -932,7 +932,7 @@ export async function withdraw(
     BigNumber.from(req.assets)
   );
   return {
-    shares: response.shares
+    sharesWithdrawn: response.shares
   };
 }
 

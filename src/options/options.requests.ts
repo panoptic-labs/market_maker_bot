@@ -429,7 +429,7 @@ export interface WithdrawRequest extends PanopticRequest {
 }
 
 export interface WithdrawResponse {
-  shares: BigNumber
+  sharesWithdrawn: BigNumber
 }
 
 export interface GetAccountLiquidityRequest extends PanopticRequest {
