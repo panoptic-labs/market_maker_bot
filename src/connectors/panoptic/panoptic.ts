@@ -1,7 +1,9 @@
 import {
   BigNumber,
   Contract,
-  Wallet
+  Wallet,
+  ContractTransaction, 
+  ContractReceipt 
 } from 'ethers';
 import { PanopticConfig } from './panoptic.config';
 import {
@@ -875,15 +877,15 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const response = await panopticPoolContract["burnOptions(uint256,uint256[],int24,int24)"](
+      const tx: ContractTransaction = await panopticPoolContract["burnOptions(uint256,uint256[],int24,int24)"](
         burnTokenId,
         newPositionIdList,
         tickLimitLow,
         tickLimitHigh,
         { gasLimit: this.gasLimitEstimate }
       );
-      await response.wait();
-      return response;
+      const receipt: ContractReceipt = await tx.wait();
+      return receipt;
     } catch (error) {
       logger.error("Error burning option:", error);
       return error;
@@ -899,15 +901,15 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const response = await panopticPoolContract.forceExercise(
+      const tx: ContractTransaction = await panopticPoolContract.forceExercise(
         wallet.address,
         touchedId,
         positionIdListExercisee,
         positionIdListExercisor,
         { gasLimit: this.gasLimitEstimate }
       );
-      await response.wait();
-      return response;
+      const receipt: ContractReceipt = await tx.wait();
+      return receipt;
     } catch (error) {
       logger.error("Error on force exercise:", error);
       return error;
@@ -924,15 +926,15 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const response = await panopticPoolContract.liquidate(
+      const tx: ContractTransaction = await panopticPoolContract.liquidate(
         positionIdListLiquidator,
         liquidatee,
         delegations,
         positionIdList,
         { gasLimit: this.gasLimitEstimate }
       );
-      await response.wait();
-      return response;
+      const receipt: ContractReceipt = await tx.wait();
+      return receipt;
     } catch (error) {
       logger.error("Error on liquidation:", error);
       return error;
@@ -950,7 +952,7 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const response = await panopticPoolContract.mintOptions(
+      const tx: ContractTransaction = await panopticPoolContract.mintOptions(
         positionIdList,
         positionSize,
         effectiveLiquidityLimit,
@@ -958,8 +960,8 @@ export class Panoptic {
         tickLimitHigh,
         { gasLimit: this.gasLimitEstimate }
       );
-      await response.wait();
-      return response;
+      const receipt: ContractReceipt = await tx.wait();
+      return receipt;
     } catch (error) {
       logger.error("Error on mintOptions:", error);
       return error;
@@ -1002,9 +1004,9 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const response = await panopticPoolContract.pokeMedian();
-      await response.wait();
-      return response;
+      const tx: ContractTransaction = await panopticPoolContract.pokeMedian();
+      const receipt: ContractReceipt = await tx.wait();
+      return receipt;
     } catch (error) {
       logger.error("Error on pokeMedian:", error);
       return error;
@@ -1020,14 +1022,14 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const response = await panopticPoolContract.settleLongPremium(
+      const tx: ContractTransaction = await panopticPoolContract.settleLongPremium(
         positionIdList,
         owner,
         legIndex,
         { gasLimit: this.gasLimitEstimate }
       );
-      await response.wait();
-      return response;
+      const receipt: ContractReceipt = await tx.wait();
+      return receipt;
     } catch (error) {
       logger.error("Error on settleLongPremium:", error);
       return error;
@@ -1042,9 +1044,9 @@ export class Panoptic {
   ): Promise<any> {
     try {
       const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
-      const response = await tokenContract.deposit(assets, wallet.address);
-      await response.wait(); 
-      return response;
+      const tx: ContractTransaction = await tokenContract.deposit(assets, wallet.address);
+      const receipt: ContractReceipt = await tx.wait();
+      return receipt;
     } catch (error) {
       logger.error("Error depositing collateral:", error);
       return error;
@@ -1097,12 +1099,14 @@ export class Panoptic {
   ): Promise<any> {
     try {
       const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
-      return await tokenContract.withdraw(
+      const tx: ContractTransaction = await tokenContract.withdraw(
         assets,
         wallet.address,
         wallet.address,
         { gasLimit: this.gasLimitEstimate }
       );
+      const receipt: ContractReceipt = await tx.wait();
+      return receipt;
     } catch (error) {
       logger.error("Error withdrawing collateral:", error);
       return error;
