@@ -17,7 +17,7 @@ import tokenIdLibraryAbi from './TokenIdLibrary.ABI.json';
 import panopticHelperAbi from './PanopticHelper.ABI.json';
 import collateralTrackerAbi from './CollateralTracker.ABI.json';
 import semiFungiblePositionManagerAbi from './SFPM.ABI.json';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 export class Panoptic {
   private static _instances: { [name: string]: Panoptic };
@@ -236,7 +236,7 @@ export class Panoptic {
   // Subgraph interactions
   async queryPositions(
     wallet: Wallet
-  ): Promise<any> {
+  ): Promise<AxiosResponse | Error> {
     try {
       const query = `
       query GetAccountsPositions(
@@ -283,7 +283,7 @@ export class Panoptic {
   async querySubgraph(
     query: string,
     variables: any
-  ): Promise<any> {
+  ): Promise<AxiosResponse | Error> {
     try {
       return await axios.post(this.subgraphUrl, { query, variables });
     } catch (error) {
@@ -873,7 +873,7 @@ export class Panoptic {
     newPositionIdList: BigNumber[],
     tickLimitLow: number = this.LOWEST_POSSIBLE_TICK,
     tickLimitHigh: number = this.HIGHEST_POSSIBLE_TICK
-  ): Promise<any> {
+  ): Promise<ContractReceipt | Error> {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
@@ -888,7 +888,7 @@ export class Panoptic {
       return receipt;
     } catch (error) {
       logger.error("Error burning option:", error);
-      return error;
+      return new Error("Error burning option: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   }
 
@@ -897,7 +897,7 @@ export class Panoptic {
     touchedId: BigNumber[],
     positionIdListExercisee: BigNumber[],
     positionIdListExercisor: BigNumber[]
-  ): Promise<any> {
+  ): Promise<ContractReceipt | Error> {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
@@ -912,7 +912,7 @@ export class Panoptic {
       return receipt;
     } catch (error) {
       logger.error("Error on force exercise:", error);
-      return error;
+      return new Error("Error on force exercise: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   }
 
@@ -921,8 +921,8 @@ export class Panoptic {
     positionIdListLiquidator: BigNumber[],
     liquidatee: BigNumber,
     delegations: number,
-    positionIdList: BigNumber[],
-  ): Promise<any> {
+    positionIdList: BigNumber[]
+  ): Promise<ContractReceipt | Error> {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
@@ -937,7 +937,7 @@ export class Panoptic {
       return receipt;
     } catch (error) {
       logger.error("Error on liquidation:", error);
-      return error;
+      return new Error("Error on liquidation: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   }
 
@@ -948,7 +948,7 @@ export class Panoptic {
     effectiveLiquidityLimit: BigNumber,
     tickLimitLow: number = this.LOWEST_POSSIBLE_TICK,
     tickLimitHigh: number = this.HIGHEST_POSSIBLE_TICK
-  ): Promise<any> {
+  ): Promise<ContractReceipt | Error> {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
@@ -964,7 +964,7 @@ export class Panoptic {
       return receipt;
     } catch (error) {
       logger.error("Error on mintOptions:", error);
-      return error;
+      return new Error("Error on mintOptions: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   }
 
@@ -1000,7 +1000,7 @@ export class Panoptic {
 
   async pokeMedian(
     wallet: Wallet
-  ): Promise<any> {
+  ): Promise<ContractReceipt | Error> {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
@@ -1009,7 +1009,7 @@ export class Panoptic {
       return receipt;
     } catch (error) {
       logger.error("Error on pokeMedian:", error);
-      return error;
+      return new Error("Error on pokeMedian: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   }
 
@@ -1018,7 +1018,7 @@ export class Panoptic {
     positionIdList: BigNumber[],
     owner: BigNumber,
     legIndex: BigNumber
-  ): Promise<any> {
+  ): Promise<ContractReceipt | Error> {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
@@ -1032,7 +1032,7 @@ export class Panoptic {
       return receipt;
     } catch (error) {
       logger.error("Error on settleLongPremium:", error);
-      return error;
+      return new Error("Error on settleLongPremium: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   }
 
@@ -1041,28 +1041,29 @@ export class Panoptic {
     wallet: Wallet,
     collateralTrackerContract: any,
     assets: BigNumber
-  ): Promise<any> {
+  ): Promise<ContractReceipt | Error> {
     try {
       const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
-      const tx: ContractTransaction = await tokenContract.deposit(assets, wallet.address);
+      const tx: ContractTransaction = await tokenContract.deposit(assets, wallet.address, { gasLimit: this.gasLimitEstimate });
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
     } catch (error) {
       logger.error("Error depositing collateral:", error);
-      return error;
+      return new Error("Error depositing collateral: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   }
 
   async getAsset(
     wallet: Wallet,
     collateralTrackerContract: any
-  ): Promise<any> {
+  ): Promise<ContractReceipt | Error> {
     try {
       const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
-      return await tokenContract.asset();
+      const receipt = await tokenContract.asset();
+      return receipt;
     } catch (error) {
-      logger.error("Error fetching collateral token 1:", error);
-      return error;
+      logger.error("Error fetching collateral token:", error);
+      return new Error("Error fetching collateral token: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   }
 
@@ -1096,7 +1097,7 @@ export class Panoptic {
     wallet: Wallet,
     collateralTrackerContract: any,
     assets: BigNumber
-  ): Promise<any> {
+  ): Promise<ContractReceipt | Error> {
     try {
       const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
       const tx: ContractTransaction = await tokenContract.withdraw(
@@ -1109,7 +1110,7 @@ export class Panoptic {
       return receipt;
     } catch (error) {
       logger.error("Error withdrawing collateral:", error);
-      return error;
+      return new Error("Error withdrawing collateral: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   }
 

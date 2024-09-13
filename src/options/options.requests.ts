@@ -2,11 +2,12 @@ import {
   NetworkSelectionRequest,
 } from '../services/common-interfaces';
 import { BigNumber, Wallet } from 'ethers';
+import { ContractReceipt } from 'ethers';
 
 export interface PanopticRequest {
-  network?: string;
-  chain?: string;
-  connector?: string;
+  chain: string;
+  network: string;
+  connector?: string | undefined;
   address?: string;
 }
 
@@ -15,6 +16,7 @@ export interface BroadcastedTxResponse {
   timestamp?: number;
   nonce?: number;
   txHash?: string | any | undefined;
+  tx?: any; 
 }
 
 export interface EstimateGasResponse {
@@ -313,7 +315,7 @@ export interface ForceExerciseRequest extends PanopticRequest {
 }
 
 export interface ForceExerciseResponse extends BroadcastedTxResponse{
-  tx: any;
+  tx: ContractReceipt;
 }
 
 export interface LiquidateRequest extends PanopticRequest {
@@ -326,7 +328,7 @@ export interface LiquidateRequest extends PanopticRequest {
 }
 
 export interface LiquidateResponse extends BroadcastedTxResponse{
-  tx: any; 
+  tx: ContractReceipt; 
 }
 
 export interface ExecuteMintRequest extends NetworkSelectionRequest {
@@ -362,8 +364,8 @@ export interface PokeMedianRequest extends PanopticRequest {
   address: string;
 }
 
-export interface PokeMedianResponse {
-  tx?: any; 
+export interface PokeMedianResponse extends BroadcastedTxResponse{
+  tx: ContractReceipt; 
 }
 
 export interface SettleLongPremiumRequest extends PanopticRequest {
@@ -374,8 +376,8 @@ export interface SettleLongPremiumRequest extends PanopticRequest {
   address: string;
 }
 
-export interface SettleLongPremiumResponse {
-  tx?: any; 
+export interface SettleLongPremiumResponse extends BroadcastedTxResponse{
+  tx: ContractReceipt; 
 }
 
 export interface DepositRequest extends PanopticRequest {
@@ -385,8 +387,8 @@ export interface DepositRequest extends PanopticRequest {
   address: string;
 }
 
-export interface DepositResponse{
-  sharesReceived: BigNumber
+export interface DepositResponse extends BroadcastedTxResponse{
+  sharesReceived?: BigNumber
 }
 
 export interface GetAssetRequest extends PanopticRequest {
@@ -395,8 +397,8 @@ export interface GetAssetRequest extends PanopticRequest {
   address: string;
 }
 
-export interface GetAssetResponse {
-  assetTokenAddress: string; 
+export interface GetAssetResponse extends BroadcastedTxResponse{
+  assetTokenAddress?: string; 
 }
 
 export interface GetPoolDataRequest extends PanopticRequest {
@@ -428,8 +430,8 @@ export interface WithdrawRequest extends PanopticRequest {
   address: string;
 }
 
-export interface WithdrawResponse {
-  sharesWithdrawn: BigNumber
+export interface WithdrawResponse extends BroadcastedTxResponse{
+  sharesWithdrawn?: BigNumber
 }
 
 export interface GetAccountLiquidityRequest extends PanopticRequest {
@@ -479,6 +481,7 @@ export interface GetAccountFeesBaseResponse {
 }
 
 export interface BurnResponse {
+  tx: ContractReceipt;
   network?: string;
   timestamp?: number;
   latency?: number;
@@ -503,6 +506,7 @@ export interface BurnResponse {
 }
 
 export interface MintResponse extends BroadcastedTxResponse{
+  tx: ContractReceipt;
   latency?: number;
   base?: string;
   quote?: string;
