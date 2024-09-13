@@ -15,8 +15,8 @@ export interface BroadcastedTxResponse {
   network?: string;
   timestamp?: number;
   nonce?: number;
-  txHash?: string | any | undefined;
-  tx?: any; 
+  txHash?: string | BigNumber;
+  tx?: { [key: string]: any };
 }
 
 export interface EstimateGasResponse {
@@ -59,7 +59,7 @@ export interface GreekQueryRequest extends PanopticRequest {
 }
 
 export interface GreekQueryResponse {
-  greek: string;
+  greek: number;
   address?: string;
   STRIKE?: number;
   RANGE?: number;
@@ -82,14 +82,14 @@ export interface QueryPositionsResponse extends QuerySubgraphResponse {
 
 export interface QuerySubgraphRequest extends PanopticRequest {
   query: string;
-  variables: any;
+  variables: Record<string, string | string[] | number | number[] | BigNumber | BigNumber[]>;
 }
 
 export interface QuerySubgraphResponse {
   queryResponse: string;
 }
 
-export interface CreatePositionRequest {
+export interface CreatePositionRequest extends PanopticRequest{
   wallet: Wallet;
   univ3pool: BigNumber;
   address: string;
@@ -303,7 +303,7 @@ export interface CollateralTokenRequest extends PanopticRequest {
 }
 
 export interface CollateralTokenResponse {
-  collateralToken: string;
+  collateralToken: BigNumber;
 }
 
 export interface ForceExerciseRequest extends PanopticRequest {
@@ -382,7 +382,7 @@ export interface SettleLongPremiumResponse extends BroadcastedTxResponse{
 
 export interface DepositRequest extends PanopticRequest {
   wallet: Wallet;
-  collateralTracker: any;
+  collateralTracker: BigNumber;
   assets: BigNumber;
   address: string;
 }
@@ -393,7 +393,7 @@ export interface DepositResponse extends BroadcastedTxResponse{
 
 export interface GetAssetRequest extends PanopticRequest {
   wallet: Wallet;
-  collateralTracker: any;
+  collateralTracker: BigNumber;
   address: string;
 }
 
@@ -403,7 +403,7 @@ export interface GetAssetResponse extends BroadcastedTxResponse{
 
 export interface GetPoolDataRequest extends PanopticRequest {
   wallet: Wallet;
-  collateralTracker: any;
+  collateralTracker: BigNumber;
   address: string;
 }
 
@@ -415,7 +415,7 @@ export interface GetPoolDataResponse {
 
 export interface MaxWithdrawRequest extends PanopticRequest {
   wallet: Wallet;
-  collateralTracker: any;
+  collateralTracker: BigNumber;
   address: string;
 }
 
@@ -425,7 +425,7 @@ export interface MaxWithdrawResponse {
 
 export interface WithdrawRequest extends PanopticRequest {
   wallet: Wallet;
-  collateralTracker: any;
+  collateralTracker: BigNumber;
   assets: BigNumber;
   address: string;
 }
@@ -501,7 +501,7 @@ export interface BurnResponse {
   gasWanted?: string; //
   gasCost?: string; // : gasUsed
   nonce?: number;
-  txHash?: string | any | undefined;
+  txHash?: string | BigNumber;
   other?: any
 }
 

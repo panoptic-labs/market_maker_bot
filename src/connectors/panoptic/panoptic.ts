@@ -2,14 +2,13 @@ import {
   BigNumber,
   Contract,
   Wallet,
-  ContractTransaction, 
-  ContractReceipt 
+  ContractTransaction,
+  ContractReceipt
 } from 'ethers';
 import { PanopticConfig } from './panoptic.config';
 import {
   Token
 } from '@uniswap/sdk';
-import { logger } from '../../services/logger';
 import { Ethereum } from '../../chains/ethereum/ethereum';
 import { getAddress } from 'ethers/lib/utils';
 import panopticPoolAbi from './PanopticPool.ABI.json';
@@ -144,7 +143,7 @@ export class Panoptic {
     return this._lowestTick;
   }
   public get HIGHEST_POSSIBLE_TICK(): number {
-    return this._highestTick; 
+    return this._highestTick;
   }
   public get gasLimitEstimate(): number {
     return this._gasLimitEstimate;
@@ -176,37 +175,37 @@ export class Panoptic {
 
   // TODO: Should check that this works
   async _getPayoffGradients(
-      STRIKE: number,
-      RANGE: number,
-      PRICE: number
+    STRIKE: number,
+    RANGE: number,
+    PRICE: number
   ): Promise<{ payoffGradient: number[], pGradient: number[], index: number }> {
-      const N = 1000;
+    const N = 1000;
 
-      // Generate linspace array
-      const linspace = (start: number, end: number, num: number): number[] => {
-        const step = (end - start) / (num - 1);
-        return Array.from({ length: num }, (_, i) => start + (i * step));
-      };
+    // Generate linspace array
+    const linspace = (start: number, end: number, num: number): number[] => {
+      const step = (end - start) / (num - 1);
+      return Array.from({ length: num }, (_, i) => start + (i * step));
+    };
 
-      const p = linspace(STRIKE / 3, 1.75 * STRIKE, N);
+    const p = linspace(STRIKE / 3, 1.75 * STRIKE, N);
 
-      // Define the V function
-      const V = (x: number, K: number, r: number): number => {
-        if (x <= K / r) {
-          return x;
-        } else if (x > K / r && x <= K * r) {
-          return (2 * Math.sqrt(x * K * r) - x - K) / (r - 1);
-        } else {
-          return K;
-        }
-      };
+    // Define the V function
+    const V = (x: number, K: number, r: number): number => {
+      if (x <= K / r) {
+        return x;
+      } else if (x > K / r && x <= K * r) {
+        return (2 * Math.sqrt(x * K * r) - x - K) / (r - 1);
+      } else {
+        return K;
+      }
+    };
 
-      // Calculate payoff
-      const payoff = p.map(x => V(x, STRIKE, RANGE) - V(PRICE, STRIKE, RANGE));
+    // Calculate payoff
+    const payoff = p.map(x => V(x, STRIKE, RANGE) - V(PRICE, STRIKE, RANGE));
 
-      const payoffGradient = await this._gradient(payoff);
-      const pGradient = await this._gradient(p);
-      return { payoffGradient, pGradient, index: p.findIndex(x => x >= PRICE)};
+    const payoffGradient = await this._gradient(payoff);
+    const pGradient = await this._gradient(p);
+    return { payoffGradient, pGradient, index: p.findIndex(x => x >= PRICE) };
   }
 
   // TODO: In the future, we could deliver a calculateObservedDelta and denote this as merely the
@@ -216,9 +215,13 @@ export class Panoptic {
     STRIKE: number,
     RANGE: number,
     PRICE: number
-  ): Promise<number> {
-    const { payoffGradient, pGradient, index } = await this._getPayoffGradients(STRIKE, RANGE, PRICE);
-    return Math.floor(100 * (payoffGradient[index] / pGradient[index]));
+  ): Promise<number | Error> {
+    try {
+      const { payoffGradient, pGradient, index } = await this._getPayoffGradients(STRIKE, RANGE, PRICE);
+      return Math.floor(100 * (payoffGradient[index] / pGradient[index]));
+    } catch (error) {
+      return new Error("Error calculating delta: " + (error as Error).message);
+    }
   }
 
   // TODO: Write a opinionated gateway method that wraps this one but passes in the Uniswap.currentTick for PRICE
@@ -226,11 +229,40 @@ export class Panoptic {
     STRIKE: number,
     RANGE: number,
     PRICE: number
-  ): Promise<number>  {
-    const { payoffGradient, pGradient, index } = await this._getPayoffGradients(STRIKE, RANGE, PRICE);
-    const payoffGradient2 = await this._gradient(payoffGradient);
-    const pGradient2 = await this._gradient(pGradient);
-    return Math.floor(100 * (payoffGradient2[index] / pGradient2[index]));
+  ): Promise<number | Error> {
+    try {
+      const { payoffGradient, pGradient, index } = await this._getPayoffGradients(STRIKE, RANGE, PRICE);
+      const payoffGradient2 = await this._gradient(payoffGradient);
+      const pGradient2 = await this._gradient(pGradient);
+      return Math.floor(100 * (payoffGradient2[index] / pGradient2[index]));
+    } catch (error) {
+      return new Error("Error calculating gamma: " + (error as Error).message);
+    }
+  }
+
+  // TODO: These methods on the helper aren't live yet; eventually, this will be the easier way
+  //       to get multiple greeks in one call.
+  async queryGreeks(
+    wallet: Wallet,
+    tick: number,
+    positionIdList: BigNumber[],
+    greek: string
+  ): Promise<number | Error> {
+    try {
+      const panopticHelper = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelper, panopticHelperAbi.abi, wallet);
+      let response;
+      if (greek === "delta") {
+        response = await panopticHelperContract.delta(this.PanopticPool, wallet.address, tick, positionIdList);
+      } else if (greek === "gamma") {
+        response = await panopticHelperContract.gamma(this.PanopticPool, wallet.address, tick, positionIdList);
+      } else {
+        throw new Error("Invalid greek");
+      }
+      return response;
+    } catch (error) {
+      return new Error("Error on queryGreeks: " + (error as Error).message);
+    }
   }
 
   // Subgraph interactions
@@ -274,7 +306,7 @@ export class Panoptic {
     } catch (error) {
       if (error instanceof Error) {
         return new Error("Error querying open positions:" + error.message);
-      } else { 
+      } else {
         return new Error("Unknown error querying open positions");
       }
     }
@@ -282,7 +314,7 @@ export class Panoptic {
 
   async querySubgraph(
     query: string,
-    variables: any
+    variables: Record<string, string | string[] | number | number[] | BigNumber | BigNumber[]>
   ): Promise<AxiosResponse | Error> {
     try {
       return await axios.post(this.subgraphUrl, { query, variables });
@@ -297,529 +329,503 @@ export class Panoptic {
 
   // PanopticHelper interactions
   async createBigLizard(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    longCallStrike: number, 
-    straddleStrike: number, 
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    longCallStrike: number,
+    straddleStrike: number,
     asset: BigNumber,
-  ): Promise<any> {
+  ): Promise<{"tokenId": BigNumber} | Error> {
     try {
       const panopticHelperAddress = this.PanopticHelper;
       const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
       return await panopticHelperContract.createBigLizard(
-        univ3pool, 
-        width, 
-        longCallStrike, 
-        straddleStrike, 
+        univ3pool,
+        width,
+        longCallStrike,
+        straddleStrike,
         asset
       );
     } catch (error) {
-      return error;
+      return new Error("Error calculating createBigLizard: " + (error as Error).message);
     }
   }
 
   async createCallCalendarSpread(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    widthLong: number, 
-    widthShort: number, 
-    strike: number, 
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    widthLong: number,
+    widthShort: number,
+    strike: number,
     asset: BigNumber,
-    optionRatio: BigNumber, 
+    optionRatio: BigNumber,
     start: BigNumber
-  ): Promise<any> {
+  ): Promise<{"tokenId": BigNumber} | Error> {
     try {
       const panopticHelperAddress = this.PanopticHelper;
       const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
       return await panopticHelperContract.createCallCalendarSpread(
-        univ3pool, 
-        widthLong, 
-        widthShort, 
-        strike, 
-        asset, 
-        optionRatio, 
-        start
-      );
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async createCallDiagonalSpread(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    widthLong: number, 
-    widthShort: number, 
-    strikeLong: number, 
-    strikeShort: number,
-    asset: BigNumber, 
-    optionRatio: BigNumber,
-    start: BigNumber
-  ): Promise<any> {
-    try {
-      const panopticHelperAddress = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createCallDiagonalSpread(
-        univ3pool, 
-        widthLong, 
-        widthShort, 
-        strikeLong, 
-        strikeShort, 
-        asset,
-        optionRatio, 
-        start
-      );
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async createCallRatioSpread(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    longStrike: number, 
-    shortStrike: number,
-    asset: BigNumber, 
-    ratio: BigNumber,
-    start: BigNumber
-  ): Promise<any> {
-    try {
-      const panopticHelperAddress = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createCallRatioSpread(
-        univ3pool, 
-        width, 
-        longStrike, 
-        shortStrike, 
-        asset,
-        ratio, 
-        start
-      );
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async createCallSpread(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    strikeLong: number, 
-    strikeShort: number,
-    asset: BigNumber, 
-    optionRatio: BigNumber,
-    start: BigNumber
-  ): Promise<any> {
-    try {
-      const panopticHelperAddress = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createCallSpread(
-        univ3pool, 
-        width, 
-        strikeLong, 
-        strikeShort, 
-        asset,
-        optionRatio, 
-        start
-      );
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async createCallZEBRASpread(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    longStrike: number, 
-    shortStrike: number,
-    asset: BigNumber, 
-    ratio: BigNumber,
-    start: BigNumber
-  ): Promise<any> {
-    try {
-      const panopticHelperAddress = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createCallZEBRASpread(
-        univ3pool, 
-        width, 
-        longStrike, 
-        shortStrike, 
-        asset,
-        ratio, 
-        start
-      );
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async createIronButterfly(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    strike: number, 
-    wingWidth: number,
-    asset: BigNumber
-  ): Promise<any> {
-    try {
-      const panopticHelperAddress = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createIronButterfly(
-        univ3pool, 
-        width, 
-        strike, 
-        wingWidth, 
-        asset
-      )
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async createIronCondor(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    callStrike: number, 
-    putStrike: number,
-    wingWidth: number, 
-    asset: BigNumber
-  ): Promise<any> {
-    try {
-      const panopticHelperAddress = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createIronCondor(
-        univ3pool, 
-        width, 
-        callStrike, 
-        putStrike, 
-        wingWidth,
-        asset
-      );
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async createJadeLizard(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    longCallStrike: number, 
-    shortCallStrike: number,
-    shortPutStrike: number, 
-    asset: BigNumber
-  ): Promise<any> {
-    try {
-      const panopticHelperAddress = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createJadeLizard(
-        univ3pool, 
-        width, 
-        longCallStrike, 
-        shortCallStrike, 
-        shortPutStrike,
-        asset
-      );
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async createPutCalendarSpread(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    widthLong: number, 
-    widthShort: number, 
-    strike: number,
-    asset: BigNumber, 
-    optionRatio: BigNumber,
-    start: BigNumber
-  ): Promise<any> {
-    try {
-      const panopticHelperAddress = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createPutCalendarSpread(
-        univ3pool, 
-        widthLong, 
-        widthShort, 
-        strike, 
+        univ3pool,
+        widthLong,
+        widthShort,
+        strike,
         asset,
         optionRatio,
         start
       );
     } catch (error) {
-      return error;
+      return new Error("Error calculating createCallCalendarSpread: " + (error as Error).message);
     }
   }
 
-  async createPutDiagonalSpread(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    widthLong: number, 
-    widthShort: number, 
+  async createCallDiagonalSpread(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    widthLong: number,
+    widthShort: number,
     strikeLong: number,
-    strikeShort: number, 
-    asset: BigNumber, 
+    strikeShort: number,
+    asset: BigNumber,
     optionRatio: BigNumber,
     start: BigNumber
-  ): Promise<any> {
+  ): Promise<{"tokenId": BigNumber} | Error> {
     try {
       const panopticHelperAddress = this.PanopticHelper;
       const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createPutDiagonalSpread(
-        univ3pool, 
-        widthLong, 
-        widthShort, 
-        strikeLong, 
+      return await panopticHelperContract.createCallDiagonalSpread(
+        univ3pool,
+        widthLong,
+        widthShort,
+        strikeLong,
         strikeShort,
         asset,
         optionRatio,
         start
       );
     } catch (error) {
-      return error;
+      return new Error("Error calculating createCallDiagonalSpread: " + (error as Error).message);
     }
   }
 
-  async createPutRatioSpread(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
+  async createCallRatioSpread(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
     longStrike: number,
-    shortStrike: number, 
-    asset: BigNumber, 
+    shortStrike: number,
+    asset: BigNumber,
     ratio: BigNumber,
     start: BigNumber
-  ): Promise<any> {
+  ): Promise<{"tokenId": BigNumber} | Error> {
     try {
       const panopticHelperAddress = this.PanopticHelper;
       const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createPutRatioSpread(
-        univ3pool, 
-        width, 
-        longStrike, 
+      return await panopticHelperContract.createCallRatioSpread(
+        univ3pool,
+        width,
+        longStrike,
         shortStrike,
         asset,
         ratio,
         start
       );
     } catch (error) {
-      return error;
+      return new Error("Error calculating createCallRatioSpread: " + (error as Error).message);
     }
   }
 
-  async createPutSpread(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    strikeLong: number, 
+  async createCallSpread(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    strikeLong: number,
     strikeShort: number,
-    asset: BigNumber, 
+    asset: BigNumber,
     optionRatio: BigNumber,
     start: BigNumber
-  ): Promise<any> {
+  ): Promise<{"tokenId": BigNumber} | Error> {
     try {
       const panopticHelperAddress = this.PanopticHelper;
       const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createPutSpread(
-        univ3pool, 
-        width, 
-        strikeLong, 
-        strikeShort, 
+      return await panopticHelperContract.createCallSpread(
+        univ3pool,
+        width,
+        strikeLong,
+        strikeShort,
         asset,
         optionRatio,
         start
       );
     } catch (error) {
-      return error;
+      return new Error("Error calculating createCallSpread: " + (error as Error).message);
     }
   }
 
-  async createPutZEBRASpread(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    longStrike: number, 
+  async createCallZEBRASpread(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    longStrike: number,
     shortStrike: number,
-    asset: BigNumber, 
+    asset: BigNumber,
     ratio: BigNumber,
     start: BigNumber
-  ): Promise<any> {
+  ): Promise<{"tokenId": BigNumber} | Error> {
     try {
       const panopticHelperAddress = this.PanopticHelper;
       const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createPutZEBRASpread(
-        univ3pool, 
-        width, 
-        longStrike, 
-        shortStrike, 
+      return await panopticHelperContract.createCallZEBRASpread(
+        univ3pool,
+        width,
+        longStrike,
+        shortStrike,
         asset,
         ratio,
         start
       );
     } catch (error) {
-      return error;
+      return new Error("Error calculating createCallZEBRASpread: " + (error as Error).message);
     }
   }
 
-  async createStraddle(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    strike: number, 
-    asset: BigNumber,
-    isLong: BigNumber, 
-    optionRatio: BigNumber,
-    start: BigNumber
-  ): Promise<any> {
-    try {
-      const panopticHelperAddress = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createStraddle(
-        univ3pool, 
-        width, 
-        strike, 
-        asset, 
-        isLong,
-        optionRatio,
-        start
-      );
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async createStrangle(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    callStrike: number, 
-    putStrike: number,
-    asset: BigNumber, 
-    isLong: BigNumber, 
-    optionRatio: BigNumber,
-    start: BigNumber
-  ): Promise<any> {
-    try {
-      const panopticHelperAddress = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createStrangle(
-        univ3pool, 
-        width, 
-        callStrike, 
-        putStrike, 
-        asset,
-        isLong,
-        optionRatio,
-        start
-      );
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async createSuperBear(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    longPutStrike: number, 
-    shortPutStrike: number,
-    shortCallStrike: number,
+  async createIronButterfly(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    strike: number,
+    wingWidth: number,
     asset: BigNumber
-  ): Promise<any> {
+  ): Promise<{"tokenId": BigNumber} | Error> {
     try {
       const panopticHelperAddress = this.PanopticHelper;
       const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createSuperBear(
-        univ3pool, 
-        width, 
-        longPutStrike, 
-        shortPutStrike, 
-        shortCallStrike,
+      return await panopticHelperContract.createIronButterfly(
+        univ3pool,
+        width,
+        strike,
+        wingWidth,
+        asset
+      )
+    } catch (error) {
+      return new Error("Error calculating createIronButterfly: " + (error as Error).message);
+    }
+  }
+
+  async createIronCondor(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    callStrike: number,
+    putStrike: number,
+    wingWidth: number,
+    asset: BigNumber
+  ): Promise<{"tokenId": BigNumber} | Error> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      return await panopticHelperContract.createIronCondor(
+        univ3pool,
+        width,
+        callStrike,
+        putStrike,
+        wingWidth,
         asset
       );
     } catch (error) {
-      return error;
+      return new Error("Error calculating createIronCondor: " + (error as Error).message);
     }
   }
 
-  async createSuperBull(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    longCallStrike: number, 
+  async createJadeLizard(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    longCallStrike: number,
     shortCallStrike: number,
-    shortPutStrike: number, 
+    shortPutStrike: number,
     asset: BigNumber
-  ): Promise<any> {
+  ): Promise<{"tokenId": BigNumber} | Error> {
     try {
       const panopticHelperAddress = this.PanopticHelper;
       const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createSuperBull(
-        univ3pool, 
-        width, 
-        longCallStrike, 
-        shortCallStrike, 
+      return await panopticHelperContract.createJadeLizard(
+        univ3pool,
+        width,
+        longCallStrike,
+        shortCallStrike,
         shortPutStrike,
         asset
       );
     } catch (error) {
-      return error;
+      return new Error("Error calculating createJadeLizard: " + (error as Error).message);
+    }
+  }
+
+  async createPutCalendarSpread(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    widthLong: number,
+    widthShort: number,
+    strike: number,
+    asset: BigNumber,
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<{"tokenId": BigNumber} | Error> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      return await panopticHelperContract.createPutCalendarSpread(
+        univ3pool,
+        widthLong,
+        widthShort,
+        strike,
+        asset,
+        optionRatio,
+        start
+      );
+    } catch (error) {
+      return new Error("Error calculating createPutCalendarSpread: " + (error as Error).message);
+    }
+  }
+
+  async createPutDiagonalSpread(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    widthLong: number,
+    widthShort: number,
+    strikeLong: number,
+    strikeShort: number,
+    asset: BigNumber,
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<{"tokenId": BigNumber} | Error> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      return await panopticHelperContract.createPutDiagonalSpread(
+        univ3pool,
+        widthLong,
+        widthShort,
+        strikeLong,
+        strikeShort,
+        asset,
+        optionRatio,
+        start
+      );
+    } catch (error) {
+      return new Error("Error calculating createPutDiagonalSpread: " + (error as Error).message);
+    }
+  }
+
+  async createPutRatioSpread(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    longStrike: number,
+    shortStrike: number,
+    asset: BigNumber,
+    ratio: BigNumber,
+    start: BigNumber
+  ): Promise<{"tokenId": BigNumber} | Error> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      return await panopticHelperContract.createPutRatioSpread(
+        univ3pool,
+        width,
+        longStrike,
+        shortStrike,
+        asset,
+        ratio,
+        start
+      );
+    } catch (error) {
+      return new Error("Error calculating createPutRatioSpread: " + (error as Error).message);
+    }
+  }
+
+  async createPutSpread(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    strikeLong: number,
+    strikeShort: number,
+    asset: BigNumber,
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<{"tokenId": BigNumber} | Error> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      return await panopticHelperContract.createPutSpread(
+        univ3pool,
+        width,
+        strikeLong,
+        strikeShort,
+        asset,
+        optionRatio,
+        start
+      );
+    } catch (error) {
+      return new Error("Error calculating createPutSpread: " + (error as Error).message);
+    }
+  }
+
+  async createPutZEBRASpread(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    longStrike: number,
+    shortStrike: number,
+    asset: BigNumber,
+    ratio: BigNumber,
+    start: BigNumber
+  ): Promise<{"tokenId": BigNumber} | Error> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      return await panopticHelperContract.createPutZEBRASpread(
+        univ3pool,
+        width,
+        longStrike,
+        shortStrike,
+        asset,
+        ratio,
+        start
+      );
+    } catch (error) {
+      return new Error("Error calculating createPutZEBRASpread: " + (error as Error).message);
+    }
+  }
+
+  async createStraddle(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    strike: number,
+    asset: BigNumber,
+    isLong: BigNumber,
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<{"tokenId": BigNumber} | Error> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      return await panopticHelperContract.createStraddle(
+        univ3pool,
+        width,
+        strike,
+        asset,
+        isLong,
+        optionRatio,
+        start
+      );
+    } catch (error) {
+      return new Error("Error calculating createStraddle: " + (error as Error).message);
+    }
+  }
+
+  async createStrangle(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    callStrike: number,
+    putStrike: number,
+    asset: BigNumber,
+    isLong: BigNumber,
+    optionRatio: BigNumber,
+    start: BigNumber
+  ): Promise<{"tokenId": BigNumber} | Error> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      return await panopticHelperContract.createStrangle(
+        univ3pool,
+        width,
+        callStrike,
+        putStrike,
+        asset,
+        isLong,
+        optionRatio,
+        start
+      );
+    } catch (error) {
+      return new Error("Error calculating createStrangle: " + (error as Error).message);
+    }
+  }
+
+  async createSuperBear(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    longPutStrike: number,
+    shortPutStrike: number,
+    shortCallStrike: number,
+    asset: BigNumber
+  ): Promise<{"tokenId": BigNumber} | Error> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      return await panopticHelperContract.createSuperBear(
+        univ3pool,
+        width,
+        longPutStrike,
+        shortPutStrike,
+        shortCallStrike,
+        asset
+      );
+    } catch (error) {
+      return new Error("Error calculating createSuperBear: " + (error as Error).message);
+    }
+  }
+
+  async createSuperBull(
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    longCallStrike: number,
+    shortCallStrike: number,
+    shortPutStrike: number,
+    asset: BigNumber
+  ): Promise<{"tokenId": BigNumber} | Error> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      return await panopticHelperContract.createSuperBull(
+        univ3pool,
+        width,
+        longCallStrike,
+        shortCallStrike,
+        shortPutStrike,
+        asset
+      );
+    } catch (error) {
+      return new Error("Error calculating createSuperBull: " + (error as Error).message);
     }
   }
 
   async createZEEHBS(
-    wallet: Wallet, 
-    univ3pool: BigNumber, 
-    width: number, 
-    longStrike: number, 
+    wallet: Wallet,
+    univ3pool: BigNumber,
+    width: number,
+    longStrike: number,
     shortStrike: number,
     asset: BigNumber,
     ratio: BigNumber
-  ): Promise<any> {
+  ): Promise<{"tokenId": BigNumber} | Error> {
     try {
       const panopticHelperAddress = this.PanopticHelper;
       const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
       return await panopticHelperContract.createZEEHBS(
-        univ3pool, 
-        width, 
-        longStrike, 
-        shortStrike, 
+        univ3pool,
+        width,
+        longStrike,
+        shortStrike,
         asset,
         ratio
       );
     } catch (error) {
-      return error;
-    }
-  }
-
-  // TODO: These methods on the helper aren't live yet; eventually, this will be the easier way
-  //       to get multiple greeks in one call.
-  async queryGreeks(
-    wallet: Wallet,
-    tick: number,
-    positionIdList: BigNumber[],
-    greek: string
-  ): Promise<any> {
-    try {
-      const panopticHelper = this.PanopticHelper;
-      const panopticHelperContract = new Contract(panopticHelper, panopticHelperAbi.abi, wallet);
-      let response;
-      if (greek === "delta") {
-        response = await panopticHelperContract.delta(this.PanopticPool, wallet.address, tick, positionIdList);
-      } else if (greek === "gamma") {
-        response = await panopticHelperContract.gamma(this.PanopticPool, wallet.address, tick, positionIdList);
-      } else {
-        throw new Error("Invalid greek");
-      }
-      return response;
-    } catch (error) {
-      logger.error(`Error checking ${greek}...`, error);
-      return error;
+      return new Error("Error calculating createZEEHBS: " + (error as Error).message);
     }
   }
 
@@ -828,42 +834,43 @@ export class Panoptic {
     wallet: Wallet,
     includePendingPremium: boolean = false,
     positionIdList: BigNumber[]
-  ): Promise<any> {
+  ): Promise<{ "premium0": BigNumber, "premium1": BigNumber, [key: number]: BigNumber } | Error> {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      return await panopticPoolContract.calculateAccumulatedFeesBatch(
+      const result = await panopticPoolContract.calculateAccumulatedFeesBatch(
         wallet.address,
         includePendingPremium,
         positionIdList
       );
+      const { premium0, premium1, ...rest } = result;
+      return { premium0, premium1, ...rest };
     } catch (error) {
-      logger.error("Error on calculateAccumulatedFeesBatch:", error);
-      return error;
+      return new Error("Error on calculateAccumulatedFeesBatch: " + (error as Error).message);
     }
   }
 
   async collateralToken0(
     wallet: Wallet
-  ): Promise<any> {
+  ): Promise<{"collateralToken": BigNumber} | Error> {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
       return await panopticPoolContract.collateralToken0();
     } catch (error) {
-      logger.error("Error fetching collateral token 0:", error);
-      return error;
+      return new Error("Error on collateralToken0: " + (error as Error).message);
     }
   }
 
-  async collateralToken1(wallet: Wallet): Promise<any> {
+  async collateralToken1(
+    wallet: Wallet
+  ): Promise<{"collateralToken": BigNumber} | Error> {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
       return await panopticPoolContract.collateralToken1();
     } catch (error) {
-      logger.error("Error fetching collateral token 1:", error);
-      return error;
+      return new Error("Error on collateralToken1: " + (error as Error).message);
     }
   }
 
@@ -887,8 +894,7 @@ export class Panoptic {
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
     } catch (error) {
-      logger.error("Error burning option:", error);
-      return new Error("Error burning option: " + (error instanceof Error ? error.message : "Unknown error"));
+      return new Error("Error on executeBurn: " + (error as Error).message);
     }
   }
 
@@ -911,8 +917,7 @@ export class Panoptic {
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
     } catch (error) {
-      logger.error("Error on force exercise:", error);
-      return new Error("Error on force exercise: " + (error instanceof Error ? error.message : "Unknown error"));
+      return new Error("Error on forceExercise: " + (error as Error).message);
     }
   }
 
@@ -936,8 +941,7 @@ export class Panoptic {
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
     } catch (error) {
-      logger.error("Error on liquidation:", error);
-      return new Error("Error on liquidation: " + (error instanceof Error ? error.message : "Unknown error"));
+      return new Error("Error on liquidate: " + (error as Error).message);
     }
   }
 
@@ -963,28 +967,26 @@ export class Panoptic {
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
     } catch (error) {
-      logger.error("Error on mintOptions:", error);
-      return new Error("Error on mintOptions: " + (error instanceof Error ? error.message : "Unknown error"));
+      return new Error("Error on mintOptions: " + (error as Error).message);
     }
   }
 
   async numberOfPositions(
     wallet: Wallet
-  ): Promise<any> {
+  ): Promise<{"_numberOfPositions": BigNumber} | Error> {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
       return await panopticPoolContract.numberOfPositions(wallet.address);
     } catch (error) {
-      logger.error("Error on numberOfPositions:", error);
-      return error;
+      return new Error("Error on numberOfPositions: " + (error as Error).message);
     }
   }
 
   async optionPositionBalance(
     wallet: Wallet,
     tokenId: BigNumber
-  ): Promise<any> {
+  ): Promise<{"balance": BigNumber, "poolUtilization0": BigNumber, "poolUtilization1": BigNumber} | Error> {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
@@ -993,8 +995,7 @@ export class Panoptic {
         tokenId
       );
     } catch (error) {
-      logger.error("Error on optionPositionBalance:", error);
-      return error;
+      return new Error("Error on optionsPositionBalance: " + (error as Error).message);
     }
   }
 
@@ -1008,8 +1009,7 @@ export class Panoptic {
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
     } catch (error) {
-      logger.error("Error on pokeMedian:", error);
-      return new Error("Error on pokeMedian: " + (error instanceof Error ? error.message : "Unknown error"));
+      return new Error("Error on pokeMedian: " + (error as Error).message);
     }
   }
 
@@ -1031,75 +1031,70 @@ export class Panoptic {
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
     } catch (error) {
-      logger.error("Error on settleLongPremium:", error);
-      return new Error("Error on settleLongPremium: " + (error instanceof Error ? error.message : "Unknown error"));
+      return new Error("Error on settleLongPremium: " + (error as Error).message);
     }
   }
 
   // CollateralTracker interactions
   async deposit(
     wallet: Wallet,
-    collateralTrackerContract: any,
+    collateralTrackerContract: BigNumber,
     assets: BigNumber
   ): Promise<ContractReceipt | Error> {
     try {
-      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const tokenContract = new Contract(collateralTrackerContract.toString(), collateralTrackerAbi.abi, wallet);
       const tx: ContractTransaction = await tokenContract.deposit(assets, wallet.address, { gasLimit: this.gasLimitEstimate });
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
     } catch (error) {
-      logger.error("Error depositing collateral:", error);
-      return new Error("Error depositing collateral: " + (error instanceof Error ? error.message : "Unknown error"));
+      return new Error("Error on deposit: " + (error as Error).message);
     }
   }
 
   async getAsset(
     wallet: Wallet,
-    collateralTrackerContract: any
+    collateralTrackerContract: BigNumber
   ): Promise<ContractReceipt | Error> {
     try {
-      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const tokenContract = new Contract(collateralTrackerContract.toString(), collateralTrackerAbi.abi, wallet);
       const receipt = await tokenContract.asset();
       return receipt;
     } catch (error) {
-      logger.error("Error fetching collateral token:", error);
-      return new Error("Error fetching collateral token: " + (error instanceof Error ? error.message : "Unknown error"));
+      return new Error("Error on asset: " + (error as Error).message);
     }
   }
 
   async getPoolData(
     wallet: Wallet,
-    collateralTrackerContract: any
-  ): Promise<any> {
+    collateralTrackerContract: BigNumber
+  ): Promise<{"poolAssets": BigNumber, "insideAMM": BigNumber, "currentPoolUtilization": BigNumber} | Error> {
     try {
-      const CollateralTracker = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const CollateralTracker = new Contract(collateralTrackerContract.toString(), collateralTrackerAbi.abi, wallet);
       return await CollateralTracker.getPoolData();
     } catch (error) {
-      logger.error("Error on getPoolData on CollateralTracker:", error);
-      return error;
+      return new Error("Error on getPoolData: " + (error as Error).message);
     }
   }
 
   async maxWithdraw(
     wallet: Wallet,
-    collateralTrackerContract: any
-  ): Promise<any> {
+    collateralTrackerContract: BigNumber
+  ): Promise<{"maxAssets": BigNumber} | Error> {
     try {
-      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const tokenContract = new Contract(collateralTrackerContract.toString(), collateralTrackerAbi.abi, wallet);
       return await tokenContract.maxWithdraw(wallet.address);
     } catch (error) {
-      logger.error("Error finding max withdrawal limit:", error);
-      return error;
+      return new Error("Error on maxWithdraw: " + (error as Error).message);
     }
   }
 
   async withdraw(
     wallet: Wallet,
-    collateralTrackerContract: any,
+    collateralTrackerContract: BigNumber,
     assets: BigNumber
   ): Promise<ContractReceipt | Error> {
     try {
-      const tokenContract = new Contract(collateralTrackerContract, collateralTrackerAbi.abi, wallet);
+      const tokenContract = new Contract(collateralTrackerContract.toString(), collateralTrackerAbi.abi, wallet);
       const tx: ContractTransaction = await tokenContract.withdraw(
         assets,
         wallet.address,
@@ -1109,8 +1104,7 @@ export class Panoptic {
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
     } catch (error) {
-      logger.error("Error withdrawing collateral:", error);
-      return new Error("Error withdrawing collateral: " + (error instanceof Error ? error.message : "Unknown error"));
+      return new Error("Error on withdraw: " + (error as Error).message);
     }
   }
 
@@ -1122,7 +1116,7 @@ export class Panoptic {
     tokenType: BigNumber,
     tickLower: number,
     tickUpper: number
-  ): Promise<any> {
+  ): Promise<{"accountLiquidities": BigNumber} | Error> {
     try {
       const semiFungiblePositionManager = this.SemiFungiblePositionManager;
       const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
@@ -1134,8 +1128,7 @@ export class Panoptic {
         tickUpper
       );
     } catch (error) {
-      logger.error("Error on getAccountLiquidity:", error);
-      return error;
+      return new Error("Error on getAccountLiquidity: " + (error as Error).message);
     }
   }
 
@@ -1148,11 +1141,11 @@ export class Panoptic {
     tickUpper: number,
     atTick: number,
     isLong: BigNumber
-  ): Promise<any> {
+  ): Promise<[BigNumber, BigNumber] | Error> {
     try {
       const semiFungiblePositionManager = this.SemiFungiblePositionManager;
       const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
-      return await semiFungiblePositionManagerContract.getAccountPremium(
+      const result = await semiFungiblePositionManagerContract.getAccountPremium(
         univ3pool,
         owner,
         tokenType,
@@ -1161,9 +1154,9 @@ export class Panoptic {
         atTick,
         isLong
       );
+      return result;
     } catch (error) {
-      logger.error("Error on getAccountPremium:", error);
-      return error;
+      return new Error("Error on getAccountPremium: " + (error as Error).message);
     }
   }
 
@@ -1174,7 +1167,7 @@ export class Panoptic {
     tokenType: BigNumber,
     tickLower: number,
     tickUpper: number
-  ): Promise<any> {
+  ): Promise<{"feesBase0": BigNumber, "feesBase1": BigNumber} | Error> {
     try {
       const semiFungiblePositionManager = this.SemiFungiblePositionManager;
       const semiFungiblePositionManagerContract = new Contract(semiFungiblePositionManager, semiFungiblePositionManagerAbi.abi, wallet);
@@ -1186,8 +1179,7 @@ export class Panoptic {
         tickUpper
       );
     } catch (error) {
-      logger.error("Error on getAccountFeesBase:", error);
-      return error;
+      return new Error("Error on getAccountFeesBase: " + (error as Error).message);
     }
   }
 
@@ -1196,14 +1188,14 @@ export class Panoptic {
     wallet: Wallet,
     self: BigNumber,
     legIndex: BigNumber,
-    optionRatio: BigNumber, 
+    optionRatio: BigNumber,
     asset: BigNumber,
     isLong: BigNumber,
     tokenType: BigNumber,
     riskPartner: BigNumber,
     strike: number,
     width: number
-  ): Promise<any> {
+  ): Promise<{"tokenId": BigNumber} | Error> {
     try {
       const tokenIdLibrary = this.TokenIdLibrary;
       const tokenIdLibraryContract = new Contract(tokenIdLibrary, tokenIdLibraryAbi.abi, wallet);
@@ -1219,8 +1211,7 @@ export class Panoptic {
         width
       );
     } catch (error) {
-      logger.error("Error on addLeg:", error);
-      return error;
+      return new Error("Error on addLeg: " + (error as Error).message);
     }
   }
 }

@@ -3,70 +3,69 @@ import {
   BurnResponse,
   CalculateDeltaRequest,
   CalculateDeltaResponse,
-  // CalculateGammaRequest,
-  // CalculateGammaResponse,
-  // GreekQueryRequest,
-  // GreekQueryResponse,
+  CalculateGammaRequest,
+  CalculateGammaResponse,
+  GreekQueryRequest,
+  GreekQueryResponse,
   QueryPositionsRequest,
   QueryPositionsResponse,
-  // QuerySubgraphRequest,
-  // QuerySubgraphResponse,
-  // CreateBigLizardRequest,
-  // CreateCallCalendarSpreadRequest,
-  // CreateCallDiagonalSpreadRequest,
-  // CreateCallRatioSpreadRequest,
-  // CreateCallSpreadRequest,
-  // CreateCallZEBRASpreadRequest,
-  // CreateIronButterflyRequest,
-  // CreateIronCondorRequest,
-  // CreateJadeLizardRequest,
-  // CreatePutCalendarSpreadRequest,
-  // CreatePutDiagonalSpreadRequest, 
-  // CreatePutRatioSpreadRequest,
-  // CreatePutSpreadRequest,
-  // CreatePutZEBRASpreadRequest,
-  // CreateStraddleRequest,
-  // CreateStrangleRequest,
-  // CreateSuperBearRequest,
-  // CreateSuperBullRequest,
-  // CreateZEEHBSRequest,
-  // CreateAddLegsRequest,
-  // CreatePositionResponse,
-  // CalculateAccumulatedFeesBatchRequest,
-  // CalculateAccumulatedFeesBatchResponse,
-  // CollateralTokenRequest,
-  // CollateralTokenResponse,
-  // ForceExerciseRequest,
-  // ForceExerciseResponse,
-  // LiquidateRequest,
-  // LiquidateResponse,
+  QuerySubgraphRequest,
+  QuerySubgraphResponse,
+  CreateBigLizardRequest,
+  CreateCallCalendarSpreadRequest,
+  CreateCallDiagonalSpreadRequest,
+  CreateCallRatioSpreadRequest,
+  CreateCallSpreadRequest,
+  CreateCallZEBRASpreadRequest,
+  CreateIronButterflyRequest,
+  CreateIronCondorRequest,
+  CreateJadeLizardRequest,
+  CreatePutCalendarSpreadRequest,
+  CreatePutDiagonalSpreadRequest, 
+  CreatePutRatioSpreadRequest,
+  CreatePutSpreadRequest,
+  CreatePutZEBRASpreadRequest,
+  CreateStraddleRequest,
+  CreateStrangleRequest,
+  CreateSuperBearRequest,
+  CreateSuperBullRequest,
+  CreateZEEHBSRequest,
+  CreateAddLegsRequest,
+  CreatePositionResponse,
+  CalculateAccumulatedFeesBatchRequest,
+  CalculateAccumulatedFeesBatchResponse,
+  CollateralTokenRequest,
+  CollateralTokenResponse,
+  ForceExerciseRequest,
+  ForceExerciseResponse,
+  LiquidateRequest,
+  LiquidateResponse,
   ExecuteMintRequest,
   MintResponse,
-  // NumberOfPositionsRequest,
-  // NumberOfPositionsResponse,
-  // OptionPositionBalanceRequest,
-  // PokeMedianRequest,
-  // SettleLongPremiumRequest,
-  // DepositRequest,
-  // DepositResponse,
-  // GetAssetRequest,
-  // GetAssetResponse,
-  // GetPoolDataRequest,
-  // MaxWithdrawRequest,
-  // WithdrawRequest,
-  // GetAccountLiquidityRequest,
-  // GetAccountPremiumRequest,
-  // GetAccountFeesBaseRequest,
-  // EstimateGasResponse,
-  // OptionsPositionBalanceResponse,
-  // PokeMedianResponse,
-  // SettleLongPremiumResponse,
-  // GetPoolDataResponse,
-  // MaxWithdrawResponse,
-  // WithdrawResponse,
-  // GetAccountLiquidityResponse,
-  // GetAccountPremiumResponse,
-  // GetAccountFeesBaseResponse
+  NumberOfPositionsRequest,
+  NumberOfPositionsResponse,
+  OptionPositionBalanceRequest,
+  PokeMedianRequest,
+  SettleLongPremiumRequest,
+  DepositRequest,
+  DepositResponse,
+  GetAssetRequest,
+  GetAssetResponse,
+  GetPoolDataRequest,
+  MaxWithdrawRequest,
+  WithdrawRequest,
+  GetAccountLiquidityRequest,
+  GetAccountPremiumRequest,
+  GetAccountFeesBaseRequest,
+  OptionsPositionBalanceResponse,
+  PokeMedianResponse,
+  SettleLongPremiumResponse,
+  GetPoolDataResponse,
+  MaxWithdrawResponse,
+  WithdrawResponse,
+  GetAccountLiquidityResponse,
+  GetAccountPremiumResponse,
+  GetAccountFeesBaseResponse
 } from './options.requests';
 import {
   addLeg as panopticAddLeg,
@@ -137,7 +136,7 @@ export async function calculateDelta(req: CalculateDeltaRequest): Promise<Calcul
   }
 }
 
-export async function calculateGamma(req: any): Promise<any> {
+export async function calculateGamma(req: CalculateGammaRequest): Promise<CalculateGammaResponse | Error> {
   const connector: Panoptic =
     await getConnector<Panoptic>(
       req.chain,
@@ -151,7 +150,7 @@ export async function calculateGamma(req: any): Promise<any> {
   }
 }
 
-export async function queryGreeks(req: any): Promise<any> {
+export async function queryGreeks(req: GreekQueryRequest): Promise<GreekQueryResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -181,7 +180,7 @@ export async function queryPositions(req: QueryPositionsRequest): Promise<QueryP
   }
 }
 
-export async function querySubgraph(req: any): Promise<any> {
+export async function querySubgraph(req: QuerySubgraphRequest): Promise<QuerySubgraphResponse | Error> {
   const connector: Panoptic =
     await getConnector<Panoptic>(
       req.chain,
@@ -195,7 +194,7 @@ export async function querySubgraph(req: any): Promise<any> {
   }
 }
 
-export async function createBigLizard(req: any): Promise<any> {
+export async function createBigLizard(req: CreateBigLizardRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -210,7 +209,7 @@ export async function createBigLizard(req: any): Promise<any> {
   }
 }
 
-export async function createCallCalendarSpread(req: any): Promise<any> {
+export async function createCallCalendarSpread(req: CreateCallCalendarSpreadRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -225,7 +224,7 @@ export async function createCallCalendarSpread(req: any): Promise<any> {
   }
 }
 
-export async function createCallDiagonalSpread(req: any): Promise<any> {
+export async function createCallDiagonalSpread(req: CreateCallDiagonalSpreadRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -238,7 +237,7 @@ export async function createCallDiagonalSpread(req: any): Promise<any> {
   }
 }
 
-export async function createCallRatioSpread(req: any): Promise<any> {
+export async function createCallRatioSpread(req: CreateCallRatioSpreadRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -248,7 +247,7 @@ export async function createCallRatioSpread(req: any): Promise<any> {
   }
 }
 
-export async function createCallSpread(req: any): Promise<any> {
+export async function createCallSpread(req: CreateCallSpreadRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -258,7 +257,7 @@ export async function createCallSpread(req: any): Promise<any> {
   }
 }
 
-export async function createCallZEBRASpread(req: any): Promise<any> {
+export async function createCallZEBRASpread(req: CreateCallZEBRASpreadRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -268,7 +267,7 @@ export async function createCallZEBRASpread(req: any): Promise<any> {
   }
 }
 
-export async function createIronButterfly(req: any): Promise<any> {
+export async function createIronButterfly(req: CreateIronButterflyRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -278,7 +277,7 @@ export async function createIronButterfly(req: any): Promise<any> {
   }
 }
 
-export async function createIronCondor(req: any): Promise<any> {
+export async function createIronCondor(req: CreateIronCondorRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -288,7 +287,7 @@ export async function createIronCondor(req: any): Promise<any> {
   }
 }
 
-export async function createJadeLizard(req: any): Promise<any> {
+export async function createJadeLizard(req: CreateJadeLizardRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -298,7 +297,7 @@ export async function createJadeLizard(req: any): Promise<any> {
   }
 }
 
-export async function createPutCalendarSpread(req: any): Promise<any> {
+export async function createPutCalendarSpread(req: CreatePutCalendarSpreadRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -308,7 +307,7 @@ export async function createPutCalendarSpread(req: any): Promise<any> {
   }
 }
 
-export async function createPutDiagonalSpread(req: any): Promise<any> {
+export async function createPutDiagonalSpread(req: CreatePutDiagonalSpreadRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -318,7 +317,7 @@ export async function createPutDiagonalSpread(req: any): Promise<any> {
   }
 }
 
-export async function createPutRatioSpread(req: any): Promise<any> {
+export async function createPutRatioSpread(req: CreatePutRatioSpreadRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -328,7 +327,7 @@ export async function createPutRatioSpread(req: any): Promise<any> {
   }
 }
 
-export async function createPutSpread(req: any): Promise<any> {
+export async function createPutSpread(req: CreatePutSpreadRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -338,7 +337,7 @@ export async function createPutSpread(req: any): Promise<any> {
   }
 }
 
-export async function createPutZEBRASpread(req: any): Promise<any> {
+export async function createPutZEBRASpread(req: CreatePutZEBRASpreadRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -348,7 +347,7 @@ export async function createPutZEBRASpread(req: any): Promise<any> {
   }
 }
 
-export async function createStraddle(req: any): Promise<any> {
+export async function createStraddle(req: CreateStraddleRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -358,7 +357,7 @@ export async function createStraddle(req: any): Promise<any> {
   }
 }
 
-export async function createStrangle(req: any): Promise<any> {
+export async function createStrangle(req: CreateStrangleRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -368,7 +367,7 @@ export async function createStrangle(req: any): Promise<any> {
   }
 }
 
-export async function createSuperBear(req: any): Promise<any> {
+export async function createSuperBear(req: CreateSuperBearRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -378,7 +377,7 @@ export async function createSuperBear(req: any): Promise<any> {
   }
 }
 
-export async function createSuperBull(req: any): Promise<any> {
+export async function createSuperBull(req: CreateSuperBullRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -388,7 +387,7 @@ export async function createSuperBull(req: any): Promise<any> {
   }
 }
 
-export async function createZEEHBS(req: any): Promise<any> {
+export async function createZEEHBS(req: CreateZEEHBSRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
@@ -398,7 +397,7 @@ export async function createZEEHBS(req: any): Promise<any> {
   }
 }
 
-export async function calculateAccumulatedFeesBatch(req: any): Promise<any> {
+export async function calculateAccumulatedFeesBatch(req: CalculateAccumulatedFeesBatchRequest): Promise<CalculateAccumulatedFeesBatchResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -413,7 +412,7 @@ export async function calculateAccumulatedFeesBatch(req: any): Promise<any> {
   }
 }
 
-export async function getCollateralToken0(req: any): Promise<any> {
+export async function getCollateralToken0(req: CollateralTokenRequest): Promise<CollateralTokenResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -430,7 +429,7 @@ export async function getCollateralToken0(req: any): Promise<any> {
   }
 }
 
-export async function getCollateralToken1(req: any): Promise<any> {
+export async function getCollateralToken1(req: CollateralTokenRequest): Promise<CollateralTokenResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -464,7 +463,7 @@ export async function burn(req: ExecuteBurnRequest): Promise<BurnResponse | Erro
   }
 }
 
-export async function forceExercise(req: any): Promise<any> {
+export async function forceExercise(req: ForceExerciseRequest): Promise<ForceExerciseResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -481,7 +480,7 @@ export async function forceExercise(req: any): Promise<any> {
   }
 }
 
-export async function liquidate(req: any): Promise<any> {
+export async function liquidate(req: LiquidateRequest): Promise<LiquidateResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -515,7 +514,7 @@ export async function mint(req: ExecuteMintRequest): Promise<MintResponse | Erro
   }
 }
 
-export async function numberOfPositions(req: any): Promise<any> {
+export async function numberOfPositions(req: NumberOfPositionsRequest): Promise<NumberOfPositionsResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -532,7 +531,7 @@ export async function numberOfPositions(req: any): Promise<any> {
   }
 }
 
-export async function optionPositionBalance(req: any): Promise<any> {
+export async function optionPositionBalance(req: OptionPositionBalanceRequest): Promise<OptionsPositionBalanceResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -547,7 +546,7 @@ export async function optionPositionBalance(req: any): Promise<any> {
   }
 }
 
-export async function pokeMedian(req: any): Promise<any> {
+export async function pokeMedian(req: PokeMedianRequest): Promise<PokeMedianResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -562,7 +561,7 @@ export async function pokeMedian(req: any): Promise<any> {
   }
 }
 
-export async function settleLongPremium(req: any): Promise<any> {
+export async function settleLongPremium(req: SettleLongPremiumRequest): Promise<SettleLongPremiumResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -577,7 +576,7 @@ export async function settleLongPremium(req: any): Promise<any> {
   }
 }
 
-export async function deposit(req: any): Promise<any> {
+export async function deposit(req: DepositRequest): Promise<DepositResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -594,7 +593,7 @@ export async function deposit(req: any): Promise<any> {
   }
 }
 
-export async function getAsset(req: any): Promise<any> {
+export async function getAsset(req: GetAssetRequest): Promise<GetAssetResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -611,7 +610,7 @@ export async function getAsset(req: any): Promise<any> {
   }
 }
 
-export async function getPoolData(req: any): Promise<any> {
+export async function getPoolData(req: GetPoolDataRequest): Promise<GetPoolDataResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -628,7 +627,7 @@ export async function getPoolData(req: any): Promise<any> {
   }
 }
 
-export async function maxWithdraw(req: any): Promise<any> {
+export async function maxWithdraw(req: MaxWithdrawRequest): Promise<MaxWithdrawResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -645,7 +644,7 @@ export async function maxWithdraw(req: any): Promise<any> {
   }
 }
 
-export async function withdraw(req: any): Promise<any> {
+export async function withdraw(req: WithdrawRequest): Promise<WithdrawResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
 
   const connector: Panoptic =
@@ -662,7 +661,7 @@ export async function withdraw(req: any): Promise<any> {
   }
 }
 
-export async function getAccountLiquidity(req: any): Promise<any> {
+export async function getAccountLiquidity(req: GetAccountLiquidityRequest): Promise<GetAccountLiquidityResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -677,7 +676,7 @@ export async function getAccountLiquidity(req: any): Promise<any> {
   }
 }
 
-export async function getAccountPremium(req: any): Promise<any> {
+export async function getAccountPremium(req: GetAccountPremiumRequest): Promise<GetAccountPremiumResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -692,7 +691,7 @@ export async function getAccountPremium(req: any): Promise<any> {
   }
 }
 
-export async function getAccountFeesBase(req: any): Promise<any> {
+export async function getAccountFeesBase(req: GetAccountFeesBaseRequest): Promise<GetAccountFeesBaseResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
@@ -707,7 +706,7 @@ export async function getAccountFeesBase(req: any): Promise<any> {
   }
 }
 
-export async function addLeg(req: any): Promise<any> {
+export async function addLeg(req: CreateAddLegsRequest): Promise<CreatePositionResponse | Error> {
   const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
   const connector: Panoptic =
     await getConnector<Panoptic>(
