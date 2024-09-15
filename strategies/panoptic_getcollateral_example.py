@@ -153,15 +153,15 @@ class TradePanoptions(ScriptStrategyBase):
         # )
         # self.logger().info(f"numberOfPositions response: {int(numberOfPositions['hex'], 16)}")
 
-        # self.logger().info(f"Checking queryOpenPositions...")
-        # self.logger().info(f"POST /options/queryOpenPositions [ connector: {connector} ]")
+        # self.logger().info(f"Checking queryPositions...")
+        # self.logger().info(f"POST /options/queryPositions [ connector: {connector} ]")
         # openPositions = await GatewayHttpClient.get_instance().api_request(
         #     method="post",
-        #     path_url="options/queryOpenPositions",
+        #     path_url="options/queryPositions",
         #     params=request_payload,
         #     fail_silently=False
         # )
-        # self.logger().info(f"queryOpenPositions response: {openPositions}")
+        # self.logger().info(f"queryPositions response: {openPositions}")
 
         # request_payload["collateralTracker"] = colatteralTracker0
         # self.logger().info(f"Checking getPoolData...")

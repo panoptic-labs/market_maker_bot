@@ -11,6 +11,21 @@
     "ttl": {
       "type": "integer"
     },
+    "lowestTick": {
+      "type": "integer"
+    },
+    "highestTick": {
+      "type": "integer"
+    },
+    "subgraph": {
+      "type": "object",
+      "properties": {
+        "endpoint": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "contractAddresses": {
       "type": "object",
       "patternProperties": {
@@ -20,9 +35,6 @@
             "^\\w+$": {
               "type": "object",
               "properties": {
-                "routerAddress": {
-                  "type": "string"
-                },
                 "multiCallAddress": {
                   "type": "string"
                 },
@@ -51,9 +63,6 @@
                   "type": "string"
                 }
               },
-              "required": [
-                "routerAddress"
-              ],
               "additionalProperties": false
             }
           },

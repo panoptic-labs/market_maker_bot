@@ -96,6 +96,7 @@ export const swaggerDocument = SwaggerManager.generateSwaggerJson(
     './docs/swagger/amm-routes.yml',
     './docs/swagger/amm-liquidity-routes.yml',
     './docs/swagger/chain-routes.yml',
+    './docs/swagger/options-routes.yml',
   ]
 );
 
