@@ -49,6 +49,7 @@ export interface CalculateGammaResponse {
 
 export interface GreekQueryRequest extends PanopticRequest {
   address: string;
+  panopticPool: string,
   STRIKE: number;
   RANGE: number;
   PRICE: number;
@@ -276,6 +277,7 @@ export interface CreatePositionResponse {
 
 export interface CalculateAccumulatedFeesBatchRequest extends PanopticRequest {
   wallet: Wallet;
+  panopticPool: string; 
   includePendingPremium: boolean;
   positionIdList: BigNumber[];
   address: string;
@@ -291,6 +293,7 @@ export interface ExecuteBurnRequest extends PanopticRequest {
   address: string;
   chain: string;
   network: string;
+  panopticPool: string; 
   burnTokenId: BigNumber;
   newPositionIdList: BigNumber[];
   tickLimitLow: number;
@@ -299,6 +302,7 @@ export interface ExecuteBurnRequest extends PanopticRequest {
 
 export interface CollateralTokenRequest extends PanopticRequest {
   wallet: Wallet;
+  panopticPool: string; 
   address: string;
 }
 
@@ -308,6 +312,7 @@ export interface CollateralTokenResponse {
 
 export interface ForceExerciseRequest extends PanopticRequest {
   wallet: Wallet;
+  panopticPool: string; 
   touchedId: BigNumber[];
   positionIdListExercisee: BigNumber[];
   positionIdListExercisor: BigNumber[];
@@ -320,6 +325,7 @@ export interface ForceExerciseResponse extends BroadcastedTxResponse{
 
 export interface LiquidateRequest extends PanopticRequest {
   wallet: Wallet;
+  panopticPool: string; 
   positionIdListLiquidator: BigNumber[];
   liquidatee: BigNumber;
   delegations: number;
@@ -341,6 +347,7 @@ export interface ExecuteMintRequest extends NetworkSelectionRequest {
 
 export interface NumberOfPositionsRequest extends PanopticRequest {
   wallet: Wallet;
+  panopticPool: string; 
   address: string;
 }
 
@@ -350,6 +357,7 @@ export interface NumberOfPositionsResponse {
 
 export interface OptionPositionBalanceRequest extends PanopticRequest {
   wallet: Wallet;
+  panopticPool: string; 
   tokenId: BigNumber;
   address: string;
 }
@@ -362,6 +370,7 @@ export interface OptionsPositionBalanceResponse {
 
 export interface PokeMedianRequest extends PanopticRequest {
   address: string;
+  panopticPool: string; 
 }
 
 export interface PokeMedianResponse extends BroadcastedTxResponse{
@@ -370,6 +379,7 @@ export interface PokeMedianResponse extends BroadcastedTxResponse{
 
 export interface SettleLongPremiumRequest extends PanopticRequest {
   wallet: Wallet;
+  panopticPool: string; 
   positionIdList: BigNumber[];
   owner: BigNumber;
   legIndex: BigNumber;
