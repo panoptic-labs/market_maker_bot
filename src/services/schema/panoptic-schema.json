@@ -5,6 +5,9 @@
     "allowedSlippage": {
       "type": "string"
     },
+    "gasFactor": {
+      "type": "number"
+    },
     "gasLimitEstimate": {
       "type": "integer"
     },
@@ -75,6 +78,7 @@
   "additionalProperties": false,
   "required": [
     "allowedSlippage",
+    "gasFactor",
     "gasLimitEstimate",
     "ttl",
     "contractAddresses"
