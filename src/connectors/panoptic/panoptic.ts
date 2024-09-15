@@ -33,6 +33,7 @@ export class Panoptic {
   private _PanopticPool: string;
   private _TokenIdLibrary: string;
   private _gasLimitEstimate: number;
+  private _gasFactor: number;
   private _ttl: number;
   private _subgraphUrl: string;
   private _lowestTick: number;
@@ -61,6 +62,7 @@ export class Panoptic {
     this._lowestTick = config.lowestTick;
     this._highestTick = config.highestTick;
     this._gasLimitEstimate = config.gasLimitEstimate;
+    this._gasFactor = config.gasFactor;
   }
 
   public static getInstance(chain: string, network: string): Panoptic {
@@ -147,6 +149,9 @@ export class Panoptic {
   }
   public get gasLimitEstimate(): number {
     return this._gasLimitEstimate;
+  }
+  public get gasFactor(): number {
+    return this._gasFactor;
   }
   public get ttl(): number {
     return this._ttl;
@@ -1005,7 +1010,12 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      const tx: ContractTransaction = await panopticPoolContract.pokeMedian();
+      const gasEstimate: number = (await panopticPoolContract.estimateGas.pokeMedian()).toNumber();
+      const gasLimit: number = (this.gasFactor * gasEstimate);
+      console.log(`Estimated Gas: ${gasEstimate}, gasFactor: ${this.gasFactor}, gasLimit: ${gasLimit}`);
+      const tx: ContractTransaction = await panopticPoolContract.pokeMedian(
+        { gasLimit: gasLimit}
+      );
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
     } catch (error) {
