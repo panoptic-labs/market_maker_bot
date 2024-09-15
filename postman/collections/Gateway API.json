@@ -1864,7 +1864,7 @@
       "name": "options",
       "item": [
         {
-          "name": "queryOpenPositions",
+          "name": "queryPositions",
           "id": "5a59476b-3ad7-409d-aac9-7fa7e2efc9e8",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
@@ -1882,11 +1882,11 @@
               }
             },
             "url": {
-              "raw": "https://{{host}}:{{port}}/options/queryOpenPositions",
+              "raw": "https://{{host}}:{{port}}/options/queryPositions",
               "protocol": "https",
               "host": ["{{host}}"],
               "port": "{{port}}",
-              "path": ["options", "queryOpenPositions"]
+              "path": ["options", "queryPositions"]
             }
           },
           "response": []
