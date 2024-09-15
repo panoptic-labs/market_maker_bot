@@ -889,12 +889,22 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const gasEstimate: number = (await panopticPoolContract["burnOptions(uint256,uint256[],int24,int24)"].estimateGas.burnOptions(
+        burnTokenId,
+        newPositionIdList,
+        tickLimitLow,
+        tickLimitHigh
+      )).toNumber();
+      const gasLimit: number = Math.ceil(this.gasFactor * gasEstimate);
+      if (gasLimit > this.gasLimitEstimate) {
+        return new Error(`Error on executeBurn: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.gasLimitEstimate})...`);
+      }
       const tx: ContractTransaction = await panopticPoolContract["burnOptions(uint256,uint256[],int24,int24)"](
         burnTokenId,
         newPositionIdList,
         tickLimitLow,
         tickLimitHigh,
-        { gasLimit: this.gasLimitEstimate }
+        { gasLimit: BigNumber.from(gasLimit) }
       );
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
@@ -912,12 +922,22 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const gasEstimate: number = (await panopticPoolContract.estimateGas.forceExercise(
+        wallet.address,
+        touchedId,
+        positionIdListExercisee,
+        positionIdListExercisor
+      )).toNumber();
+      const gasLimit: number = Math.ceil(this.gasFactor * gasEstimate);
+      if (gasLimit > this.gasLimitEstimate) {
+        return new Error(`Error on forceExercise: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.gasLimitEstimate})...`);
+      }
       const tx: ContractTransaction = await panopticPoolContract.forceExercise(
         wallet.address,
         touchedId,
         positionIdListExercisee,
         positionIdListExercisor,
-        { gasLimit: this.gasLimitEstimate }
+        { gasLimit: BigNumber.from(gasLimit) }
       );
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
@@ -936,12 +956,22 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const gasEstimate: number = (await panopticPoolContract.estimateGas.liquidate(
+        positionIdListLiquidator,
+        liquidatee,
+        delegations,
+        positionIdList
+      )).toNumber();
+      const gasLimit: number = Math.ceil(this.gasFactor * gasEstimate);
+      if (gasLimit > this.gasLimitEstimate) {
+        return new Error(`Error on liquidate: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.gasLimitEstimate})...`);
+      }
       const tx: ContractTransaction = await panopticPoolContract.liquidate(
         positionIdListLiquidator,
         liquidatee,
         delegations,
         positionIdList,
-        { gasLimit: this.gasLimitEstimate }
+        { gasLimit: BigNumber.from(gasLimit) }
       );
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
@@ -961,13 +991,24 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const gasEstimate: number = (await panopticPoolContract.estimateGas.mintOptions(
+        positionIdList,
+        positionSize,
+        effectiveLiquidityLimit,
+        tickLimitLow,
+        tickLimitHigh
+      )).toNumber();
+      const gasLimit: number = Math.ceil(this.gasFactor * gasEstimate);
+      if (gasLimit > this.gasLimitEstimate) {
+        return new Error(`Error on executeMint: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.gasLimitEstimate})...`);
+      }
       const tx: ContractTransaction = await panopticPoolContract.mintOptions(
         positionIdList,
         positionSize,
         effectiveLiquidityLimit,
         tickLimitLow,
         tickLimitHigh,
-        { gasLimit: this.gasLimitEstimate }
+        { gasLimit: BigNumber.from(gasLimit) }
       );
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
@@ -1034,11 +1075,20 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const gasEstimate: number = (await panopticPoolContract.estimateGas.settleLongPremium(
+        positionIdList,
+        owner,
+        legIndex
+      )).toNumber();
+      const gasLimit: number = Math.ceil(this.gasFactor * gasEstimate);
+      if (gasLimit > this.gasLimitEstimate) {
+        return new Error(`Error on settleLongPremium: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.gasLimitEstimate})...`);
+      }
       const tx: ContractTransaction = await panopticPoolContract.settleLongPremium(
         positionIdList,
         owner,
         legIndex,
-        { gasLimit: this.gasLimitEstimate }
+        { gasLimit: BigNumber.from(gasLimit) }
       );
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
@@ -1055,7 +1105,19 @@ export class Panoptic {
   ): Promise<ContractReceipt | Error> {
     try {
       const tokenContract = new Contract(collateralTrackerContract.toString(), collateralTrackerAbi.abi, wallet);
-      const tx: ContractTransaction = await tokenContract.deposit(assets, wallet.address, { gasLimit: this.gasLimitEstimate });
+      const gasEstimate: number = (await tokenContract.estimateGas.deposit(
+        assets, 
+        wallet.address
+      )).toNumber();
+      const gasLimit: number = Math.ceil(this.gasFactor * gasEstimate);
+      if (gasLimit > this.gasLimitEstimate) {
+        return new Error(`Error on deposit: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.gasLimitEstimate})...`);
+      }
+      const tx: ContractTransaction = await tokenContract.deposit(
+        assets, 
+        wallet.address, 
+        { gasLimit: BigNumber.from(gasLimit) }
+      );
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
     } catch (error) {
@@ -1107,11 +1169,20 @@ export class Panoptic {
   ): Promise<ContractReceipt | Error> {
     try {
       const tokenContract = new Contract(collateralTrackerContract.toString(), collateralTrackerAbi.abi, wallet);
+      const gasEstimate: number = (await tokenContract.estimateGas.withdraw(
+        assets,
+        wallet.address,
+        wallet.address
+      )).toNumber();
+      const gasLimit: number = Math.ceil(this.gasFactor * gasEstimate);
+      if (gasLimit > this.gasLimitEstimate) {
+        return new Error(`Error on withdraw: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.gasLimitEstimate})...`);
+      }
       const tx: ContractTransaction = await tokenContract.withdraw(
         assets,
         wallet.address,
         wallet.address,
-        { gasLimit: this.gasLimitEstimate }
+        { gasLimit: BigNumber.from(gasLimit) }
       );
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
