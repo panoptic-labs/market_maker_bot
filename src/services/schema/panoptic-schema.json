@@ -56,9 +56,6 @@
                 "UniswapMigrator": {
                   "type": "string"
                 },
-                "PanopticPool": {
-                  "type": "string"
-                },
                 "TokenIdLibrary": {
                   "type": "string"
                 }
