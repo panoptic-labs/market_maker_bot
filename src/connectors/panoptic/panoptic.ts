@@ -1011,10 +1011,12 @@ export class Panoptic {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
       const gasEstimate: number = (await panopticPoolContract.estimateGas.pokeMedian()).toNumber();
-      const gasLimit: number = (this.gasFactor * gasEstimate);
-      console.log(`Estimated Gas: ${gasEstimate}, gasFactor: ${this.gasFactor}, gasLimit: ${gasLimit}`);
+      const gasLimit: number = Math.ceil(this.gasFactor * gasEstimate);
+      if (gasLimit > this.gasLimitEstimate) {
+        return new Error(`Error on pokeMedian: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.gasLimitEstimate})...`);
+      }
       const tx: ContractTransaction = await panopticPoolContract.pokeMedian(
-        { gasLimit: gasLimit}
+        { gasLimit: BigNumber.from(gasLimit)}
       );
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
