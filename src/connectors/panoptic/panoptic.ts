@@ -239,7 +239,7 @@ export class Panoptic {
   //       to get multiple greeks in one call.
   async queryGreeks(
     wallet: Wallet,
-    panopticPool: string,
+    panopticPool: string | undefined,
     tick: number,
     positionIdList: BigNumber[],
     greek: string

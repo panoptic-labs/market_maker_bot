@@ -49,7 +49,7 @@ export interface CalculateGammaResponse {
 
 export interface GreekQueryRequest extends PanopticRequest {
   address: string;
-  panopticPool: string,
+  panopticPool?: string,
   STRIKE: number;
   RANGE: number;
   PRICE: number;
