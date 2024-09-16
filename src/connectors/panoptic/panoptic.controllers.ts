@@ -183,7 +183,8 @@ export async function queryGreeks(
 ): Promise<GreekQueryResponse | Error> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.queryGreeks(
-    wallet, req.panopticPool, 
+    wallet, 
+    req.panopticPool, 
     req.tick, 
     req.positionIdList, 
     req.greek
