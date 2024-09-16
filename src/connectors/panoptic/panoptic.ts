@@ -889,16 +889,16 @@ export class Panoptic {
     try {
       const panopticpool = this.PanopticPool;
       const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
-      // const gasEstimate: number = (await panopticPoolContract.estimateGas.panopticPoolContract["burnOptions(uint256,uint256[],int24,int24)"](
-      //   burnTokenId,
-      //   newPositionIdList,
-      //   tickLimitLow,
-      //   tickLimitHigh
-      // )).toNumber();
-      // const gasLimit: number = Math.ceil(this.gasFactor * gasEstimate);
-      // if (gasLimit > this.gasLimitEstimate) {
-      //   return new Error(`Error on executeBurn: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.gasLimitEstimate})...`);
-      // }
+      const gasEstimate: number = (await panopticPoolContract.estimateGas["burnOptions(uint256,uint256[],int24,int24)"](
+        burnTokenId,
+        newPositionIdList,
+        tickLimitLow,
+        tickLimitHigh
+      )).toNumber();
+      const gasLimit: number = Math.ceil(this.gasFactor * gasEstimate);
+      if (gasLimit > this.gasLimitEstimate) {
+        return new Error(`Error on executeBurn: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.gasLimitEstimate})...`);
+      }
       const tx: ContractTransaction = await panopticPoolContract["burnOptions(uint256,uint256[],int24,int24)"](
         burnTokenId,
         newPositionIdList,
