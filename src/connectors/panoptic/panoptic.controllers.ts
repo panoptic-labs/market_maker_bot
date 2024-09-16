@@ -130,7 +130,7 @@ export async function estimateGas(
   panopticish: Panoptic,
 ): Promise<EstimateGasResponse | Error> {
   const gasPrice: number = ethereumish.gasPrice;
-  const gasLimit: number = panopticish.gasLimitEstimate;
+  const gasLimit: number = panopticish.absoluteGasLimit;
   return {
     network: ethereumish.chain,
     timestamp: Date.now(),
@@ -844,7 +844,7 @@ export async function burn(
     }
 
     logger.info(
-      `Burn has been executed, txHash is ${tx.transactionHash}, nonce is ${tx.transactionIndex}, gasPrice is ${gasPrice}, gas used is ${tx.cumulativeGasUsed}.`
+      `Burn has been executed, txHash is ${tx.transactionHash}, nonce is ${tx.transactionIndex}, gasPrice is ${gasPrice}, gas used is ${tx.gasUsed}.`
     );
 
     return {
@@ -891,7 +891,7 @@ export async function forceExercise(
     }
 
     logger.info(
-      `forceExercise has been executed, txHash is ${tx.transactionHash}, nonce is ${tx.transactionIndex}, gasPrice is ${gasPrice}, gas used is ${tx.cumulativeGasUsed}.`
+      `forceExercise has been executed, txHash is ${tx.transactionHash}, nonce is ${tx.transactionIndex}, gasPrice is ${gasPrice}, gas used is ${tx.gasUsed}.`
     );
 
     return {
@@ -939,7 +939,7 @@ export async function liquidate(
     }
 
     logger.info(
-      `Liquidation has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.cumulativeGasUsed}.`
+      `Liquidation has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.gasUsed}.`
     );
 
     return {
@@ -986,7 +986,7 @@ export async function mint(
     }
 
     logger.info(
-      `Mint has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.cumulativeGasUsed}.`
+      `Mint has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.gasUsed}.`
     );
 
     return {
@@ -1071,7 +1071,7 @@ export async function pokeMedian(
     }
 
     logger.info(
-      `pokeMedian has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.cumulativeGasUsed}.`
+      `pokeMedian has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.gasUsed}.`
     );
 
     return {
@@ -1118,7 +1118,7 @@ export async function settleLongPremium(
     }
 
     logger.info(
-      `settleLongPremium has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.cumulativeGasUsed}.`
+      `settleLongPremium has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.gasUsed}.`
     );
 
     return {
@@ -1166,7 +1166,7 @@ export async function deposit(
     }
 
     logger.info(
-      `deposit has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.cumulativeGasUsed}.`
+      `deposit has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.gasUsed}.`
     );
 
     return {
@@ -1211,7 +1211,7 @@ export async function getAsset(
     }
 
     logger.info(
-      `getAsset has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.cumulativeGasUsed}.`
+      `getAsset has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.gasUsed}.`
     );
 
     return {
@@ -1301,7 +1301,7 @@ export async function withdraw(
     }
 
     logger.info(
-      `withdraw has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.cumulativeGasUsed}.`
+      `withdraw has been executed, txHash is ${tx.transactionHash}, gasPrice is ${gasPrice}, gas used is ${tx.gasUsed}.`
     );
 
     return {

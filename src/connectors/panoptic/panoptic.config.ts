@@ -4,7 +4,8 @@ import { ConfigManagerV2 } from '../../services/config-manager-v2';
 export namespace PanopticConfig {
   export interface NetworkConfig {
     allowedSlippage: string;
-    gasLimitEstimate: number;
+    absoluteGasLimit: number;
+    gasLimitCushionFactor: number; 
     ttl: number;
     subgraphUrl: string;
     lowestTick: number;
@@ -24,13 +25,9 @@ export namespace PanopticConfig {
   }
 
   export const config: NetworkConfig = {
-    allowedSlippage: ConfigManagerV2.getInstance().get(
-      'panoptic.allowedSlippage'
-    ),
-    // TODO: Add a getTransactionGasLimitEstimate(unsignedTransactionPayload) here
-    gasLimitEstimate: ConfigManagerV2.getInstance().get(
-      `panoptic.gasLimitEstimate`
-    ),
+    allowedSlippage: ConfigManagerV2.getInstance().get('panoptic.allowedSlippage'),
+    gasLimitCushionFactor: ConfigManagerV2.getInstance().get('panoptic.gasLimitCushionFactor'),
+    absoluteGasLimit: ConfigManagerV2.getInstance().get(`panoptic.absoluteGasLimit`),
     ttl: ConfigManagerV2.getInstance().get('panoptic.ttl'),
     subgraphUrl: ConfigManagerV2.getInstance().get('panoptic.subgraph.endpoint'),
     lowestTick: ConfigManagerV2.getInstance().get('panoptic.lowestTick'),
