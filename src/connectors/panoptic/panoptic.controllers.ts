@@ -130,7 +130,7 @@ export async function estimateGas(
   panopticish: Panoptic,
 ): Promise<EstimateGasResponse | Error> {
   const gasPrice: number = ethereumish.gasPrice;
-  const gasLimit: number = panopticish.gasLimitEstimate;
+  const gasLimit: number = panopticish.absoluteGasLimit;
   return {
     network: ethereumish.chain,
     timestamp: Date.now(),

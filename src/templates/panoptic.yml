@@ -7,10 +7,10 @@ allowedSlippage: '1/100'
 ttl: 300
 
 # The estimated gas for a transaction is the `ethers` estimate for the transaction, multiplied by this factor.
-gasFactor: 1.5
+gasLimitCushionFactor: 1.5
 
 # Don't allow a Panoptic trade with an estimated gas above this amount.
-gasLimitEstimate: 10000000
+absoluteGasLimit: 10000000
 
 subgraph:
   # The subgraph endpoint to query for Panoptic data.

@@ -5,10 +5,10 @@
     "allowedSlippage": {
       "type": "string"
     },
-    "gasFactor": {
+    "gasLimitCushionFactor": {
       "type": "number"
     },
-    "gasLimitEstimate": {
+    "absoluteGasLimit": {
       "type": "integer"
     },
     "ttl": {
@@ -78,8 +78,8 @@
   "additionalProperties": false,
   "required": [
     "allowedSlippage",
-    "gasFactor",
-    "gasLimitEstimate",
+    "gasLimitCushionFactor",
+    "absoluteGasLimit",
     "ttl",
     "contractAddresses"
   ]
