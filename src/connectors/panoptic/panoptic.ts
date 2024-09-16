@@ -904,8 +904,7 @@ export class Panoptic {
         newPositionIdList,
         tickLimitLow,
         tickLimitHigh,
-        { gasLimit: this.gasLimitEstimate }
-        // { gasLimit: BigNumber.from(gasLimit) }
+        { gasLimit: BigNumber.from(gasLimit) }
       );
       const receipt: ContractReceipt = await tx.wait();
       return receipt;
