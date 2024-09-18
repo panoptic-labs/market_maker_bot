@@ -117,10 +117,6 @@ import {
   GetAccountPremiumResponse,
   GetAccountFeesBaseResponse
 } from './options.requests';
-// import {
-//   validateMintRequest,
-//   validateBurnRequest,
-// } from './options.validators';
 
 export namespace OptionsRoutes {
   export const router = Router();

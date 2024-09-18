@@ -30,7 +30,6 @@ export class Panoptic {
   private _PanopticFactory: string;
   private _PanopticHelper: string;
   private _UniswapMigrator: string;
-  private _PanopticPool: string;
   private _TokenIdLibrary: string;
   private _absoluteGasLimit: number;
   private _gasLimitCushionFactor: number;
@@ -55,7 +54,6 @@ export class Panoptic {
     this._PanopticFactory = config.PanopticFactory(chain, network);
     this._PanopticHelper = config.PanopticHelper(chain, network);
     this._UniswapMigrator = config.UniswapMigrator(chain, network);
-    this._PanopticPool = config.PanopticPool(chain, network);
     this._TokenIdLibrary = config.TokenIdLibrary(chain, network);
     this._ttl = config.ttl;
     this._subgraphUrl = config.subgraphUrl;
@@ -134,9 +132,6 @@ export class Panoptic {
   }
   public get UniswapMigrator(): string {
     return this._UniswapMigrator;
-  }
-  public get PanopticPool(): string {
-    return this._PanopticPool;
   }
   public get TokenIdLibrary(): string {
     return this._TokenIdLibrary;
@@ -249,6 +244,7 @@ export class Panoptic {
   //       to get multiple greeks in one call.
   async queryGreeks(
     wallet: Wallet,
+    panopticPool: string | undefined,
     tick: number,
     positionIdList: BigNumber[],
     greek: string
@@ -258,9 +254,9 @@ export class Panoptic {
       const panopticHelperContract = new Contract(panopticHelper, panopticHelperAbi.abi, wallet);
       let response;
       if (greek === "delta") {
-        response = await panopticHelperContract.delta(this.PanopticPool, wallet.address, tick, positionIdList);
+        response = await panopticHelperContract.delta(panopticPool, wallet.address, tick, positionIdList);
       } else if (greek === "gamma") {
-        response = await panopticHelperContract.gamma(this.PanopticPool, wallet.address, tick, positionIdList);
+        response = await panopticHelperContract.gamma(panopticPool, wallet.address, tick, positionIdList);
       } else {
         throw new Error("Invalid greek");
       }
@@ -837,12 +833,12 @@ export class Panoptic {
   // PanopticPool interactions
   async calculateAccumulatedFeesBatch(
     wallet: Wallet,
+    panopticPool: string, 
     includePendingPremium: boolean = false,
     positionIdList: BigNumber[]
   ): Promise<{ "premium0": BigNumber, "premium1": BigNumber, [key: number]: BigNumber } | Error> {
     try {
-      const panopticpool = this.PanopticPool;
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
       const result = await panopticPoolContract.calculateAccumulatedFeesBatch(
         wallet.address,
         includePendingPremium,
@@ -856,11 +852,11 @@ export class Panoptic {
   }
 
   async collateralToken0(
-    wallet: Wallet
+    wallet: Wallet,
+    panopticPool: string
   ): Promise<{"collateralToken": BigNumber} | Error> {
     try {
-      const panopticpool = this.PanopticPool;
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
       return await panopticPoolContract.collateralToken0();
     } catch (error) {
       return new Error("Error on collateralToken0: " + (error as Error).message);
@@ -868,11 +864,11 @@ export class Panoptic {
   }
 
   async collateralToken1(
-    wallet: Wallet
+    wallet: Wallet, 
+    panopticPool: string
   ): Promise<{"collateralToken": BigNumber} | Error> {
     try {
-      const panopticpool = this.PanopticPool;
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
       return await panopticPoolContract.collateralToken1();
     } catch (error) {
       return new Error("Error on collateralToken1: " + (error as Error).message);
@@ -881,14 +877,14 @@ export class Panoptic {
 
   async executeBurn(
     wallet: Wallet,
+    panopticPool: string, 
     burnTokenId: BigNumber,
     newPositionIdList: BigNumber[],
     tickLimitLow: number = this.LOWEST_POSSIBLE_TICK,
     tickLimitHigh: number = this.HIGHEST_POSSIBLE_TICK
   ): Promise<ContractReceipt | Error> {
     try {
-      const panopticpool = this.PanopticPool;
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
       const gasEstimate: number = (await panopticPoolContract.estimateGas["burnOptions(uint256,uint256[],int24,int24)"](
         burnTokenId,
         newPositionIdList,
@@ -915,13 +911,13 @@ export class Panoptic {
 
   async forceExercise(
     wallet: Wallet,
+    panopticPool: string,
     touchedId: BigNumber[],
     positionIdListExercisee: BigNumber[],
     positionIdListExercisor: BigNumber[]
   ): Promise<ContractReceipt | Error> {
     try {
-      const panopticpool = this.PanopticPool;
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
       const gasEstimate: number = (await panopticPoolContract.estimateGas.forceExercise(
         wallet.address,
         touchedId,
@@ -948,14 +944,14 @@ export class Panoptic {
 
   async liquidate(
     wallet: Wallet,
+    panopticPool: string,
     positionIdListLiquidator: BigNumber[],
     liquidatee: BigNumber,
     delegations: number,
     positionIdList: BigNumber[]
   ): Promise<ContractReceipt | Error> {
     try {
-      const panopticpool = this.PanopticPool;
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
       const gasEstimate: number = (await panopticPoolContract.estimateGas.liquidate(
         positionIdListLiquidator,
         liquidatee,
@@ -982,6 +978,7 @@ export class Panoptic {
 
   async executeMint(
     wallet: Wallet,
+    panopticPool: string, 
     positionIdList: BigNumber[],
     positionSize: BigNumber,
     effectiveLiquidityLimit: BigNumber,
@@ -989,8 +986,7 @@ export class Panoptic {
     tickLimitHigh: number = this.HIGHEST_POSSIBLE_TICK
   ): Promise<ContractReceipt | Error> {
     try {
-      const panopticpool = this.PanopticPool;
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
       const gasEstimate: number = (await panopticPoolContract.estimateGas.mintOptions(
         positionIdList,
         positionSize,
@@ -1018,11 +1014,11 @@ export class Panoptic {
   }
 
   async numberOfPositions(
-    wallet: Wallet
+    wallet: Wallet,
+    panopticPool: string
   ): Promise<{"_numberOfPositions": BigNumber} | Error> {
     try {
-      const panopticpool = this.PanopticPool;
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
       return await panopticPoolContract.numberOfPositions(wallet.address);
     } catch (error) {
       return new Error("Error on numberOfPositions: " + (error as Error).message);
@@ -1031,11 +1027,11 @@ export class Panoptic {
 
   async optionPositionBalance(
     wallet: Wallet,
+    panopticPool: string, 
     tokenId: BigNumber
   ): Promise<{"balance": BigNumber, "poolUtilization0": BigNumber, "poolUtilization1": BigNumber} | Error> {
     try {
-      const panopticpool = this.PanopticPool;
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
       return await panopticPoolContract.optionPositionBalance(
         wallet.address,
         tokenId
@@ -1046,11 +1042,11 @@ export class Panoptic {
   }
 
   async pokeMedian(
-    wallet: Wallet
+    wallet: Wallet,
+    panopticPool: string
   ): Promise<ContractReceipt | Error> {
     try {
-      const panopticpool = this.PanopticPool;
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
       const gasEstimate: number = (await panopticPoolContract.estimateGas.pokeMedian()).toNumber();
       const gasLimit: number = Math.ceil(this.gasLimitCushionFactor * gasEstimate);
       if (gasLimit > this.absoluteGasLimit) {
@@ -1068,13 +1064,13 @@ export class Panoptic {
 
   async settleLongPremium(
     wallet: Wallet,
+    panopticPool: string,
     positionIdList: BigNumber[],
     owner: BigNumber,
     legIndex: BigNumber
   ): Promise<ContractReceipt | Error> {
     try {
-      const panopticpool = this.PanopticPool;
-      const panopticPoolContract = new Contract(panopticpool, panopticPoolAbi.abi, wallet);
+      const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
       const gasEstimate: number = (await panopticPoolContract.estimateGas.settleLongPremium(
         positionIdList,
         owner,

@@ -182,7 +182,13 @@ export async function queryGreeks(
   req: GreekQueryRequest
 ): Promise<GreekQueryResponse | Error> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const result = await panopticish.queryGreeks(wallet, req.tick, req.positionIdList, req.greek);
+  const result = await panopticish.queryGreeks(
+    wallet, 
+    req.panopticPool, 
+    req.tick, 
+    req.positionIdList, 
+    req.greek
+  );
 
   if (result instanceof Error) {
     logger.error(`Error executing queryGreeks: ${result.message}`);
@@ -759,6 +765,7 @@ export async function calculateAccumulatedFeesBatch(
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.calculateAccumulatedFeesBatch(
     wallet,
+    req.panopticPool,
     req.includePendingPremium,
     req.positionIdList
   );
@@ -781,7 +788,10 @@ export async function getCollateralToken0(
   req: CollateralTokenRequest
 ): Promise<CollateralTokenResponse | Error> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const result = await panopticish.collateralToken0(wallet);
+  const result = await panopticish.collateralToken0(
+    wallet,
+    req.panopticPool
+  );
 
   if (result instanceof Error) {
     logger.error(`Error executing collateralToken0: ${result.message}`);
@@ -799,7 +809,10 @@ export async function getCollateralToken1(
   req: CollateralTokenRequest
 ): Promise<CollateralTokenResponse | Error> {
   const { wallet } = await txWriteData(ethereumish, req.address);
-  const result = await panopticish.collateralToken1(wallet);
+  const result = await panopticish.collateralToken1(
+    wallet,
+    req.panopticPool
+  );
 
   if (result instanceof Error) {
     logger.error(`Error executing collateralToken1: ${result.message}`);
@@ -822,6 +835,7 @@ export async function burn(
     const gasPrice: number = ethereumish.gasPrice;
     const tx: ContractReceipt | Error = await panopticish.executeBurn(
       wallet,
+      req.panopticPool,
       req.burnTokenId,
       req.newPositionIdList,
       req.tickLimitLow,
@@ -870,6 +884,7 @@ export async function forceExercise(
     const gasPrice: number = ethereumish.gasPrice;
     const tx: ContractReceipt | Error = await panopticish.forceExercise(
       wallet,
+      req.panopticPool,
       req.touchedId,
       req.positionIdListExercisee,
       req.positionIdListExercisor,
@@ -917,6 +932,7 @@ export async function liquidate(
     const gasPrice: number = ethereumish.gasPrice;
     const tx: ContractReceipt | Error = await panopticish.liquidate(
       wallet,
+      req.panopticPool,
       req.positionIdListLiquidator,
       req.liquidatee,
       req.delegations,
@@ -965,6 +981,7 @@ export async function mint(
     const gasPrice: number = ethereumish.gasPrice;
     const tx: ContractReceipt | Error = await panopticish.executeMint(
       wallet,
+      req.panopticPool,
       req.positionIdList,
       BigNumber.from(req.positionSize),
       req.effectiveLiquidityLimit,
@@ -1008,7 +1025,8 @@ export async function numberOfPositions(
 ): Promise<NumberOfPositionsResponse | Error> {
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.numberOfPositions(
-    wallet
+    wallet,
+    req.panopticPool
   );
 
   if (result instanceof Error) {
@@ -1029,6 +1047,7 @@ export async function optionPositionBalance(
   const { wallet } = await txWriteData(ethereumish, req.address);
   const result = await panopticish.optionPositionBalance(
     wallet,
+    req.panopticPool,
     req.tokenId
   );
 
@@ -1053,7 +1072,10 @@ export async function pokeMedian(
   try {
     const { wallet } = await txWriteData(ethereumish, req.address);
     const gasPrice: number = ethereumish.gasPrice;
-    const tx: ContractReceipt | Error = await panopticish.pokeMedian(wallet);
+    const tx: ContractReceipt | Error = await panopticish.pokeMedian(
+      wallet,
+      req.panopticPool
+    );
 
     if (tx instanceof Error) {
       logger.error(`Error executing pokeMedian: ${tx.message}`);
@@ -1097,6 +1119,7 @@ export async function settleLongPremium(
     const gasPrice: number = ethereumish.gasPrice;
     const tx: ContractReceipt | Error = await panopticish.settleLongPremium(
       wallet,
+      req.panopticPool,
       req.positionIdList,
       req.owner,
       req.legIndex

@@ -53,6 +53,7 @@ class TradePanoptions(ScriptStrategyBase):
         request_payload["riskPartner"] = 0
         request_payload["strike"] = 100
         request_payload["width"] = 10
+        request_payload["panopticPool"] = "0xc34C41289e6c433723542BB1Eba79c6919504EDD" #T0/T1 PanopticPool 
         self.logger().info(f"Checking addLeg...")
         self.logger().info(f"POST /options/addLeg [ connector: {connector} ]")
         createAddLeg = await GatewayHttpClient.get_instance().api_request(
