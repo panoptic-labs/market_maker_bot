@@ -17,7 +17,6 @@ export namespace PanopticConfig {
     PanopticFactory: (chain: string, network: string) => string;
     PanopticHelper: (chain: string, network: string) => string;
     UniswapMigrator: (chain: string, network: string) => string;
-    PanopticPool: (chain: string, network: string) => string;
     TokenIdLibrary: (chain: string, network: string) => string;
     tradingTypes: Array<string>;
     chainType: string;
@@ -87,14 +86,6 @@ export namespace PanopticConfig {
         '.' +
         network +
         '.UniswapMigrator'
-      ),
-    PanopticPool: (chain: string, network: string) =>
-      ConfigManagerV2.getInstance().get(
-        'panoptic.contractAddresses.' +
-        chain +
-        '.' +
-        network +
-        '.PanopticPool'
       ),
     TokenIdLibrary: (chain: string, network: string) =>
       ConfigManagerV2.getInstance().get(
