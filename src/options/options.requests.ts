@@ -85,6 +85,17 @@ export interface QueryPositionsResponse extends QuerySubgraphResponse {
   openPositionIdList?: BigNumber[];
 }
 
+export interface QueryPriceRequest extends PanopticRequest {
+  wallet: Wallet;
+  address: string;
+  uniV3Pool: string; 
+}
+export interface QueryPriceResponse extends QuerySubgraphResponse {
+  feeTier?: BigNumber[];
+  sqrtPrice?: BigNumber[];
+  liquidity?: BigNumber[];
+}
+
 export interface QuerySubgraphRequest extends PanopticRequest {
   query: string;
   variables: Record<string, string | string[] | number | number[] | BigNumber | BigNumber[]>;

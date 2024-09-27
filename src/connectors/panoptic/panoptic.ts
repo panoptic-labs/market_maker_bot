@@ -35,6 +35,7 @@ export class Panoptic {
   private _gasLimitCushionFactor: number;
   private _ttl: number;
   private _subgraphUrl: string;
+  private _uniswapV3SubgraphUrl: string;
   private _lowestTick: number;
   private _highestTick: number;
   private chainId;
@@ -57,6 +58,7 @@ export class Panoptic {
     this._TokenIdLibrary = config.TokenIdLibrary(chain, network);
     this._ttl = config.ttl;
     this._subgraphUrl = config.subgraphUrl;
+    this._uniswapV3SubgraphUrl = config.uniswapV3SubgraphUrl;
     this._lowestTick = config.lowestTick;
     this._highestTick = config.highestTick;
     this._absoluteGasLimit = config.absoluteGasLimit;
@@ -153,6 +155,9 @@ export class Panoptic {
   }
   public get subgraphUrl(): string {
     return this._subgraphUrl;
+  }
+  public get uniswapV3SubgraphUrl(): string {
+    return this._uniswapV3SubgraphUrl;
   }
   public get chainName(): string {
     if (this._chain === 'ethereum' && this._network === 'sepolia') {
@@ -313,6 +318,43 @@ export class Panoptic {
     }
   }
 
+  async queryPrice(
+    wallet: Wallet,
+    uniV3Pool: string
+  ): Promise<AxiosResponse | Error> {
+    try {
+      const query = `
+      {
+        pool(id: "${uniV3Pool}") {
+          tick
+          token0 {
+        symbol
+        id
+        decimals
+          }
+          token1 {
+        symbol
+        id
+        decimals
+          }
+          feeTier
+          sqrtPrice
+          liquidity
+        }
+      }
+      `;
+      console.log("Wallet Address:", wallet.address);
+      const variables = {};
+      return await this.queryUniswapV3Subgraph(query, variables);
+    } catch (error) {
+      if (error instanceof Error) {
+        return new Error("Error querying spot price:" + error.message);
+      } else {
+        return new Error("Unknown error querying spot price:");
+      }
+    }
+  }
+
   async querySubgraph(
     query: string,
     variables: Record<string, string | string[] | number | number[] | BigNumber | BigNumber[]>
@@ -324,6 +366,21 @@ export class Panoptic {
         return new Error("Error querying Panoptic Subgraph:" + error.message);
       } else {
         return new Error("Unknown error querying Panoptic Subgraph");
+      }
+    }
+  }
+
+  async queryUniswapV3Subgraph(
+    query: string,
+    variables: Record<string, string | string[] | number | number[] | BigNumber | BigNumber[]>
+  ): Promise<AxiosResponse | Error> {
+    try {
+      return await axios.post(this.uniswapV3SubgraphUrl, { query, variables });
+    } catch (error) {
+      if (error instanceof Error) {
+        return new Error("Error querying UniswapV3 Subgraph:" + error.message);
+      } else {
+        return new Error("Unknown error querying UniswapV3 Subgraph");
       }
     }
   }
@@ -833,7 +890,7 @@ export class Panoptic {
   // PanopticPool interactions
   async calculateAccumulatedFeesBatch(
     wallet: Wallet,
-    panopticPool: string, 
+    panopticPool: string,
     includePendingPremium: boolean = false,
     positionIdList: BigNumber[]
   ): Promise<{ "premium0": BigNumber, "premium1": BigNumber, [key: number]: BigNumber } | Error> {
@@ -864,7 +921,7 @@ export class Panoptic {
   }
 
   async collateralToken1(
-    wallet: Wallet, 
+    wallet: Wallet,
     panopticPool: string
   ): Promise<{"collateralToken": BigNumber} | Error> {
     try {
@@ -877,7 +934,7 @@ export class Panoptic {
 
   async executeBurn(
     wallet: Wallet,
-    panopticPool: string, 
+    panopticPool: string,
     burnTokenId: BigNumber,
     newPositionIdList: BigNumber[],
     tickLimitLow: number = this.LOWEST_POSSIBLE_TICK,
@@ -978,7 +1035,7 @@ export class Panoptic {
 
   async executeMint(
     wallet: Wallet,
-    panopticPool: string, 
+    panopticPool: string,
     positionIdList: BigNumber[],
     positionSize: BigNumber,
     effectiveLiquidityLimit: BigNumber,
@@ -1027,7 +1084,7 @@ export class Panoptic {
 
   async optionPositionBalance(
     wallet: Wallet,
-    panopticPool: string, 
+    panopticPool: string,
     tokenId: BigNumber
   ): Promise<{"balance": BigNumber, "poolUtilization0": BigNumber, "poolUtilization1": BigNumber} | Error> {
     try {
@@ -1102,7 +1159,7 @@ export class Panoptic {
     try {
       const tokenContract = new Contract(collateralTrackerContract.toString(), collateralTrackerAbi.abi, wallet);
       const gasEstimate: number = (await tokenContract.estimateGas.deposit(
-        assets, 
+        assets,
         wallet.address
       )).toNumber();
       const gasLimit: number = Math.ceil(this.gasLimitCushionFactor * gasEstimate);
@@ -1110,8 +1167,8 @@ export class Panoptic {
         return new Error(`Error on deposit: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.absoluteGasLimit})...`);
       }
       const tx: ContractTransaction = await tokenContract.deposit(
-        assets, 
-        wallet.address, 
+        assets,
+        wallet.address,
         { gasLimit: BigNumber.from(gasLimit) }
       );
       const receipt: ContractReceipt = await tx.wait();

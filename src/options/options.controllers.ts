@@ -9,6 +9,8 @@ import {
   GreekQueryResponse,
   QueryPositionsRequest,
   QueryPositionsResponse,
+  QueryPriceRequest,
+  QueryPriceResponse,
   QuerySubgraphRequest,
   QuerySubgraphResponse,
   CreateBigLizardRequest,
@@ -102,6 +104,7 @@ import {
   createSuperBull as panopticCreateSuperBull,
   createZEEHBS as panopticCreateZEEHBS,
   queryPositions as panopticQueryPositions,
+  queryPrice as panopticQueryPrice,
   queryGreeks as panopticQueryGreeks,
   calculateAccumulatedFeesBatch as panopticCalculateAccumulatedFeesBatch,
   optionPositionBalance as panopticOptionPositionBalance,
@@ -175,6 +178,21 @@ export async function queryPositions(req: QueryPositionsRequest): Promise<QueryP
     );
   if (connector instanceof Panoptic) {
     return panopticQueryPositions(<Ethereumish>chain, connector, req);
+  } else {
+    return new Error(`Method undefined on this connector, or no valid connector.`);
+  }
+}
+
+export async function queryPrice(req: QueryPriceRequest): Promise<QueryPriceResponse | Error> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticQueryPrice(<Ethereumish>chain, connector, req);
   } else {
     return new Error(`Method undefined on this connector, or no valid connector.`);
   }

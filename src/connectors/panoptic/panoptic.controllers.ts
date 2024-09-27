@@ -21,6 +21,8 @@ import {
   GreekQueryResponse,
   QueryPositionsRequest,
   QueryPositionsResponse,
+  QueryPriceRequest,
+  QueryPriceResponse,
   QuerySubgraphRequest,
   QuerySubgraphResponse,
   CreateBigLizardRequest,
@@ -229,6 +231,34 @@ export async function queryPositions(
     positions: positions,
     closedPositionIdList: closedPositions,
     openPositionIdList: openPositions
+  };
+}
+
+export async function queryPrice(
+  ethereumish: Ethereumish,
+  panopticish: Panoptic,
+  req: QueryPriceRequest
+): Promise<QueryPriceResponse | Error> {
+  const { wallet } = await txWriteData(ethereumish, req.address);
+  const result = await panopticish.queryPrice(
+    wallet,
+    req.uniV3Pool
+  );
+
+  if (result instanceof Error) {
+    logger.error(`Error executing queryPrice: ${result.message}`);
+    return result;
+  }
+
+  const feeTier = result.data['data']['pool']['feeTier'];
+  const sqrtPrice = result.data['data']['pool']['sqrtPrice'];
+  const liquidity = result.data['data']['pool']['liquidity'];
+
+  return {
+    queryResponse: JSON.stringify(result.data), 
+    feeTier: feeTier,
+    sqrtPrice: sqrtPrice,
+    liquidity: liquidity
   };
 }
 

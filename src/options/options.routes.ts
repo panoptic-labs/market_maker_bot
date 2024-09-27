@@ -36,6 +36,7 @@ import {
   createSuperBull,
   createZEEHBS,
   queryPositions,
+  queryPrice,
   queryGreeks,
   calculateAccumulatedFeesBatch,
   optionPositionBalance,
@@ -61,6 +62,8 @@ import {
   GreekQueryResponse,
   QueryPositionsRequest,
   QueryPositionsResponse,
+  QueryPriceRequest,
+  QueryPriceResponse,
   QuerySubgraphRequest,
   QuerySubgraphResponse,
   CreatePositionResponse,
@@ -165,6 +168,18 @@ export namespace OptionsRoutes {
         res: Response<QueryPositionsResponse | Error, {}>
       ) => {
         res.status(200).json(await queryPositions(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/queryPrice',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, QueryPriceRequest>,
+        res: Response<QueryPriceResponse | Error, {}>
+      ) => {
+        res.status(200).json(await queryPrice(req.body));
       }
     )
   );

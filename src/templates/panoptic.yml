@@ -15,6 +15,7 @@ absoluteGasLimit: 10000000
 subgraph:
   # The subgraph endpoint to query for Panoptic data.
   endpoint: 'https://api.goldsky.com/api/public/project_cl9gc21q105380hxuh8ks53k3/subgraphs/panoptic-subgraph-sepolia/beta7/gn'
+  uniswapV3: 'https://gateway.thegraph.com/api/74addffbf73ae5d69396e8b0d778d2c1/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV'
 
 lowestTick: -887272
 highestTick: 887272
