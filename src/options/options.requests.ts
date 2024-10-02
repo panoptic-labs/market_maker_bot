@@ -51,6 +51,15 @@ export interface CalculateGammaResponse {
   gamma: number;
 }
 
+export interface GetTokenAddressRequest extends PanopticRequest {
+  tokenSymbol: string; 
+}
+
+export interface GetTokenAddressResponse {
+  tokenAddress: string; 
+  tokenDecimals: number;
+}
+
 export interface GreekQueryRequest extends PanopticRequest {
   address: string;
   panopticPool?: string,
@@ -272,6 +281,27 @@ export interface CreateZEEHBSRequest extends CreatePositionRequest {
   shortStrike: number;
   asset: BigNumber;
   ratio: BigNumber;
+}
+
+export interface PositionLegInformation{
+  poolId: string, 
+  UniswapV3Pool: string, 
+  asset: string,
+  optionRatio: string,
+  tokenType: string,
+  isLong: string,
+  riskPartner: string,
+  strike: number, 
+  width: number
+}
+export interface UnwrapTokenIdRequest extends PanopticRequest {
+  address: string; 
+  tokenId: string;
+}
+
+export interface UnwrapTokenIdResponse {
+  numberOfLegs: number;
+  legInfo: PositionLegInformation[];
 }
 
 export interface CreateAddLegsRequest extends CreatePositionRequest {
@@ -542,4 +572,44 @@ export interface MintResponse extends BroadcastedTxResponse{
   other?: any 
 }
 
+export interface GetPanopticPoolRequest extends PanopticRequest{
+  address: string; 
+  uniswapV3PoolAddress: string; 
+}
 
+export interface GetPanopticPoolResponse{
+  panopticPoolAddress: string; 
+}
+
+export interface CheckUniswapV3PoolRequest extends PanopticRequest{
+  address: string;
+  t0_address: string;
+  t1_address: string;
+  fee: 500 | 3000 | 10000; // 500 for 0.05%, 3000 for 0.3%, 10000 for 1%
+}
+
+export interface CheckUniswapV3PoolResponse{
+  uniswapV3PoolAddress: string; 
+}
+
+export interface GetSpotPriceRequest extends PanopticRequest{
+  address: string; 
+  uniswapV3PoolAddress: string; 
+  token0Decimals: number; 
+  token1Decimals: number; 
+}
+
+export interface GetSpotPriceResponse{
+  spotPrice: number 
+}
+
+export interface GetTickSpacingAndInitializedTicksRequest extends PanopticRequest{
+  address: string; 
+  uniswapV3PoolAddress: string; 
+}
+
+export interface GetTickSpacingAndInitializedTicksResponse{
+  tickSpacing: number;
+  ticks: number[]; 
+  // initializedTicks: number[];
+}

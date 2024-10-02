@@ -12,11 +12,13 @@ import {
 import { Ethereum } from '../../chains/ethereum/ethereum';
 import { getAddress } from 'ethers/lib/utils';
 import panopticPoolAbi from './PanopticPool.ABI.json';
+import panopticFactoryAbi from './PanopticFactory.ABI.json';
 import tokenIdLibraryAbi from './TokenIdLibrary.ABI.json';
 import panopticHelperAbi from './PanopticHelper.ABI.json';
 import collateralTrackerAbi from './CollateralTracker.ABI.json';
 import semiFungiblePositionManagerAbi from './SFPM.ABI.json';
 import axios, { AxiosResponse } from 'axios';
+import { PositionLegInformation } from '../../options/options.requests';
 
 export class Panoptic {
   private static _instances: { [name: string]: Panoptic };
@@ -269,6 +271,20 @@ export class Panoptic {
     } catch (error) {
       return new Error("Error on queryGreeks: " + (error as Error).message);
     }
+  }
+
+  async getTokenAddress(
+    tokenSymbol: string
+  ): Promise<{"tokenAddress": string, "tokenDecimals": number} | Error> {
+    for (const token of this.chainInstance.storedTokenList) {
+      if (token.symbol === tokenSymbol) {
+        return {
+          "tokenAddress": token.address,
+          "tokenDecimals": token.decimals
+        }
+      }
+    }
+    return new Error("Token not present on token list for this network, see: 'src/templates/lists')...")
   }
 
   // Subgraph interactions
@@ -887,6 +903,35 @@ export class Panoptic {
     }
   }
 
+  async unwrapTokenId(
+    wallet: Wallet, 
+    tokenId: string
+  ): Promise< PositionLegInformation[] | Error> {
+    try {
+      const panopticHelperAddress = this.PanopticHelper;
+      const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
+      const result = await panopticHelperContract.unwrapTokenId(
+        tokenId
+      );
+      const positionLegInformation: PositionLegInformation[] = result.map((item: any) => {
+        return {
+          poolId: item.poolId.toString(),
+          UniswapV3Pool: item.UniswapV3Pool,
+          asset: item.asset.toString(),
+          optionRatio: item.optionRatio.toString(),
+          tokenType: item.tokenType.toString(),
+          isLong: item.isLong.toString(),
+          riskPartner: item.riskPartner.toString(),
+          strike: item.strike,
+          width: item.width
+        };
+      });
+      return positionLegInformation;
+    } catch (error) {
+      return new Error("Error on unwrapTokenId: " + (error as Error).message);
+    }
+  }
+
   // PanopticPool interactions
   async calculateAccumulatedFeesBatch(
     wallet: Wallet,
@@ -1348,6 +1393,103 @@ export class Panoptic {
       );
     } catch (error) {
       return new Error("Error on addLeg: " + (error as Error).message);
+    }
+  }
+
+  // PanopticFactory interactions
+  async getPanopticPool(
+    wallet: Wallet,
+    uniswapV3PoolAddress: string
+  ): Promise<string | Error> {
+    try{
+      const panopticFactoryContract = new Contract(this.PanopticFactory, panopticFactoryAbi.abi, wallet);
+      const poolAddress: string = await panopticFactoryContract.getPanopticPool(
+        uniswapV3PoolAddress
+      );
+      return poolAddress; 
+    } catch (error) {
+      return new Error("Error on getPanopticPool: " + (error as Error).message)
+    }
+  }
+
+  // UniswapV3Factory interactions
+  async checkUniswapPool(
+    wallet: Wallet,
+    t0_address: string, 
+    t1_address: string, 
+    fee: number //500 for 0.05%, 3000 for 0.3%, 10000 for 1%
+  ): Promise<string | Error> {
+    try{
+      const uniswapV3FactoryAbi = [
+        "function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address pool)"
+      ];
+      const uniswapV3FactoryContract = new Contract(this.UniswapV3Factory, uniswapV3FactoryAbi, wallet);
+      const poolAddress: string = await uniswapV3FactoryContract.getPool(
+        t0_address, 
+        t1_address, 
+        fee
+      );
+      return poolAddress; 
+    } catch (error) {
+      return new Error("Error on checkUniswapPool: " + (error as Error).message)
+    }
+  }
+
+  //UniswapV3Pool interactions
+
+  async getSpotPrice(
+    wallet: Wallet,
+    uniswapV3PoolAddress: string, 
+    token0Decimals: number, 
+    token1Decimals: number
+  ): Promise<number | Error> {
+    try{
+      const Abi = [
+        "function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)"
+      ];
+      const uniswapV3PoolContract = new Contract(uniswapV3PoolAddress, Abi, wallet);
+      const [sqrtPriceX96] = await uniswapV3PoolContract.slot0() 
+      const price = (sqrtPriceX96 ** 2) / (2 ** 192);
+      const adjustedPrice = price * (10 ** (token0Decimals - token1Decimals));
+      return adjustedPrice;
+    } catch (error) {
+      return new Error("Error on getSpotPrice: " + (error as Error).message)
+    }
+  }
+
+  async getTickSpacingAndInitializedTicks(
+    wallet: Wallet,
+    uniswapV3PoolAddress: string, 
+  ): Promise<{
+    tickSpacing: number, 
+    ticks: number[]
+    // initializedTicks: number[]
+  } | Error> {
+    try{
+      const Abi = [
+        "function tickSpacing() external view returns (int24)",
+        "function ticks(int24) external view returns (tuple(int128 liquidityGross, int128 liquidityNet, uint256 feeGrowthOutside0X128, uint256 feeGrowthOutside1X128, int56 tickCumulativeOutside, uint160 secondsPerLiquidityOutsideX128, uint32 secondsOutside, bool initialized))"
+      ];
+      const poolContract = new Contract(uniswapV3PoolAddress, Abi, wallet);
+      const tickSpacing: number = await poolContract.tickSpacing();
+      const ticks: number[] = [];
+      for (let tick = this.LOWEST_POSSIBLE_TICK; tick <= this.HIGHEST_POSSIBLE_TICK; tick += tickSpacing) {
+        ticks.push(tick);
+      }
+      // const initializedTicks: number[] = [];
+      // for (let tick = this.LOWEST_POSSIBLE_TICK; tick <= this.HIGHEST_POSSIBLE_TICK; tick += tickSpacing) {
+      //   const tickData = await poolContract.ticks(tick);
+      //   if (tickData.initialized) {
+      //     initializedTicks.push(tick);
+      //   }
+      // }
+      return { 
+        tickSpacing: tickSpacing, 
+        ticks: ticks
+        // initializedTicks: initializedTicks
+      };
+    } catch (error) {
+      return new Error("Error on getTickSpacingAndInitializedTicks: " + (error as Error).message)
     }
   }
 }

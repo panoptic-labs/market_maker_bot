@@ -5,6 +5,8 @@ import {
   CalculateDeltaResponse,
   CalculateGammaRequest,
   CalculateGammaResponse,
+  GetTokenAddressRequest, 
+  GetTokenAddressResponse,
   GreekQueryRequest,
   GreekQueryResponse,
   QueryPositionsRequest,
@@ -32,6 +34,7 @@ import {
   CreateSuperBearRequest,
   CreateSuperBullRequest,
   CreateZEEHBSRequest,
+  UnwrapTokenIdRequest,
   CreateAddLegsRequest,
   CreatePositionResponse,
   CalculateAccumulatedFeesBatchRequest,
@@ -67,7 +70,16 @@ import {
   WithdrawResponse,
   GetAccountLiquidityResponse,
   GetAccountPremiumResponse,
-  GetAccountFeesBaseResponse
+  GetAccountFeesBaseResponse,
+  GetPanopticPoolRequest, 
+  GetPanopticPoolResponse,
+  CheckUniswapV3PoolRequest,
+  CheckUniswapV3PoolResponse,
+  GetSpotPriceRequest,
+  GetSpotPriceResponse,
+  UnwrapTokenIdResponse, 
+  GetTickSpacingAndInitializedTicksRequest,
+  GetTickSpacingAndInitializedTicksResponse,
 } from './options.requests';
 import {
   addLeg as panopticAddLeg,
@@ -103,6 +115,7 @@ import {
   createSuperBear as panopticCreateSuperBear,
   createSuperBull as panopticCreateSuperBull,
   createZEEHBS as panopticCreateZEEHBS,
+  unwrapTokenId as panopticUnwrapTokenId,
   queryPositions as panopticQueryPositions,
   queryPrice as panopticQueryPrice,
   queryGreeks as panopticQueryGreeks,
@@ -115,6 +128,11 @@ import {
   getAccountFeesBase as panopticGetAccountFeesBase,
   calculateDelta as panopticCalculateDelta,
   calculateGamma as panopticCalculateGamma,
+  getTokenAddress as panopticGetTokenAddress,
+  getPanopticPool as panopticGetPanopticPool,
+  checkUniswapPool as panopticCheckUniswapPool,
+  getSpotPrice as panopticGetSpotPrice,
+  getTickSpacingAndInitializedTicks as panopticGetTickSpacingAndInitializedTicks 
 } from '../connectors/panoptic/panoptic.controllers';
 import {
   getInitializedChain,
@@ -148,6 +166,20 @@ export async function calculateGamma(req: CalculateGammaRequest): Promise<Calcul
     );
   if (connector instanceof Panoptic) {
     return panopticCalculateGamma(connector, req);
+  } else {
+    return new Error(`Method undefined on this connector, or no valid connector.`);
+  }
+}
+
+export async function getTokenAddress(req: GetTokenAddressRequest): Promise<GetTokenAddressResponse | Error> {
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticGetTokenAddress(connector, req);
   } else {
     return new Error(`Method undefined on this connector, or no valid connector.`);
   }
@@ -410,6 +442,16 @@ export async function createZEEHBS(req: CreateZEEHBSRequest): Promise<CreatePosi
   const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
   if (connector instanceof Panoptic) {
     return panopticCreateZEEHBS(<Ethereumish>chain, connector, req);
+  } else {
+    return new Error(`Method undefined on this connector, or no valid connector.`);
+  }
+}
+
+export async function unwrapTokenId(req: UnwrapTokenIdRequest): Promise<UnwrapTokenIdResponse | Error> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic = await getConnector<Panoptic>(req.chain, req.network, req.connector);
+  if (connector instanceof Panoptic) {
+    return panopticUnwrapTokenId(<Ethereumish>chain, connector, req);
   } else {
     return new Error(`Method undefined on this connector, or no valid connector.`);
   }
@@ -738,3 +780,82 @@ export async function addLeg(req: CreateAddLegsRequest): Promise<CreatePositionR
     return new Error(`Method undefined on this connector, or no valid connector.`);
   }
 }
+
+export async function getPanopticPool(req: GetPanopticPoolRequest): Promise<GetPanopticPoolResponse | Error> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticGetPanopticPool(
+      <Ethereumish>chain,
+      connector, 
+      req
+    );
+  } else {
+    return new Error(`Method undefined on this connector, or no valid connector.`);
+  }
+}
+
+export async function checkUniswapPool(req: CheckUniswapV3PoolRequest): Promise<CheckUniswapV3PoolResponse | Error> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticCheckUniswapPool(
+      <Ethereumish>chain,
+      connector, 
+      req
+    );
+  } else {
+    return new Error(`Method undefined on this connector, or no valid connector.`);
+  }
+}
+
+export async function getSpotPrice(req: GetSpotPriceRequest): Promise<GetSpotPriceResponse | Error> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    return panopticGetSpotPrice(
+      <Ethereumish>chain,
+      connector, 
+      req
+    );
+  } else {
+    return new Error(`Method undefined on this connector, or no valid connector.`);
+  }
+}
+
+export async function getTickSpacingAndInitializedTicks(req: GetTickSpacingAndInitializedTicksRequest): Promise<GetTickSpacingAndInitializedTicksResponse | Error> {
+  const chain = await getInitializedChain<Ethereumish>(req.chain, req.network);
+  const connector: Panoptic =
+    await getConnector<Panoptic>(
+      req.chain,
+      req.network,
+      req.connector
+    );
+  if (connector instanceof Panoptic) {
+    // console.log("Checkpoint0... req: ", req);
+    return panopticGetTickSpacingAndInitializedTicks(
+      <Ethereumish>chain,
+      connector, 
+      req
+    );
+  } else {
+    return new Error(`Method undefined on this connector, or no valid connector.`);
+  }
+}
+
+
