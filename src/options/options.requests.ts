@@ -116,7 +116,7 @@ export interface QuerySubgraphResponse {
 
 export interface CreatePositionRequest extends PanopticRequest{
   wallet: Wallet;
-  univ3pool: BigNumber;
+  univ3pool: string;
   address: string;
 }
 
@@ -244,10 +244,10 @@ export interface CreatePutZEBRASpreadRequest extends CreatePositionRequest {
 export interface CreateStraddleRequest extends CreatePositionRequest {
   width: number;
   strike: number;
-  asset: BigNumber;
-  isLong: BigNumber;
-  optionRatio: BigNumber;
-  start: BigNumber;
+  asset: number;
+  isLong: number;
+  optionRatio: number;
+  start: number;
 }
 
 export interface CreateStrangleRequest extends CreatePositionRequest {
@@ -317,7 +317,7 @@ export interface CreateAddLegsRequest extends CreatePositionRequest {
 }
 
 export interface CreatePositionResponse {
-  tokenId: BigNumber;
+  tokenId: string;
 }
 
 export interface CalculateAccumulatedFeesBatchRequest extends PanopticPoolRequest {
