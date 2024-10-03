@@ -5,7 +5,7 @@ import {
   CalculateDeltaResponse,
   CalculateGammaRequest,
   CalculateGammaResponse,
-  GetTokenAddressRequest, 
+  GetTokenAddressRequest,
   GetTokenAddressResponse,
   GreekQueryRequest,
   GreekQueryResponse,
@@ -25,7 +25,7 @@ import {
   CreateIronCondorRequest,
   CreateJadeLizardRequest,
   CreatePutCalendarSpreadRequest,
-  CreatePutDiagonalSpreadRequest, 
+  CreatePutDiagonalSpreadRequest,
   CreatePutRatioSpreadRequest,
   CreatePutSpreadRequest,
   CreatePutZEBRASpreadRequest,
@@ -71,13 +71,13 @@ import {
   GetAccountLiquidityResponse,
   GetAccountPremiumResponse,
   GetAccountFeesBaseResponse,
-  GetPanopticPoolRequest, 
+  GetPanopticPoolRequest,
   GetPanopticPoolResponse,
   CheckUniswapV3PoolRequest,
   CheckUniswapV3PoolResponse,
   GetSpotPriceRequest,
   GetSpotPriceResponse,
-  UnwrapTokenIdResponse, 
+  UnwrapTokenIdResponse,
   GetTickSpacingAndInitializedTicksRequest,
   GetTickSpacingAndInitializedTicksResponse,
 } from './options.requests';
@@ -132,7 +132,7 @@ import {
   getPanopticPool as panopticGetPanopticPool,
   checkUniswapPool as panopticCheckUniswapPool,
   getSpotPrice as panopticGetSpotPrice,
-  getTickSpacingAndInitializedTicks as panopticGetTickSpacingAndInitializedTicks 
+  getTickSpacingAndInitializedTicks as panopticGetTickSpacingAndInitializedTicks
 } from '../connectors/panoptic/panoptic.controllers';
 import {
   getInitializedChain,
@@ -792,7 +792,7 @@ export async function getPanopticPool(req: GetPanopticPoolRequest): Promise<GetP
   if (connector instanceof Panoptic) {
     return panopticGetPanopticPool(
       <Ethereumish>chain,
-      connector, 
+      connector,
       req
     );
   } else {
@@ -811,7 +811,7 @@ export async function checkUniswapPool(req: CheckUniswapV3PoolRequest): Promise<
   if (connector instanceof Panoptic) {
     return panopticCheckUniswapPool(
       <Ethereumish>chain,
-      connector, 
+      connector,
       req
     );
   } else {
@@ -830,7 +830,7 @@ export async function getSpotPrice(req: GetSpotPriceRequest): Promise<GetSpotPri
   if (connector instanceof Panoptic) {
     return panopticGetSpotPrice(
       <Ethereumish>chain,
-      connector, 
+      connector,
       req
     );
   } else {
@@ -850,12 +850,10 @@ export async function getTickSpacingAndInitializedTicks(req: GetTickSpacingAndIn
     // console.log("Checkpoint0... req: ", req);
     return panopticGetTickSpacingAndInitializedTicks(
       <Ethereumish>chain,
-      connector, 
+      connector,
       req
     );
   } else {
     return new Error(`Method undefined on this connector, or no valid connector.`);
   }
 }
-
-

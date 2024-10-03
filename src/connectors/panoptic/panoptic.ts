@@ -785,7 +785,7 @@ export class Panoptic {
     try {
       const panopticHelperAddress = this.PanopticHelper;
       const panopticHelperContract = new Contract(panopticHelperAddress, panopticHelperAbi.abi, wallet);
-      return await panopticHelperContract.createStraddle(
+      const straddleTokenId = await panopticHelperContract.createStraddle(
         univ3pool,
         width,
         strike,
@@ -794,6 +794,8 @@ export class Panoptic {
         optionRatio,
         start
       );
+      // TODO: We need to do this tokenId: structure for all Promise<{"tokenId": string} | Error>
+      return { tokenId: straddleTokenId.toString()};
     } catch (error) {
       return new Error("Error calculating createStraddle: " + (error as Error).message);
     }
@@ -904,7 +906,7 @@ export class Panoptic {
   }
 
   async unwrapTokenId(
-    wallet: Wallet, 
+    wallet: Wallet,
     tokenId: string
   ): Promise< PositionLegInformation[] | Error> {
     try {
@@ -1406,7 +1408,7 @@ export class Panoptic {
       const poolAddress: string = await panopticFactoryContract.getPanopticPool(
         uniswapV3PoolAddress
       );
-      return poolAddress; 
+      return poolAddress;
     } catch (error) {
       return new Error("Error on getPanopticPool: " + (error as Error).message)
     }
@@ -1415,8 +1417,8 @@ export class Panoptic {
   // UniswapV3Factory interactions
   async checkUniswapPool(
     wallet: Wallet,
-    t0_address: string, 
-    t1_address: string, 
+    t0_address: string,
+    t1_address: string,
     fee: number //500 for 0.05%, 3000 for 0.3%, 10000 for 1%
   ): Promise<string | Error> {
     try{
@@ -1425,11 +1427,11 @@ export class Panoptic {
       ];
       const uniswapV3FactoryContract = new Contract(this.UniswapV3Factory, uniswapV3FactoryAbi, wallet);
       const poolAddress: string = await uniswapV3FactoryContract.getPool(
-        t0_address, 
-        t1_address, 
+        t0_address,
+        t1_address,
         fee
       );
-      return poolAddress; 
+      return poolAddress;
     } catch (error) {
       return new Error("Error on checkUniswapPool: " + (error as Error).message)
     }
@@ -1439,8 +1441,8 @@ export class Panoptic {
 
   async getSpotPrice(
     wallet: Wallet,
-    uniswapV3PoolAddress: string, 
-    token0Decimals: number, 
+    uniswapV3PoolAddress: string,
+    token0Decimals: number,
     token1Decimals: number
   ): Promise<number | Error> {
     try{
@@ -1448,7 +1450,7 @@ export class Panoptic {
         "function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)"
       ];
       const uniswapV3PoolContract = new Contract(uniswapV3PoolAddress, Abi, wallet);
-      const [sqrtPriceX96] = await uniswapV3PoolContract.slot0() 
+      const [sqrtPriceX96] = await uniswapV3PoolContract.slot0()
       const price = (sqrtPriceX96 ** 2) / (2 ** 192);
       const adjustedPrice = price * (10 ** (token0Decimals - token1Decimals));
       return adjustedPrice;
@@ -1459,9 +1461,9 @@ export class Panoptic {
 
   async getTickSpacingAndInitializedTicks(
     wallet: Wallet,
-    uniswapV3PoolAddress: string, 
+    uniswapV3PoolAddress: string,
   ): Promise<{
-    tickSpacing: number, 
+    tickSpacing: number,
     ticks: number[]
     // initializedTicks: number[]
   } | Error> {
@@ -1483,8 +1485,8 @@ export class Panoptic {
       //     initializedTicks.push(tick);
       //   }
       // }
-      return { 
-        tickSpacing: tickSpacing, 
+      return {
+        tickSpacing: tickSpacing,
         ticks: ticks
         // initializedTicks: initializedTicks
       };
