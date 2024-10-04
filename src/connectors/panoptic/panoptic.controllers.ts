@@ -328,9 +328,7 @@ export async function createBigLizard(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createCallCalendarSpread(
@@ -355,9 +353,7 @@ export async function createCallCalendarSpread(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createCallDiagonalSpread(
@@ -383,9 +379,7 @@ export async function createCallDiagonalSpread(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createCallRatioSpread(
@@ -410,9 +404,7 @@ export async function createCallRatioSpread(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createCallSpread(
@@ -437,9 +429,7 @@ export async function createCallSpread(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createCallZEBRASpread(
@@ -464,9 +454,7 @@ export async function createCallZEBRASpread(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createIronButterfly(
@@ -489,9 +477,7 @@ export async function createIronButterfly(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createIronCondor(
@@ -515,9 +501,7 @@ export async function createIronCondor(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createJadeLizard(
@@ -541,9 +525,7 @@ export async function createJadeLizard(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createPutCalendarSpread(
@@ -568,9 +550,7 @@ export async function createPutCalendarSpread(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createPutDiagonalSpread(
@@ -596,9 +576,7 @@ export async function createPutDiagonalSpread(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createPutRatioSpread(
@@ -623,9 +601,7 @@ export async function createPutRatioSpread(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createPutSpread(
@@ -650,9 +626,7 @@ export async function createPutSpread(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createPutZEBRASpread(
@@ -677,9 +651,7 @@ export async function createPutZEBRASpread(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createStraddle(
@@ -704,9 +676,7 @@ export async function createStraddle(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createStrangle(
@@ -732,9 +702,7 @@ export async function createStrangle(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createSuperBear(
@@ -758,9 +726,7 @@ export async function createSuperBear(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createSuperBull(
@@ -784,9 +750,7 @@ export async function createSuperBull(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function createZEEHBS(
@@ -810,9 +774,7 @@ export async function createZEEHBS(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 export async function unwrapTokenId(
@@ -1525,9 +1487,7 @@ export async function addLeg(
     return result;
   }
 
-  return {
-    tokenId: result.tokenId
-  };
+  return result
 }
 
 // PanopticFactory interactions
