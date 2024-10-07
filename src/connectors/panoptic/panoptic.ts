@@ -1009,12 +1009,19 @@ export class Panoptic {
   ): Promise<ContractReceipt | Error> {
     try {
       const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
-      const gasEstimate: number = (await panopticPoolContract.estimateGas["burnOptions(uint256,uint256[],int24,int24)"](
-        burnTokenId,
-        newPositionIdList,
-        tickLimitLow,
-        tickLimitHigh
-      )).toNumber();
+      let gasEstimate: number;
+      try {
+        gasEstimate = (await panopticPoolContract.estimateGas["burnOptions(uint256,uint256[],int24,int24)"](
+          burnTokenId,
+          newPositionIdList,
+          tickLimitLow,
+          tickLimitHigh,
+          { gasLimit: BigNumber.from(this.absoluteGasLimit) }
+        )).toNumber();
+      } catch (error) {
+        console.log("Unable to estimate gas. Using max allocation.")
+        gasEstimate = this.absoluteGasLimit/(this.gasLimitCushionFactor*this.gasLimitCushionFactor);
+      }
       const gasLimit: number = Math.ceil(this.gasLimitCushionFactor * gasEstimate);
       if (gasLimit > this.absoluteGasLimit) {
         return new Error(`Error on executeBurn: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.absoluteGasLimit})...`);
@@ -1042,12 +1049,18 @@ export class Panoptic {
   ): Promise<ContractReceipt | Error> {
     try {
       const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
-      const gasEstimate: number = (await panopticPoolContract.estimateGas.forceExercise(
-        wallet.address,
-        touchedId,
-        positionIdListExercisee,
-        positionIdListExercisor
-      )).toNumber();
+      let gasEstimate: number; 
+      try{
+        gasEstimate = (await panopticPoolContract.estimateGas.forceExercise(
+          wallet.address,
+          touchedId,
+          positionIdListExercisee,
+          positionIdListExercisor
+        )).toNumber();
+      } catch (error) {
+        console.log("Unable to estimate gas. Using max allocation.")
+        gasEstimate = this.absoluteGasLimit/(this.gasLimitCushionFactor*this.gasLimitCushionFactor);
+      }
       const gasLimit: number = Math.ceil(this.gasLimitCushionFactor * gasEstimate);
       if (gasLimit > this.absoluteGasLimit) {
         return new Error(`Error on forceExercise: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.absoluteGasLimit})...`);
@@ -1076,12 +1089,18 @@ export class Panoptic {
   ): Promise<ContractReceipt | Error> {
     try {
       const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
-      const gasEstimate: number = (await panopticPoolContract.estimateGas.liquidate(
-        positionIdListLiquidator,
-        liquidatee,
-        delegations,
-        positionIdList
-      )).toNumber();
+      let gasEstimate: number; 
+      try{
+        gasEstimate = (await panopticPoolContract.estimateGas.liquidate(
+          positionIdListLiquidator,
+          liquidatee,
+          delegations,
+          positionIdList
+        )).toNumber();
+      } catch (error) {
+        console.log("Unable to estimate gas. Using max allocation.")
+        gasEstimate = this.absoluteGasLimit/(this.gasLimitCushionFactor*this.gasLimitCushionFactor);
+      }
       const gasLimit: number = Math.ceil(this.gasLimitCushionFactor * gasEstimate);
       if (gasLimit > this.absoluteGasLimit) {
         return new Error(`Error on liquidate: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.absoluteGasLimit})...`);
@@ -1111,17 +1130,25 @@ export class Panoptic {
   ): Promise<ContractReceipt | Error> {
     try {
       const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
-      const gasEstimate: number = (await panopticPoolContract.estimateGas.mintOptions(
-        positionIdList,
-        positionSize,
-        effectiveLiquidityLimit,
-        tickLimitLow,
-        tickLimitHigh
-      )).toNumber();
+
+      let gasEstimate: number; 
+      try {
+        gasEstimate = (await panopticPoolContract.estimateGas.mintOptions(
+          positionIdList,
+          positionSize,
+          effectiveLiquidityLimit,
+          tickLimitLow,
+          tickLimitHigh
+        )).toNumber();
+      } catch (error) {
+        console.log("Unable to estimate gas. Using max allocation.")
+        gasEstimate = this.absoluteGasLimit/(this.gasLimitCushionFactor*this.gasLimitCushionFactor);
+      }
       const gasLimit: number = Math.ceil(this.gasLimitCushionFactor * gasEstimate);
       if (gasLimit > this.absoluteGasLimit) {
         return new Error(`Error on executeMint: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.absoluteGasLimit})...`);
       }
+      console.log("Using gas limit: ", gasLimit);
       const tx: ContractTransaction = await panopticPoolContract.mintOptions(
         positionIdList,
         positionSize,
@@ -1171,7 +1198,13 @@ export class Panoptic {
   ): Promise<ContractReceipt | Error> {
     try {
       const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
-      const gasEstimate: number = (await panopticPoolContract.estimateGas.pokeMedian()).toNumber();
+      let gasEstimate: number; 
+      try{
+        gasEstimate = (await panopticPoolContract.estimateGas.pokeMedian()).toNumber();
+      } catch (error) {
+        console.log("Unable to estimate gas. Using max allocation.")
+        gasEstimate = this.absoluteGasLimit/(this.gasLimitCushionFactor*this.gasLimitCushionFactor);
+      }
       const gasLimit: number = Math.ceil(this.gasLimitCushionFactor * gasEstimate);
       if (gasLimit > this.absoluteGasLimit) {
         return new Error(`Error on pokeMedian: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.absoluteGasLimit})...`);
@@ -1195,11 +1228,17 @@ export class Panoptic {
   ): Promise<ContractReceipt | Error> {
     try {
       const panopticPoolContract = new Contract(panopticPool, panopticPoolAbi.abi, wallet);
-      const gasEstimate: number = (await panopticPoolContract.estimateGas.settleLongPremium(
-        positionIdList,
-        owner,
-        legIndex
-      )).toNumber();
+      let gasEstimate: number; 
+      try{
+        gasEstimate = (await panopticPoolContract.estimateGas.settleLongPremium(
+          positionIdList,
+          owner,
+          legIndex
+        )).toNumber();
+      } catch (error) {
+        console.log("Unable to estimate gas. Using max allocation.")
+        gasEstimate = this.absoluteGasLimit/(this.gasLimitCushionFactor*this.gasLimitCushionFactor);
+      }
       const gasLimit: number = Math.ceil(this.gasLimitCushionFactor * gasEstimate);
       if (gasLimit > this.absoluteGasLimit) {
         return new Error(`Error on settleLongPremium: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.absoluteGasLimit})...`);
@@ -1225,10 +1264,16 @@ export class Panoptic {
   ): Promise<ContractReceipt | Error> {
     try {
       const tokenContract = new Contract(collateralTrackerContract.toString(), collateralTrackerAbi.abi, wallet);
-      const gasEstimate: number = (await tokenContract.estimateGas.deposit(
-        assets,
-        wallet.address
-      )).toNumber();
+      let gasEstimate: number; 
+      try{
+        gasEstimate = (await tokenContract.estimateGas.deposit(
+          assets,
+          wallet.address
+        )).toNumber();
+      } catch (error) {
+        console.log("Unable to estimate gas. Using max allocation.")
+        gasEstimate = this.absoluteGasLimit/(this.gasLimitCushionFactor*this.gasLimitCushionFactor);
+      }
       const gasLimit: number = Math.ceil(this.gasLimitCushionFactor * gasEstimate);
       if (gasLimit > this.absoluteGasLimit) {
         return new Error(`Error on deposit: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.absoluteGasLimit})...`);
@@ -1289,11 +1334,17 @@ export class Panoptic {
   ): Promise<ContractReceipt | Error> {
     try {
       const tokenContract = new Contract(collateralTrackerContract.toString(), collateralTrackerAbi.abi, wallet);
-      const gasEstimate: number = (await tokenContract.estimateGas.withdraw(
-        assets,
-        wallet.address,
-        wallet.address
-      )).toNumber();
+      let gasEstimate: number; 
+      try{
+        gasEstimate = (await tokenContract.estimateGas.withdraw(
+          assets,
+          wallet.address,
+          wallet.address
+        )).toNumber();
+      } catch (error) {
+        console.log("Unable to estimate gas. Using max allocation.")
+        gasEstimate = this.absoluteGasLimit/(this.gasLimitCushionFactor*this.gasLimitCushionFactor);
+      }
       const gasLimit: number = Math.ceil(this.gasLimitCushionFactor * gasEstimate);
       if (gasLimit > this.absoluteGasLimit) {
         return new Error(`Error on withdraw: Gas limit exceeded, gas estimate limit (${gasLimit}) greater than tx cap (${this.absoluteGasLimit})...`);
