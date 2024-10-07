@@ -59,6 +59,7 @@ class TradePanoptions(ScriptStrategyBase):
     markets = {}
     launched = False
     initialized = False
+    ready = False 
     tick_count = 0
 
 
@@ -114,6 +115,7 @@ class TradePanoptions(ScriptStrategyBase):
             fail_silently=False
         )
         self.open_positions = response['openPositionIdList']
+        #self.open_positions.remove("1724358520355700724595784863781761016418202439334584929386932255284888270684")
         self.logger().info(f"Open position list: {self.open_positions}")
 
         # TODO: Then, query the PanopticHelper to get chunk information for the chunks each position is in
@@ -124,39 +126,27 @@ class TradePanoptions(ScriptStrategyBase):
         # Define position of interest
         self.request_payload.update(
             {
+                "panopticPool": self.panopticPoolAddress,
                 "width": 4,
-                # "strike": int(np.floor(self.tick_location)),
-                "callStrike": 50,
-                "putStrike": -50,
-                "strike": 0,
+                "strike": int(np.floor(self.tick_location)),
                 "asset": 0,
-                "isLong": 1,
+                "isLong": 0,
                 "optionRatio": 1,
-                "start": 0,
+                "start": 0, 
             }
         )
-
-
-        # response = await GatewayHttpClient.get_instance().api_request(
-        #     method="post",
-        #     path_url="options/createStrangle",
-        #     params=self.request_payload,
-        #     fail_silently=False
-        # )
-        # self.logger().info(f"Strangle: {response}")
-        self.logger().info(f"request_payload: {self.request_payload}")
         response = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/createStraddle",
             params=self.request_payload,
             fail_silently=False
         )
-        response = response['tokenId']
-        self.logger().info(f"Straddle: {str(response)}")
-        new_position = response
+        self.logger().info(f"Straddle: {response['tokenId']}")
+        new_position = response['tokenId']
 
         bad_positions = []
         if len(self.open_positions)>0:
+            self.logger().info(f"Checking validity of open positions...")
             for idx, position in enumerate(self.open_positions):
                 outOfRange = False
                 self.request_payload["tokenId"] = position
@@ -197,10 +187,19 @@ class TradePanoptions(ScriptStrategyBase):
                 if outOfRange is True:
                     bad_positions.append(idx)
         else:
+            # self.logger().info("Poking median...")
+            # tradeData = await GatewayHttpClient.get_instance().api_request(
+            #     method="post",
+            #     path_url="options/pokeMedian",
+            #     params=self.request_payload,
+            #     fail_silently=False
+            # )
+            # self.logger().info(f"api_request submitted... tradeData: {tradeData}")
             self.logger().info("No open positions found. Minting new position in-range...")
+            self.open_positions.append(new_position)
             self.request_payload.update({
                 "panopticPool": self.panopticPoolAddress,
-                "positionIdList": self.open_positions.append(new_position) ,
+                "positionIdList": self.open_positions,
                 "positionSize": "1" + "0" * 25,
                 "effectiveLiquidityLimit": 0
             })
@@ -208,16 +207,17 @@ class TradePanoptions(ScriptStrategyBase):
                 method="post",
                 path_url="options/mint",
                 params=self.request_payload,
-                fail_silently=False,
-                submit=False
+                fail_silently=False
             )
             self.logger().info(f"api_request submitted... tradeData: {tradeData}")
             # poll for swap result and print resulting balances
-            await self.poll_transaction(self.chain, self.network, tradeData['txHash'])
-
+            # await self.poll_transaction(self.chain, self.network, tradeData['txHash'])
+        
         for badPosition in bad_positions:
             burnPosition = self.open_positions[badPosition]
+            self.logger().info(f"Burning position: {burnPosition}")
             newPositionList = [p for p in self.open_positions if p != burnPosition]
+            self.logger().info(f"New position list: {newPositionList}")
             self.request_payload.update({
                 "burnTokenId": burnPosition,
                 "newPositionIdList": newPositionList
@@ -231,7 +231,7 @@ class TradePanoptions(ScriptStrategyBase):
                 fail_silently=False
             )
             self.logger().info(f"api_request submitted... tradeData: {tradeData}")
-            await self.poll_transaction(self.chain, self.network, tradeData['txHash'])
+            # await self.poll_transaction(self.chain, self.network, tradeData['txHash'])
             # TODO: Re-mint for every burnt position
             # TODO: When minting, ensure we mint at strikes & ranges that the UI present
 
