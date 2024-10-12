@@ -35,7 +35,9 @@ import {
   createSuperBear,
   createSuperBull,
   createZEEHBS,
+  unwrapTokenId,
   queryPositions,
+  queryPrice,
   queryGreeks,
   calculateAccumulatedFeesBatch,
   optionPositionBalance,
@@ -47,6 +49,11 @@ import {
   getAccountFeesBase,
   calculateDelta,
   calculateGamma,
+  getTokenAddress,
+  getPanopticPool,
+  checkUniswapPool,
+  getSpotPrice,
+  getTickSpacingAndInitializedTicks
 } from './options.controllers';
 import {
   ExecuteMintRequest,
@@ -57,10 +64,14 @@ import {
   CalculateDeltaResponse,
   CalculateGammaRequest,
   CalculateGammaResponse,
+  GetTokenAddressRequest,
+  GetTokenAddressResponse,
   GreekQueryRequest,
   GreekQueryResponse,
   QueryPositionsRequest,
   QueryPositionsResponse,
+  QueryPriceRequest,
+  QueryPriceResponse,
   QuerySubgraphRequest,
   QuerySubgraphResponse,
   CreatePositionResponse,
@@ -109,13 +120,23 @@ import {
   CreateSuperBearRequest,
   CreateSuperBullRequest,
   CreateZEEHBSRequest,
+  UnwrapTokenIdRequest,
   CalculateAccumulatedFeesBatchResponse,
   OptionsPositionBalanceResponse,
   PokeMedianResponse,
   SettleLongPremiumResponse,
   GetAccountLiquidityResponse,
   GetAccountPremiumResponse,
-  GetAccountFeesBaseResponse
+  GetAccountFeesBaseResponse,
+  GetPanopticPoolRequest,
+  GetPanopticPoolResponse,
+  CheckUniswapV3PoolRequest,
+  CheckUniswapV3PoolResponse,
+  GetSpotPriceRequest,
+  GetSpotPriceResponse,
+  UnwrapTokenIdResponse,
+  GetTickSpacingAndInitializedTicksRequest,
+  GetTickSpacingAndInitializedTicksResponse
 } from './options.requests';
 
 export namespace OptionsRoutes {
@@ -146,6 +167,18 @@ export namespace OptionsRoutes {
   );
 
   router.post(
+    '/getTokenAddress',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, GetTokenAddressRequest>,
+        res: Response<GetTokenAddressResponse | Error, {}>
+      ) => {
+        res.status(200).json(await getTokenAddress(req.body));
+      }
+    )
+  );
+
+  router.post(
     '/queryGreeks',
     asyncHandler(
       async (
@@ -165,6 +198,18 @@ export namespace OptionsRoutes {
         res: Response<QueryPositionsResponse | Error, {}>
       ) => {
         res.status(200).json(await queryPositions(req.body));
+      }
+    )
+  );
+
+  router.post(
+    '/queryPrice',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, QueryPriceRequest>,
+        res: Response<QueryPriceResponse | Error, {}>
+      ) => {
+        res.status(200).json(await queryPrice(req.body));
       }
     )
   );
@@ -410,6 +455,18 @@ export namespace OptionsRoutes {
   );
 
   router.post(
+    '/unwrapTokenId',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, UnwrapTokenIdRequest>,
+        res: Response<UnwrapTokenIdResponse | Error, {}>
+      ) => {
+        res.status(200).json(await unwrapTokenId(req.body));
+      }
+    )
+  );
+
+  router.post(
     '/calculateAccumulatedFeesBatch',
     asyncHandler(
       async (
@@ -649,6 +706,54 @@ export namespace OptionsRoutes {
         res: Response<CreatePositionResponse | Error, {}>
       ) => {
         res.status(200).json(await addLeg(req.body));
+      }
+    )
+  )
+
+  router.post(
+    '/getPanopticPool',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, GetPanopticPoolRequest>,
+        res: Response<GetPanopticPoolResponse | Error, {}>
+      ) => {
+        res.status(200).json(await getPanopticPool(req.body));
+      }
+    )
+  )
+
+  router.post(
+    '/checkUniswapPool',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, CheckUniswapV3PoolRequest>,
+        res: Response<CheckUniswapV3PoolResponse | Error, {}>
+      ) => {
+        res.status(200).json(await checkUniswapPool(req.body));
+      }
+    )
+  )
+
+  router.post(
+    '/getSpotPrice',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, GetSpotPriceRequest>,
+        res: Response<GetSpotPriceResponse | Error, {}>
+      ) => {
+        res.status(200).json(await getSpotPrice(req.body));
+      }
+    )
+  )
+
+  router.post(
+    '/getTickSpacingAndInitializedTicks',
+    asyncHandler(
+      async (
+        req: Request<{}, {}, GetTickSpacingAndInitializedTicksRequest>,
+        res: Response<GetTickSpacingAndInitializedTicksResponse | Error, {}>
+      ) => {
+        res.status(200).json(await getTickSpacingAndInitializedTicks(req.body));
       }
     )
   )
