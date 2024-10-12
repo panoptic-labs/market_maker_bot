@@ -1,6 +1,7 @@
 import asyncio
 
 from hummingbot.client.settings import GatewayConnectionSetting
+# from hummingbot.core.event.events import TradeType
 from hummingbot.core.gateway.gateway_http_client import GatewayHttpClient
 from hummingbot.core.utils.async_utils import safe_ensure_future
 from hummingbot.strategy.script_strategy_base import Decimal, ScriptStrategyBase
@@ -13,22 +14,28 @@ class TradePanoptions(ScriptStrategyBase):
     # options params
     connector_chain_network = "panoptic_ethereum_sepolia"
     trading_pair = {"t0-t1"}
-    burnTokenId = "77322919308318248886668502693724"
+    burnTokenId = "305501382857474784059037218961244"
     newPositionIdList = [
-        "1724358520355700724595784863781761016418202439334584929386932255284888270684",
-        "77323000906088706391268150146908",
-        "77322919313040615369538147907420"
     ]
     tickLimitLow = -887272
     tickLimitHigh = 887272
     markets = {}
-    on_going_task = False
+    launched = False
+    initialized = False
+    ready = False 
+    tick_count = 0
+
 
     def on_tick(self):
-        # only execute once. Remove flag to execute each tick.
-        if not self.on_going_task:
-            self.on_going_task = True
-            # wrap async task in safe_ensure_future
+        self.logger().info(f"Tick count: {self.tick_count}")
+        self.tick_count = self.tick_count + 1
+        # only execute once. Remove flag to execute each tick. 
+        if not self.launched:
+            self.logger().info(f"Launching...")
+            self.launched = True
+            safe_ensure_future(self.initialize())
+        # repeat on-tick
+        if self.initialized: 
             safe_ensure_future(self.async_task())
 
     # async task since we are using Gateway
@@ -47,8 +54,8 @@ class TradePanoptions(ScriptStrategyBase):
         await self.get_balance(chain, network, address, base, quote)
         self.logger().info(f"Proceeding to submit burn...")
         # execute swap
-        self.logger().info(f"POST /options/burn [ connector: {connector}, burnTokenId (i.e. position): {self.burnTokenId}], newPositionIdList: {self.newPositionIdList}, tickLimitLow: {self.tickLimitLow}, tickLimitHigh: {self.tickLimitHigh}")
-        request_payload = {
+        self.logger().info(f"POST /options/burn [ connector: {connector}, burnTokenId (i.e. position): {self.burnTokenId}], newPositionIdList: {self.newPositionIdList}")
+        self.request_payload.update({
             "chain": chain,
             "network": network,
             "connector": connector,
@@ -57,12 +64,12 @@ class TradePanoptions(ScriptStrategyBase):
             "newPositionIdList": self.newPositionIdList,
             "tickLimitLow": self.tickLimitLow,
             "tickLimitHigh": self.tickLimitHigh
-        }
-
+        })
+    
         tradeData = await GatewayHttpClient.get_instance().api_request(
             method="post",
             path_url="options/burn",
-            params=request_payload,
+            params=self.request_payload,
             fail_silently=False
         )
 
@@ -106,3 +113,93 @@ class TradePanoptions(ScriptStrategyBase):
                 self.logger().info(f"Unknown txStatus: {transaction_status}")
                 self.logger().info(f"{pollData}")
                 pending = False
+
+    async def initialize(self): 
+        self.t0_symbol, self.t1_symbol = list(self.trading_pair)[0].split("-")
+        self.connector, self.chain, self.network = self.connector_chain_network.split("_")
+
+        # fetch wallet address and print balances
+        self.gateway_connections_conf = GatewayConnectionSetting.load()
+        if len(self.gateway_connections_conf) < 1:
+            self.notify("No existing wallet.\n")
+            return
+        self.wallet = [w for w in self.gateway_connections_conf if w["chain"] == self.chain and w["connector"] == self.connector and w["network"] == self.network]
+        self.address = self.wallet[0]['wallet_address']
+ 
+        self.request_payload = {
+            "chain": self.chain,
+            "network": self.network,
+            "connector": self.connector,
+            "address": self.address
+        } 
+
+        self.logger().info(f"Getting token addresses...")
+        self.logger().info(f"POST /options/getTokenAddress [ connector: {self.connector}]")
+        self.request_payload["tokenSymbol"]= "t0"
+        response = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/getTokenAddress",
+            params=self.request_payload,
+            fail_silently=False
+        )
+        self.t0_address = response['tokenAddress']
+        self.t0_decimals = response['tokenDecimals']
+        self.request_payload["t0_address"]=self.t0_address
+        self.request_payload["token0Decimals"]=self.t0_decimals
+        self.logger().info(f"t0 address: {self.t0_address}")
+
+        self.request_payload["tokenSymbol"]= "t1"
+        response = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/getTokenAddress",
+            params=self.request_payload,
+            fail_silently=False
+        )
+        self.t1_address = response['tokenAddress']
+        self.t1_decimals = response['tokenDecimals']
+        self.request_payload["t1_address"]=self.t1_address
+        self.request_payload["token1Decimals"]=self.t1_decimals
+        self.logger().info(f"t1 address: {self.t1_address}")
+
+        self.logger().info(f"Getting UniswapV3 token pool address...")
+        self.logger().info(f"POST /options/checkUniswapPool [ connector: {self.connector}]")
+        self.request_payload["fee"]=500
+        response = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/checkUniswapPool",
+            params=self.request_payload,
+            fail_silently=False
+        )
+        self.uniswapV3PoolAddress=response["uniswapV3PoolAddress"]
+        self.logger().info(f"Uniswap V3 token pool address: {self.uniswapV3PoolAddress}")
+
+        self.logger().info(f"Getting Panoptic token pool address...")
+        self.logger().info(f"POST /options/getPanopticPool [ connector: {self.connector}]")
+        self.request_payload["uniswapV3PoolAddress"]=self.uniswapV3PoolAddress
+        self.request_payload["univ3pool"]=self.uniswapV3PoolAddress
+        response = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/getPanopticPool",
+            params=self.request_payload,
+            fail_silently=False
+        )
+        self.panopticPoolAddress=response["panopticPoolAddress"]
+        self.logger().info(f"Panoptic token pool address: {self.panopticPoolAddress}")
+        self.request_payload["panopticPool"]=self.panopticPoolAddress
+
+        self.logger().info(f"Checking ticks...")
+        self.logger().info(f"POST /options/getTickSpacingAndInitializedTicks [ connector: {self.connector} ]")
+        response = await GatewayHttpClient.get_instance().api_request(
+            method="post",
+            path_url="options/getTickSpacingAndInitializedTicks",
+            params=self.request_payload,
+            fail_silently=False
+        )
+        self.tickSpacing=response['tickSpacing']
+        self.ticks=response['ticks']
+        self.logger().info(f"Tick spacing: {self.tickSpacing}")
+        self.logger().info(f"Ticks: {self.ticks[0:10]}...")
+
+        self.wallet_address=self.address
+
+        self.initialized=True
